@@ -1,0 +1,25 @@
+// src/data/posts.json
+[
+    {
+        "id": 1,
+        "title": "欢迎来到我的数字花园",
+        "slug": "welcome-to-my-blog",
+        "description": "这是我的第一篇博客文章，记录我的技术思考和生活感悟",
+        "date": "2024-01-16",
+        "author": "十方空烬",
+        "tags": ["博客", "开始", "介绍"],
+        "category": "随笔",
+        "readTime": "2分钟"
+    },
+    {
+        "id": 2,
+        "title": "使用Astro搭建个人博客",
+        "slug": "building-blog-with-astro",
+        "description": "记录如何使用Astro静态生成器搭建高性能个人博客",
+        "date": "2024-01-17",
+        "author": "十方空烬",
+        "tags": ["技术", "Astro", "博客"],
+        "category": "技术",
+        "readTime": "5分钟"
+    }
+]

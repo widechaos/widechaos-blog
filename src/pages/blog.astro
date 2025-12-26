@@ -1,0 +1,54 @@
+---
+// src/pages/blog.astro
+import Layout from '../layouts/Layout.astro';
+import posts from '../data/posts.json';
+
+// 获取博客文章
+const allPosts = await Astro.glob('../content/blog/*.md');
+---
+
+<Layout title="博客">
+    <div class="max-w-4xl mx-auto">
+        <!-- 标题 -->
+        <div class="mb-12">
+            <h1 class="text-4xl font-bold mb-4">博客文章</h1>
+            <p class="text-gray-600 dark:text-gray-400">这里记录我的思考、学习和项目</p>
+        </div>
+
+        <!-- 文章列表 -->
+        <div class="space-y-8">
+            {allPosts.map(post => (
+                <article class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h2 class="text-2xl font-bold mb-2">
+                                <a href={`/blog/${post.frontmatter.slug || post.frontmatter.title.toLowerCase().replace(/\s+/g, '-')}`}
+                                   class="hover:text-purple-600 transition-colors">
+                                    {post.frontmatter.title}
+                                </a>
+                            </h2>
+                            <p class="text-gray-600 dark:text-gray-400 mb-4">
+                                {post.frontmatter.description}
+                            </p>
+                        </div>
+                        <span class="px-3 py-1 bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 rounded-full text-sm">
+                            {post.frontmatter.tags?.[0] || '未分类'}
+                        </span>
+                    </div>
+
+                    <div class="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
+                        <div class="flex items-center space-x-4">
+                            <span>📅 {new Date(post.frontmatter.pubDate || post.frontmatter.date).toLocaleDateString('zh-CN')}</span>
+                            <span>👤 {post.frontmatter.author || '十方空烬'}</span>
+                            <span>⏱️ {post.frontmatter.readTime || '3分钟'}</span>
+                        </div>
+                        <a href={`/blog/${post.frontmatter.slug || post.frontmatter.title.toLowerCase().replace(/\s+/g, '-')}`}
+                           class="text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-300">
+                            阅读全文 →
+                        </a>
+                    </div>
+                </article>
+            ))}
+        </div>
+    </div>
+</Layout>
