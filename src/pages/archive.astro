@@ -21,15 +21,13 @@ const postsByYear = publishedPosts.reduce((acc, post) => {
   acc[year].push(post);
   return acc;
 }, {});
-let year;
 ---
 
 <Layout title="归档" description="所有博客文章按年份归档">
   <div class="max-w-3xl mx-auto">
     <h1 class="text-4xl font-bold mb-8">文章归档</h1>
 
-    {Object.keys(<Object>postsByYear)
-      }}}).sort().reverse().map(year => (
+    {Object.keys(postsByYear).sort().reverse().map(year => (
       <div class="mb-12">
         <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-200">{year}</h2>
         <div class="space-y-4">
@@ -75,11 +73,11 @@ let year;
         </div>
       </div>
     ))}
-    
+
     <div class="mt-12 p-6 bg-gray-50 dark:bg-gray-800 rounded-xl">
       <p class="text-gray-600 dark:text-gray-400">
         共 <span class="font-bold text-gray-900 dark:text-gray-100">{publishedPosts.length}</span> 篇文章
       </p>
     </div>
-  </Object>
+  </div>
 </Layout>
