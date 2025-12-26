@@ -1,20 +1,59 @@
 ---
-import { type CollectionEntry, getCollection, render } from 'astro:content';
-import BlogPost from '../../layouts/BlogPost.astro';
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
 
 export async function getStaticPaths() {
-	const posts = await getCollection('blog');
-	return posts.map((post) => ({
-		params: { slug: post.id },
-		props: post,
-	}));
+  const posts = await getCollection('blog');
+  return posts.map(post => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
 }
-type Props = CollectionEntry<'blog'>;
 
-const post = Astro.props;
-const { Content } = await render(post);
+const { post } = Astro.props;
+const { Content } = await post.render();
 ---
 
-<BlogPost {...post.data}>
-	<Content />
-</BlogPost>
+<BaseLayout title={post.data.title}>
+  <article style="max-width: 800px; margin: 0 auto; padding: 2rem;">
+    <header style="margin-bottom: 2rem;">
+      <h1 style="font-size: 2.5rem; font-weight: bold; margin-bottom: 1rem;">
+        {post.data.title}
+      </h1>
+      <div style="color: #666; font-size: 0.9rem;">
+        <time>{new Date(post.data.pubDate).toLocaleDateString('zh-CN')}</time>
+        {post.data.author && (
+          <span style="margin-left: 1rem;">作者: {post.data.author}</span>
+        )}
+      </div>
+    </header>
+
+    <div style="line-height: 1.8; font-size: 1.1rem;">
+      <Content />
+    </div>
+
+    {post.data.tags && post.data.tags.length > 0 && (
+      <footer style="margin-top: 3rem; padding-top: 1rem; border-top: 1px solid #eee;">
+        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+          {post.data.tags.map(tag => (
+            <span style="
+              background: #f0f0f0;
+              padding: 0.3rem 0.8rem;
+              border-radius: 20px;
+              font-size: 0.9rem;
+              color: #555;
+            ">
+              #{tag}
+            </span>
+          ))}
+        </div>
+      </footer>
+    )}
+
+    <div style="margin-top: 3rem; padding-top: 1rem; border-top: 1px solid #eee;">
+      <a href="/blog" style="color: #0070f3; text-decoration: none;">
+        ← 返回博客列表
+      </a>
+    </div>
+  </article>
+</BaseLayout>

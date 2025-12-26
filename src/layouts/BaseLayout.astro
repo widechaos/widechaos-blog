@@ -1,0 +1,65 @@
+---
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title = '我的博客', description = '我的个人博客' } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{title}</title>
+  <meta name="description" content={description}>
+
+  <!-- 确保 favicon 链接有效 -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+
+  <!-- 确保所有链接都有有效的前缀 -->
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://blog.widechaos.cn" />
+
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+      padding: 0;
+      line-height: 1.6;
+    }
+    nav {
+      background: #f8f9fa;
+      padding: 1rem;
+      border-bottom: 1px solid #dee2e6;
+    }
+    nav a {
+      margin-right: 1rem;
+      text-decoration: none;
+      color: #0070f3;
+    }
+    nav a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="/">首页</a>
+    <a href="/blog">博客</a>
+    <a href="/about">关于</a>
+  </nav>
+
+  <main>
+    <slot />
+  </main>
+
+  <footer style="text-align: center; padding: 2rem; color: #6c757d; border-top: 1px solid #dee2e6;">
+    <p>© 2024 我的博客. 由 Astro 驱动.</p>
+  </footer>
+</body>
+</html>
