@@ -1,0 +1,73 @@
+---
+import type { Props } from 'astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/global.css';
+
+const { title, description } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="zh-CN" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- 站点信息 -->
+    <title>
+      <%= title ? `${title} | 十方空烬` : '十方空烬的博客' %>
+    </title>
+    <meta name="description" content={description || 'voidemper | 十方空烬 - 技术探索与生活思考'} />
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content={title || '十方空烬的博客'} />
+    <meta property="og:description" content={description || 'voidemper | 十方空烬 - 技术探索与生活思考'} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={Astro.url.href} />
+    <meta property="og:image" content={new URL('/og-image.jpg', Astro.url.origin).href} />
+    
+    <!-- 图标 -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    
+    <!-- 字体 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- 暗色模式脚本 -->
+    <script>
+      if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    </script>
+  </head>
+  
+  <body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans min-h-screen flex flex-col">
+    <Header />
+    
+    <main class="flex-grow container mx-auto px-4 py-8 max-w-4xl">
+      <slot />
+    </main>
+    
+    <Footer />
+    
+    <!-- 暗色模式切换脚本 -->
+    <script>
+      const themeToggle = document.getElementById('theme-toggle');
+      if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+          if (document.documentElement.classList.contains('dark')) {
+            document.documentElement.classList.remove('dark');
+            localStorage.theme = 'light';
+          } else {
+            document.documentElement.classList.add('dark');
+            localStorage.theme = 'dark';
+          }
+        });
+      }
+    </script>
+  </body>
+</html>

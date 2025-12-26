@@ -1,5 +1,4 @@
 import { defineConfig } from 'astro/config';
-import cloudflare from '@astrojs/cloudflare';
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 
@@ -7,24 +6,24 @@ import sitemap from '@astrojs/sitemap';
 export default defineConfig({
   site: 'https://blog.widechaos.cn',
   base: '/',
+  trailingSlash: 'ignore',
   output: 'static',
-  adapter: cloudflare({
-    platformProxy: {
-      enabled: true
-    }
-  }),
-  integrations: [mdx(), sitemap()],
+  integrations: [
+    mdx(),
+    sitemap({
+      filter: (page) => !page.includes('/tags/'),
+    }),
+  ],
   markdown: {
     syntaxHighlight: 'shiki',
     shikiConfig: {
-      theme: 'github-dark'
-    }
+      theme: 'github-dark',
+      langs: ['javascript', 'typescript', 'python', 'bash', 'json'],
+    },
   },
   vite: {
-    build: {
-      rollupOptions: {
-        external: []
-      }
-    }
-  }
+    ssr: {
+      noExternal: ['@astrojs/*'],
+    },
+  },
 });

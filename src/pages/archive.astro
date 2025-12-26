@@ -1,0 +1,73 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+// 获取所有文章
+const posts = await Astro.glob('../content/blog/*.{md,mdx}');
+const publishedPosts = posts
+  .filter(post => !post.frontmatter.draft)
+  .sort((a, b) => new Date(b.frontmatter.pubDate).getTime() - new Date(a.frontmatter.pubDate).getTime());
+
+// 按年份分组
+const postsByYear = publishedPosts.reduce((acc, post) => {
+  const year = new Date(post.frontmatter.pubDate).getFullYear();
+  if (!acc[year]) {
+    acc[year] = [];
+  }
+  acc[year].push(post);
+  return acc;
+}, {});
+---
+
+<Layout title="归档" description="所有博客文章按年份归档">
+  <div class="max-w-3xl mx-auto">
+    <h1 class="text-4xl font-bold mb-8">文章归档</h1>
+    
+    {Object.keys(postsByYear).sort().reverse().map(year => (
+      <div class="mb-12">
+        <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-gray-200">{year}</h2>
+        <div class="space-y-4">
+          {postsByYear[year].map(post => {
+            const { title, description, pubDate, tags = [] } = post.frontmatter;
+            const formattedDate = new Date(pubDate).toLocaleDateString('zh-CN', {
+              month: 'short',
+              day: 'numeric',
+            });
+            
+            return (
+              <article class="group border-l-2 border-gray-200 dark:border-gray-800 pl-6 py-2 hover:border-blue-500 dark:hover:border-blue-400 transition-colors">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-2">
+                  <div>
+                    <h3 class="text-lg font-medium mb-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                      <a href={post.url}>{title}</a>
+                    </h3>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm line-clamp-2">
+                      {description}
+                    </p>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <div class="flex gap-2">
+                      {tags.slice(0, 2).map(tag => (
+                        <span class="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                    <time class="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                      {formattedDate}
+                    </time>
+                  </div>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </div>
+    ))}
+    
+    <div class="mt-12 p-6 bg-gray-50 dark:bg-gray-800 rounded-xl">
+      <p class="text-gray-600 dark:text-gray-400">
+        共 <span class="font-bold text-gray-900 dark:text-gray-100">{publishedPosts.length}</span> 篇文章
+      </p>
+    </div>
+  </div>
+</Layout>

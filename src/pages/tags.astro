@@ -1,0 +1,114 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { TAG_CONFIG } from '../config/site';
+
+// 获取所有文章
+const posts = await Astro.glob('../content/blog/*.{md,mdx}');
+
+// 收集所有标签
+const allTags = new Set();
+posts.forEach(post => {
+  if (!post.frontmatter.draft && post.frontmatter.tags) {
+    post.frontmatter.tags.forEach(tag => allTags.add(tag));
+  }
+});
+
+// 计算每个标签的文章数量
+const tagCounts = {};
+posts.forEach(post => {
+  if (!post.frontmatter.draft && post.frontmatter.tags) {
+    post.frontmatter.tags.forEach(tag => {
+      tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+    });
+  }
+});
+---
+
+<Layout title="标签" description="按标签浏览博客文章">
+  <div class="max-w-3xl mx-auto">
+    <h1 class="text-4xl font-bold mb-8">标签</h1>
+
+    <!-- 标签云 -->
+    <div class="mb-12">
+      <h2 class="text-2xl font-bold mb-6">所有标签</h2>
+      <div class="flex flex-wrap gap-3">
+        {Array.from(allTags).map(tag => {
+          const count = tagCounts[tag] || 0;
+          const color = TAG_CONFIG.colors[tag] || TAG_CONFIG.colors['默认'];
+
+          return (
+            <a
+              href={`/tags/${tag.toLowerCase()}`}
+              class="group relative inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all hover:scale-105"
+              style={`background-color: ${color}20; color: ${color}; border: 1px solid ${color}30;`}
+            >
+              <span>#{tag}</span>
+              <span class="text-xs bg-white/50 dark:bg-gray-900/50 px-1.5 py-0.5 rounded">
+                {count}
+              </span>
+            </a>
+          );
+        })}
+      </div>
+    </div>
+
+    <!-- 标签详情 -->
+    <div>
+      <h2 class="text-2xl font-bold mb-6">按标签浏览</h2>
+      <div class="space-y-8">
+        {Array.from(allTags).map(tag => {
+          const color = TAG_CONFIG.colors[tag] || TAG_CONFIG.colors['默认'];
+          const taggedPosts = posts.filter(post =>
+            !post.frontmatter.draft &&
+            post.frontmatter.tags?.includes(tag)
+          );
+
+          return (
+            <div>
+              <div class="flex items-center gap-3 mb-4">
+                <h3 class="text-xl font-bold" style={`color: ${color};`}>
+                  #{tag}
+                </h3>
+                <span class="text-sm text-gray-600 dark:text-gray-400">
+                  {taggedPosts.length} 篇文章
+                </span>
+              </div>
+              <div class="grid md:grid-cols-2 gap-4">
+                {taggedPosts.slice(0, 4).map(post => {
+                  const { title, pubDate } = post.frontmatter;
+                  const formattedDate = new Date(pubDate).toLocaleDateString('zh-CN', {
+                    month: 'short',
+                    day: 'numeric',
+                  });
+
+                  return (
+                    <a href={post.url} class="group block">
+                      <div class="p-4 border border-gray-200 dark:border-gray-800 rounded-lg hover:border-gray-300 dark:hover:border-gray-700 transition-colors">
+                        <h4 class="font-medium mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                          {title}
+                        </h4>
+                        <time class="text-sm text-gray-500 dark:text-gray-400">
+                          {formattedDate}
+                        </time>
+                      </div>
+                    </a>
+                  );
+                })}
+              </div>
+              {taggedPosts.length > 4 && (
+                <div class="mt-4 text-center">
+                  <a
+                    href={`/tags/${tag.toLowerCase()}`}
+                    class="inline-block text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                  >
+                    查看全部 {taggedPosts.length} 篇文章 →
+                  </a>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  </div>
+</Layout>
