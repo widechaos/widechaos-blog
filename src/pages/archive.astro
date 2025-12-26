@@ -2,7 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 
 // 获取所有文章
-const posts = await Astro.glob('../content/blog/*.{md,mdx}');
+const posts = await import.meta.glob('../content/blog/*.{md,mdx}');
 const publishedPosts = posts
   .filter(post => !post.frontmatter.draft)
   .sort((a, b) => new Date(b.frontmatter.pubDate).getTime() - new Date(a.frontmatter.pubDate).getTime());
