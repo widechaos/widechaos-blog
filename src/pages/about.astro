@@ -1,64 +1,22 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import { SITE_CONFIG } from '../config/site';
+import Layout from "../layouts/Layout.astro";
+import Hero from "../components/commons/hero/hero.astro";
+import AboutMe from "../components/about/aboutMe.astro";
+import Experience from "../components/about/experience.astro";
+import Features from "../components/about/features.astro";
+import Skills from "../components/about/skills.astro";
+import FaqsAbout from "../components/about/FaqsAbout.jsx";
+import BannerGithub from "../components/about/bannerGithub.astro";
+import Banner from "../components/commons/banners/banner.astro";
 ---
 
-<Layout title="关于我" description="关于十方空烬的个人介绍">
-  <div class="max-w-3xl mx-auto">
-    <!-- 头部 -->
-    <div class="text-center mb-12">
-      <div class="inline-block w-32 h-32 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 mb-6"></div>
-      <h1 class="text-4xl font-bold mb-4">关于我</h1>
-      <p class="text-xl text-gray-600 dark:text-gray-400">
-        {SITE_CONFIG.bio}
-      </p>
-    </div>
-    
-    <!-- 主要内容 -->
-    <div class="prose prose-lg dark:prose-invert max-w-none">
-      <h2>👋 你好！</h2>
-      <p>
-        我是十方空烬（voidemper），一名全栈开发者，对技术充满热情，尤其喜欢探索前沿技术和解决复杂问题。
-      </p>
-      
-      <h2>🎯 技术栈</h2>
-      <ul>
-        <li><strong>前端</strong>: TypeScript, React, Vue.js, Astro, Tailwind CSS</li>
-        <li><strong>后端</strong>: Python, FastAPI, Node.js, PostgreSQL, Redis</li>
-        <li><strong>其他</strong>: Docker, Linux, Git, CI/CD</li>
-      </ul>
-      
-      <h2>💼 主要项目</h2>
-      <ul>
-        <li><strong>个人量化系统</strong>: 基于FastAPI的量化交易平台</li>
-        <li><strong>数字花园</strong>: 个人知识管理与第二大脑</li>
-        <li><strong>任务管理中心</strong>: 个人任务与成就管理系统</li>
-      </ul>
-      
-      <h2>📚 学习与分享</h2>
-      <p>
-        我坚信持续学习是进步的关键。这个博客就是记录我的学习历程、技术思考和项目经验的地方。
-      </p>
-      <p>
-        我喜欢开源文化，大部分项目都会在GitHub上公开。相信通过分享，我们可以共同进步。
-      </p>
-      
-      <h2>📫 联系我</h2>
-      <p>
-        如果你对我的项目感兴趣，或者想讨论技术问题，欢迎通过以下方式联系：
-      </p>
-      <div class="flex flex-wrap gap-4">
-        {Object.entries(SITE_CONFIG.social).map(([platform, url]) => url && (
-          <a
-            href={url}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-          >
-            {platform}
-          </a>
-        ))}
-      </div>
-    </div>
-  </div>
+<Layout title="about" description="about">
+  <Hero titulo="Sobre Mi" />
+  <AboutMe />
+  <Experience />
+  <Features />
+  <Skills />
+  <FaqsAbout client:visible/>
+  <BannerGithub />
+  <Banner />
 </Layout>

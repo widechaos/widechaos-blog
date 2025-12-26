@@ -1,24 +1,21 @@
 ---
-// src/layouts/Layout.astro
-import Header from '../components/Header.astro';
-import Footer from '../components/Footer.astro';
-import '../styles/global.css';
-
-const { title } = Astro.props;
+import "../styles/global.css";
+import Navbar from "../components/commons/navbar/navbar.astro";
+import Footer from "../components/commons/footer/footer.astro";
 ---
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{title} | 十方空烬的数字花园</title>
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-</head>
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-    <Header />
-    <main class="container mx-auto px-4 py-8">
-        <slot />
-    </main>
+    <meta name="generator" content={Astro.generator} />
+    <title>Lautaro Rodriguez Collins</title>
+  </head>
+  <body class="bg-gray-950 text-white">
+    <Navbar />
+    <slot />
     <Footer />
-</body>
+  </body>
 </html>

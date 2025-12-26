@@ -1,45 +1,49 @@
-<<<<<<< HEAD
-# Astro Starter Kit: Blog
+# 🌌 Personal Portfolio – Lautaro 
 
-```sh
-npm create astro@latest -- --template blog
-```
+---
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## 🚀 Características principales
 
-Features:
+- ⚡️ Construido con **Astro** y **React** 
+- 🎨 **Diseño responsive**
+- 🧠 **Filtrado dinámico de proyectos**
+- 💬 Secciones personalizables: *Sobre mí*, *Proyectos*, *Experiencia*, *Contacto*  
 
-- ✅ Minimal styling (make it your own!)
-- ✅ 100/100 Lighthouse performance
-- ✅ SEO-friendly with canonical URLs and OpenGraph data
-- ✅ Sitemap support
-- ✅ RSS Feed support
-- ✅ Markdown & MDX support
+---
+
+## 🧩 Tecnologías utilizadas
+
+- [Astro](https://astro.build/)  
+- [TailwindCSS](https://tailwindcss.com/)  
+- [TypeScript / JavaScript]  
+- [React (en componentes selectivos)]  
+- [Vite](https://vitejs.dev/)  
+
+---
+
+## 📂 Estructura del proyecto
+
+
 
 ## 🚀 Project Structure
 
 Inside of your Astro project, you'll see the following folders and files:
 
 ```text
+/
 ├── public/
+│ └── images/ # Recursos estáticos
 ├── src/
-│   ├── components/
-│   ├── content/
-│   ├── layouts/
-│   └── pages/
-├── astro.config.mjs
-├── README.md
-├── package.json
-└── tsconfig.json
+│ ├── components/ # Componentes reutilizables
+│ ├── layouts/ # Layout base
+│ ├── pages/ # Páginas principales (index, proyectos, etc.)
+│ ├── scripts/ # JS para interactividad (filtro, animaciones)
+│ ├── styles/ # CSS global o módulos
+│ └── data/ # Datos (proyectos, experiencia)
+└── astro.config.mjs
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
-
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
-
-The `src/content/` directory contains "collections" of related Markdown and MDX documents. Use `getCollection()` to retrieve posts from `src/content/blog/`, and type-check your frontmatter using an optional schema. See [Astro's Content Collections docs](https://docs.astro.build/en/guides/content-collections/) to learn more.
-
-Any static assets, like images, can be placed in the `public/` directory.
+To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
 
 ## 🧞 Commands
 
@@ -54,13 +58,7 @@ All commands are run from the root of the project, from a terminal:
 | `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
 | `npm run astro -- --help` | Get help using the Astro CLI                     |
 
-## 👀 Want to learn more?
+---
+![Portfolio](https://github.com/user-attachments/assets/8c01d06f-2d36-46c1-a3ff-a6f7bf73ab67)
 
-Check out [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
 
-## Credit
-
-This theme is based off of the lovely [Bear Blog](https://github.com/HermanMartinus/bearblog/).
-=======
-# widechaos-blog
->>>>>>> c78dc5263ef7e2a55ac29665cc89945374947c3c
