@@ -3,64 +3,38 @@ name: Deploy Astro Blog to GitHub Pages
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
-  workflow_dispatch:
-
-# 设置权限
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-# 允许并发部署
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
+  workflow_dispatch: # 允许手动触发
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
+      # 1. 拉取代码
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          
+
+      # 2. 设置 Node.js 环境
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
-          
-      - name: Install dependencies
-        run: npm ci
-        
-      - name: Build
-        run: npm run build
-        
-      # 确保有 CNAME 文件
-      - name: Create CNAME file
-        run: |
-          if [ ! -f "./dist/CNAME" ]; then
-            echo "blog.widechaos.cn" > ./dist/CNAME
-          fi
-        
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-        
-      - name: Upload pages artifact
-        uses: actions/upload-pages-artifact@v4
-        with:
-          path: ./dist
+          cache: 'npm' # 启用依赖缓存，加快构建速度
 
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
+      # 3. 安装并构建
+      - name: Install dependencies
+        run: npm ci # 使用 ci 命令安装，确保依赖锁的一致性
+
+      - name: Build project
+        run: npm run build # 执行 Astro 的构建命令
+
+      # 4. 确保 CNAME 文件存在 (用于您的自定义域名)
+      - name: Create CNAME file
+        run: echo "blog.widechaos.cn" > ./dist/CNAME
+
+      # 5. 部署到 GitHub Pages (核心：使用 peaceiris 的 Action)
       - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }} # GitHub 自动提供的令牌
+          publish_dir: ./dist # 指定 Astro 构建输出的目录
+          cname: blog.widechaos.cn # 设置自定义域名（也可覆盖上一步的CNAME文件）
