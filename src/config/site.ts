@@ -5,7 +5,6 @@ export const SITE_CONFIG = {
   description: "高级AI应用开发工程师 / 大模型应用开发专家｜聚焦RAG、Agent工程化与云原生落地",
   author: "邬仁超",
   location: "广东深圳",
-  phone: "15200850083",
   email: "xe333@sina.com",
   
   // 社交链接
