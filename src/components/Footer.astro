@@ -7,58 +7,22 @@ import { SITE_CONFIG } from '../config/site';
     <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
       <!-- 版权信息 -->
       <div class="text-gray-600 dark:text-gray-400 text-sm">
-        <p>© {new Date().getFullYear()} {SITE_CONFIG.author} - 十方空烬</p>
+        <p>© {new Date().getFullYear()} {SITE_CONFIG.author}</p>
         <p class="mt-1">基于 Astro 构建 | 
-          <a href="/feed.xml" class="hover:text-blue-600 dark:hover:text-blue-400 ml-2">RSS</a>
+          <a href="/rss.xml" class="hover:text-blue-600 dark:hover:text-blue-400 ml-2">RSS</a>
           <a href="/sitemap.xml" class="hover:text-blue-600 dark:hover:text-blue-400 ml-2">站点地图</a>
         </p>
       </div>
       
-      <!-- 统计信息 -->
       <div class="text-gray-600 dark:text-gray-400 text-sm">
-        <p>
-          <span id="site-runtime"></span> 天 | 
-          总文章: <span id="total-posts">加载中...</span>
-        </p>
+        <p>{SITE_CONFIG.location}</p>
       </div>
       
-      <!-- 社交链接 -->
-      <div class="flex items-center space-x-4">
-        {Object.entries(SITE_CONFIG.social).map(([platform, url]) => url && (
-          <a
-            href={url}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-            aria-label={platform}
-          >
-            {platform === 'github' && 'GitHub'}
-            {platform === 'twitter' && 'Twitter'}
-            {platform === 'linkedin' && 'LinkedIn'}
-            {platform === 'bilibili' && 'B站'}
-            {platform === 'zhihu' && '知乎'}
-          </a>
-        ))}
+      <div class="text-gray-600 dark:text-gray-400 text-sm">
+        <a class="hover:text-blue-600 dark:hover:text-blue-400" href={`mailto:${SITE_CONFIG.email}`}>
+          {SITE_CONFIG.email}
+        </a>
       </div>
     </div>
   </div>
-  
-  <script>
-    // 计算站点运行时间
-    const startDate = new Date('2024-01-01');
-    const today = new Date();
-    const diffTime = Math.abs(today - startDate);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    document.getElementById('site-runtime').textContent = diffDays;
-    
-    // 获取文章总数（需要fetch，这里用模拟数据）
-    fetch('/api/post-count')
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById('total-posts').textContent = data.count;
-      })
-      .catch(() => {
-        document.getElementById('total-posts').textContent = '0';
-      });
-  </script>
 </footer>

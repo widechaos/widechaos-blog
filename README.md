@@ -1,64 +1,31 @@
-# 🌌 Personal Portfolio – Lautaro 
+# 邬仁超｜个人技术博客（Astro）
 
----
+聚焦 RAG、Agent 工程化与云原生落地实践。
 
-## 🚀 Características principales
-
-- ⚡️ Construido con **Astro** y **React** 
-- 🎨 **Diseño responsive**
-- 🧠 **Filtrado dinámico de proyectos**
-- 💬 Secciones personalizables: *Sobre mí*, *Proyectos*, *Experiencia*, *Contacto*  
-
----
-
-## 🧩 Tecnologías utilizadas
-
-- [Astro](https://astro.build/)  
-- [TailwindCSS](https://tailwindcss.com/)  
-- [TypeScript / JavaScript]  
-- [React (en componentes selectivos)]  
-- [Vite](https://vitejs.dev/)  
-
----
-
-## 📂 Estructura del proyecto
-
-
-
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
+## 项目结构
 
 ```text
 /
-├── public/
-│ └── images/ # Recursos estáticos
+├── public/                 # 静态资源（favicon、字体等）
 ├── src/
-│ ├── components/ # Componentes reutilizables
-│ ├── layouts/ # Layout base
-│ ├── pages/ # Páginas principales (index, proyectos, etc.)
-│ ├── scripts/ # JS para interactividad (filtro, animaciones)
-│ ├── styles/ # CSS global o módulos
-│ └── data/ # Datos (proyectos, experiencia)
+│  ├── components/          # 站点组件
+│  ├── config/              # 站点配置（站点标题/作者/导航/标签色板）
+│  ├── content/blog/        # 博客文章（Markdown/MDX）
+│  ├── layouts/             # 页面布局
+│  ├── pages/               # 路由页面（首页/博客/归档/标签等）
+│  ├── styles/              # 全局样式
+│  └── data/                # 数据（经历等）
 └── astro.config.mjs
 ```
 
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
+## 常用命令
 
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
-
----
-![Portfolio](https://github.com/user-attachments/assets/8c01d06f-2d36-46c1-a3ff-a6f7bf73ab67)
+| 命令 | 说明 |
+| ---- | ---- |
+| `npm install` | 安装依赖 |
+| `npm run dev` | 本地开发（默认 `http://localhost:4321`） |
+| `npm run build` | 生产构建到 `./dist/` |
+| `npm run preview` | 本地预览构建产物 |
+| `npm run astro -- check` | Astro 校验 |
 
 

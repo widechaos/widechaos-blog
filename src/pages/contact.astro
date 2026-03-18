@@ -1,80 +1,38 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import MiFoto from "../assets/img/MiFoto.png";
+import { SITE_CONFIG } from "../config/site";
 import CopyMail from "../components/links/copyMail.jsx";
-
-const links = [
-  {
-    href: "https://www.linkedin.com/in/lautaro-rodr%C3%ADguez-collins-40505624a/",
-    label: "LinkedIn",
-  },
-  { href: "https://github.com/widechaos", label: "GitHub" },
-  { href: "https://weibo.com/hero74", label: "Weibo" },
-  { href: "mailto:xe333@sina.com", label: "Email" },
-];
 ---
 
 <Layout>
-  <section
-    class="bg-gray-900 flex min-h-screen flex-col items-center justify-center px-6"
-  >
-    <div class="mb-2 mt-11">
-      <div class="mb-2 mt-11">
-        <div class="relative flex items-center justify-center">
-          <!-- Foto con borde -->
-          <img
-            src={MiFoto.src}
-            alt="Foto de Lautaro"
-            class="border-primary h-32 w-32 rounded-full shadow-lg"
-          />
+  <section class="max-w-3xl mx-auto px-4 py-16">
+    <h1 class="text-4xl font-bold mb-6">联系我</h1>
+    <p class="text-gray-700 dark:text-gray-300">
+      如果你想交流大模型应用工程化、RAG/Agent落地或云原生存储相关问题，欢迎通过以下方式联系。
+    </p>
 
-          <!-- Texto circular alrededor de la foto -->
-          <svg
-            viewBox="0 0 200 200"
-            class="animate-spin-slow absolute h-48 w-48"
-          >
-            <path
-              id="circlePathText"
-              d="M100,100 m-77,0 a77,77 0 1,1 154,0 a77,77 0 1,1 -154,0"
-              fill="none"></path>
-            <text fill="#69c7c7" font-size="18" font-weight="bold">
-              <textPath href="#circlePathText" startOffset="0%">
-                ✦ Hola ! ✦ Estoy disponible para nuevas oportunidades!
-              </textPath>
-            </text>
-          </svg>
+    <div class="mt-8 grid gap-4">
+      <div class="p-6 rounded-xl border border-gray-200 dark:border-gray-800">
+        <h2 class="text-lg font-semibold mb-2">邮箱</h2>
+        <a class="text-purple-600 dark:text-purple-400 hover:underline" href={`mailto:${SITE_CONFIG.email}`}>
+          {SITE_CONFIG.email}
+        </a>
+        <div class="mt-4">
+          <CopyMail client:visible />
         </div>
       </div>
-    </div>
 
-    <CopyMail client:visible />
+      <div class="p-6 rounded-xl border border-gray-200 dark:border-gray-800">
+        <h2 class="text-lg font-semibold mb-2">电话</h2>
+        <a class="text-purple-600 dark:text-purple-400 hover:underline" href={`tel:${SITE_CONFIG.phone}`}>
+          {SITE_CONFIG.phone}
+        </a>
+      </div>
 
-    <!-- Lista de Links -->
-    <div class="w-full max-w-xl space-y-4">
-      {
-        links.map((link) => (
-          <a
-            href={link.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="block font-bold w-full rounded-lg bg-primary hover:bg-secondary drop-shadow-[2px_2px_0_#0debd8] px-6 py-3 text-center text-white transition "
-          >
-            {link.label}
-          </a>
-        ))
-      }
+      <div class="p-6 rounded-xl border border-gray-200 dark:border-gray-800">
+        <h2 class="text-lg font-semibold mb-2">地区</h2>
+        <p class="text-gray-700 dark:text-gray-300">{SITE_CONFIG.location}</p>
+      </div>
     </div>
   </section>
 </Layout>
-
-<style>
-  .animate-spin-slow {
-    animation: spin 25s linear infinite;
-  }
-
-  @keyframes spin {
-    100% {
-      transform: rotate(360deg);
-    }
-  }
-</style>

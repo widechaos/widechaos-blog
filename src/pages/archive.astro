@@ -38,10 +38,7 @@ const postsByYear = publishedPosts.reduce((acc, post) => {
               day: 'numeric',
             });
 
-            // 生成文章 URL
-            const fileName = post.file?.name || `post-${index}`;
-            const postSlug = fileName.replace('.md', '').replace('.mdx', '');
-            const postUrl = `/blog/${postSlug}`;
+            const postUrl = post.url || `/blog/post-${index}`;
 
             return (
               <article class="group border-l-2 border-gray-200 dark:border-gray-800 pl-6 py-2 hover:border-blue-500 dark:hover:border-blue-400 transition-colors">

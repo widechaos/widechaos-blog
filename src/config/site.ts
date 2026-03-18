@@ -1,18 +1,20 @@
 // 个人站点配置
 export const SITE_CONFIG = {
   // 基本信息
-  title: "十方空烬的博客",
-  description: "voidemper | 十方空烬 - 技术探索与生活思考",
-  author: "十方空烬",
-  email: "你的邮箱（可选）",
+  title: "邬仁超｜AI应用与大模型工程",
+  description: "高级AI应用开发工程师 / 大模型应用开发专家｜聚焦RAG、Agent工程化与云原生落地",
+  author: "邬仁超",
+  location: "广东深圳",
+  phone: "15200850083",
+  email: "xe333@sina.com",
   
   // 社交链接
   social: {
-    github: "https://github.com/widechaos",
-    twitter: "",  // 如果有
-    linkedin: "",  // 如果有
-    bilibili: "",  // 如果有
-    zhihu: "",     // 如果有
+    github: "",
+    twitter: "",
+    linkedin: "",
+    bilibili: "",
+    zhihu: "",
   },
   
   // 站点设置
@@ -20,8 +22,8 @@ export const SITE_CONFIG = {
   recentPostsCount: 5,
   
   // 个人信息
-  bio: "开发者 | 量化交易爱好者 | 数字游民",
-  avatar: "/avatar.png", // 会在public目录放头像
+  bio: "高级AI应用开发工程师 / 技术负责人｜RAG、Agent、多智能体协作与云原生工程化",
+  avatarText: "邬仁超",
   
   // 功能开关
   features: {
@@ -38,7 +40,8 @@ export const SITE_CONFIG = {
     { label: "归档", href: "/archive" },
     { label: "标签", href: "/tags" },
     { label: "关于", href: "/about" },
-    { label: "项目", href: "/projects" },
+    { label: "项目", href: "/proyectos" },
+    { label: "联系", href: "/contact" },
   ],
 };
 
@@ -50,8 +53,11 @@ export const TAG_CONFIG = {
     '生活': '#10b981',
     '思考': '#f59e0b',
     '读书': '#ef4444',
-    '量化': '#6366f1',
     'AI': '#ec4899',
+    'RAG': '#6366f1',
+    'Agent': '#0ea5e9',
+    '云原生': '#22c55e',
+    '存储': '#a855f7',
     '默认': '#6b7280',
   },
 };
@@ -59,27 +65,21 @@ export const TAG_CONFIG = {
 // 项目展示
 export const PROJECTS = [
   {
-    title: "个人量化系统",
-    description: "基于FastAPI的量化交易系统",
-    tech: ["Python", "FastAPI", "PostgreSQL"],
-    github: "https://github.com/widechaos/quant-system",
-    demo: "https://quant.widechaos.cn",
-    status: "进行中",
+    title: "企业智能知识库系统（RAG应用）",
+    description: "面向企业内部文档与案例的检索增强问答平台，强调召回质量、答案可追溯与反馈闭环",
+    tech: ["RAGFlow", "Elasticsearch", "向量检索", "重排", "FastAPI"],
+    status: "已落地",
   },
   {
-    title: "数字花园",
-    description: "个人知识管理系统与第二大脑",
-    tech: ["TypeScript", "Astro", "RAG"],
-    github: "https://github.com/widechaos/digital-garden",
-    demo: "https://blog.widechaos.cn",
-    status: "进行中",
+    title: "智能问答助手（面向客服团队）",
+    description: "支持多轮对话、上下文理解与知识溯源的客服辅助能力，降低人工介入率并提升响应效率",
+    tech: ["多轮对话", "上下文管理", "溯源", "服务化接口"],
+    status: "已落地",
   },
   {
-    title: "任务管理中心",
-    description: "个人任务与成就管理系统",
-    tech: ["Vue.js", "FastAPI", "SQLite"],
-    github: "https://github.com/widechaos/task-manager",
-    demo: "https://task.widechaos.cn",
-    status: "已完成",
+    title: "云原生存储集成（CSI / Cinder）",
+    description: "存储系统对接主流云平台与容器平台，覆盖动态卷供给、快照、克隆等能力并完善测试与认证流程",
+    tech: ["Kubernetes", "CSI", "OpenStack", "Cinder", "Docker"],
+    status: "已落地",
   },
 ];

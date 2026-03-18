@@ -1,34 +1,46 @@
 export const jobs = [
   {
-    title: "Frontend Developer - Neowyze",
-    time: ["12/2024 - 05/2025"],
+    title: "高级开发工程师 / 技术负责人 · 深圳通昭纪人工智能科技有限公司",
+    time: ["2026.3 - 至今"],
     description:
-      "Mis tareas en Neowyze consisten en desarrollar webs responsivas basadas en diseños proporcionados en Figma, utilizando Astro, React, Tailwind y otras librerías frontend.",
+      "负责多智能体协作能力建设与工程化落地，覆盖智能讲题、个性化推荐、情感陪伴等场景。",
     list: [
-      "Para el flujo de trabajo, utilizo Jira como herramienta de gestión y Git/GitHub como sistema de control de versiones.",
-      "Trabajo bajo la metodología ágil Scrum, con sprints de 2 semanas y dos reuniones diarias (dailies) para planificar el proyecto y presentar avances",
+      "从0到1搭建多智能体协作框架与服务架构。",
+      "通过异步、缓存与并行优化高并发，提升稳定性与响应速度。",
+      "主导容器化部署与可用性保障，完善监控、容错与内容安全过滤。",
     ],
   },
   {
-    title: "Frontend Developer - Vegna",
-    time: ["05/2024 - 02/2024"],
-    description: "Desarrollo y mantenimiento de interfaces de usuario con:",
-    list: ["JavaScript - TypeScript", "React - Next.js", "Tailwind", "Shadcn"],
-  },
-  {
-    title: "Frontend Developer - Igrowker",
-    time: ["07/2022 - 08/2022"],
-    description: "Desarrollo y mantenimiento de interfaces de usuario con",
-    list: ["React - React Router - Context api - CSS - Material UI"],
-  },
-  {
-    title: " Web Developer - NoCountry",
-    time: ["03/2022 - 06/2022"],
+    title: "高级开发工程师 / 技术负责人 · 湖南同有飞骥科技股份有限公司",
+    time: ["2023.5 - 2025.6"],
     description:
-      "Desarrollo de aplicaciones web responsivas MVP fullstack usando para su desarrollo tecnologías como",
+      "负责大模型知识库、智能问答与Agent探索，并推进云原生存储集成与认证。",
     list: [
-      "Frontend : React - React Router - Context api - tailwindcss",
-      "Backend : API REST con Express.js, MongoDB",
+      "主导检索增强问答系统设计与开发，提升检索准确率并降低响应时间。",
+      "建设面向客服团队的多轮问答助手，支持上下文理解与知识溯源。",
+      "推进Agent原型与工具调用能力，用于常见业务流程自动化。",
+      "完成容器平台存储插件与云平台存储驱动开发、测试与认证。",
+    ],
+  },
+  {
+    title: "解决方案架构师 / 技术顾问 · 北京星辰天合科技股份有限公司",
+    time: ["2021.3 - 2023.3"],
+    description:
+      "面向客户与重大项目进行方案设计、技术支持与交付保障，并输出行业研究与技术材料。",
+    list: [
+      "设计多场景落地方案并推动交付，提升客户满意度。",
+      "组织市场与竞品研究，输出趋势分析与建议。",
+      "撰写技术文档与内容材料，支撑产品与市场。",
+    ],
+  },
+  {
+    title: "软件开发工程师 · 杭州宏杉科技股份有限公司",
+    time: ["2016.7 - 2021.3"],
+    description:
+      "参与云平台存储集成与分布式存储后台开发，提升系统性能、可靠性与交付效率。",
+    list: [
+      "开发与维护云平台存储驱动，并推动认证流程自动化。",
+      "参与分布式存储后台开发，优化数据管理与分发机制。",
     ],
   },
 ];

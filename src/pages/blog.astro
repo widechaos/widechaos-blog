@@ -1,7 +1,7 @@
 ---
 // src/pages/blog.astro
 import Layout from '../layouts/Layout.astro';
-import posts from '../data/posts.json';
+import { SITE_CONFIG } from '../config/site';
 
 // 获取博客文章
 const allPosts = await Astro.glob('../content/blog/*.md');
@@ -22,7 +22,7 @@ const allPosts = await Astro.glob('../content/blog/*.md');
                     <div class="flex justify-between items-start mb-4">
                         <div>
                             <h2 class="text-2xl font-bold mb-2">
-                                <a href={`/blog/${post.frontmatter.slug || post.frontmatter.title.toLowerCase().replace(/\s+/g, '-')}`}
+                                <a href={post.url}
                                    class="hover:text-purple-600 transition-colors">
                                     {post.frontmatter.title}
                                 </a>
@@ -39,10 +39,10 @@ const allPosts = await Astro.glob('../content/blog/*.md');
                     <div class="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
                         <div class="flex items-center space-x-4">
                             <span>📅 {new Date(post.frontmatter.pubDate || post.frontmatter.date).toLocaleDateString('zh-CN')}</span>
-                            <span>👤 {post.frontmatter.author || '十方空烬'}</span>
+                            <span>👤 {post.frontmatter.author || SITE_CONFIG.author}</span>
                             <span>⏱️ {post.frontmatter.readTime || '3分钟'}</span>
                         </div>
-                        <a href={`/blog/${post.frontmatter.slug || post.frontmatter.title.toLowerCase().replace(/\s+/g, '-')}`}
+                        <a href={post.url}
                            class="text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-300">
                             阅读全文 →
                         </a>

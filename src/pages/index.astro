@@ -1,18 +1,65 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import Header from "../components/home/header/header.astro";
-import Slider from "../components/home/header/slider.astro";
-import AboutHome from "../components/home/aboutHome/aboutHome.astro";
-import HomeProyect from "../components/home/homeProyect/homeProyect.astro";
-import FAQS from "../components/home/faqs/faqs.jsx";
-import Banner from "../components/commons/banners/banner.astro";
+import { SITE_CONFIG } from "../config/site";
+
+const posts = (await Astro.glob("../content/blog/*.md"))
+  .filter((p) => !p.frontmatter?.draft)
+  .sort(
+    (a, b) =>
+      new Date(b.frontmatter.pubDate).getTime() -
+      new Date(a.frontmatter.pubDate).getTime()
+  )
+  .slice(0, SITE_CONFIG.recentPostsCount);
 ---
 
-<Layout>
-  <Header />
-  <Slider />
-  <AboutHome />
-  <HomeProyect />
-  <FAQS client:visible />
-  <Banner />
+<Layout title={SITE_CONFIG.title} description={SITE_CONFIG.description}>
+  <section class="max-w-4xl mx-auto px-4 py-16">
+    <div class="flex flex-col gap-6">
+      <div class="inline-flex items-center gap-3">
+        <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center text-white font-bold">
+          邬
+        </div>
+        <div>
+          <h1 class="text-3xl md:text-4xl font-bold">{SITE_CONFIG.author}</h1>
+          <p class="text-gray-600 dark:text-gray-400">{SITE_CONFIG.location} · {SITE_CONFIG.bio}</p>
+        </div>
+      </div>
+
+      <p class="text-lg leading-relaxed text-gray-800 dark:text-gray-200">
+        我专注于大模型在企业场景的工程化落地：RAG检索增强、Agent工具调用、多智能体协作、以及云原生部署与稳定性保障。
+      </p>
+
+      <div class="flex flex-wrap gap-3">
+        <a href="/about" class="px-4 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700 transition-colors">查看关于</a>
+        <a href="/blog" class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors">阅读博客</a>
+        <a href="/contact" class="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors">联系我</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="max-w-4xl mx-auto px-4 pb-16">
+    <div class="flex items-end justify-between gap-4 mb-6">
+      <h2 class="text-2xl font-bold">最新文章</h2>
+      <a href="/archive" class="text-sm text-purple-600 dark:text-purple-400 hover:underline">查看归档</a>
+    </div>
+    <div class="space-y-4">
+      {posts.map((post) => (
+        <article class="p-5 rounded-xl border border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 transition-colors">
+          <h3 class="text-lg font-semibold">
+            <a href={post.url} class="hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
+              {post.frontmatter.title}
+            </a>
+          </h3>
+          <p class="mt-1 text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+            {post.frontmatter.description}
+          </p>
+          <div class="mt-3 text-xs text-gray-500 dark:text-gray-500 flex flex-wrap gap-x-4 gap-y-1">
+            <time>{new Date(post.frontmatter.pubDate).toLocaleDateString('zh-CN')}</time>
+            <span>作者：{post.frontmatter.author || SITE_CONFIG.author}</span>
+            {post.frontmatter.readTime && <span>阅读：{post.frontmatter.readTime}</span>}
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
 </Layout>

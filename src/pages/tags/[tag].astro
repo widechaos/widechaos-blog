@@ -1,0 +1,58 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { TAG_CONFIG } from "../../config/site";
+
+export async function getStaticPaths() {
+  const posts = await Astro.glob("../../content/blog/*.{md,mdx}");
+
+  const tags = new Set();
+  posts.forEach((post) => {
+    const postTags = post.frontmatter?.tags ?? [];
+    if (!post.frontmatter?.draft) {
+      postTags.forEach((t) => tags.add(String(t)));
+    }
+  });
+
+  return Array.from(tags).map((tag) => ({
+    params: { tag },
+    props: { tag },
+  }));
+}
+
+const { tag } = Astro.props;
+const color = TAG_CONFIG.colors[tag] || TAG_CONFIG.colors["默认"];
+
+const posts = (await Astro.glob("../../content/blog/*.{md,mdx}"))
+  .filter((p) => !p.frontmatter?.draft && (p.frontmatter?.tags ?? []).includes(tag))
+  .sort((a, b) => new Date(b.frontmatter.pubDate).getTime() - new Date(a.frontmatter.pubDate).getTime());
+---
+
+<Layout title={`标签：${tag}`} description={`查看标签「${tag}」下的全部文章`}>
+  <section class="max-w-3xl mx-auto px-4 py-14">
+    <div class="flex items-center justify-between gap-4">
+      <h1 class="text-3xl font-bold">
+        标签：<span style={`color: ${color};`}>#{tag}</span>
+      </h1>
+      <a href="/tags" class="text-sm text-purple-600 dark:text-purple-400 hover:underline">返回标签页</a>
+    </div>
+
+    <div class="mt-8 space-y-4">
+      {posts.map((post) => (
+        <article class="p-5 rounded-xl border border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:hover:border-gray-700 transition-colors">
+          <h2 class="text-lg font-semibold">
+            <a href={post.url} class="hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
+              {post.frontmatter.title}
+            </a>
+          </h2>
+          <p class="mt-1 text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+            {post.frontmatter.description}
+          </p>
+          <div class="mt-3 text-xs text-gray-500 dark:text-gray-500 flex flex-wrap gap-x-4 gap-y-1">
+            <time>{new Date(post.frontmatter.pubDate).toLocaleDateString("zh-CN")}</time>
+            {post.frontmatter.readTime && <span>阅读：{post.frontmatter.readTime}</span>}
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+</Layout>

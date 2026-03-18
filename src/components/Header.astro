@@ -1,18 +1,17 @@
 ---
-// src/components/Header.astro
-const navItems = [
-    { name: '首页', path: '/' },
-    { name: '博客', path: '/blog' },
-    { name: '关于', path: '/about' },
-    { name: '项目', path: '/projects' },
-];
+import { SITE_CONFIG } from '../config/site';
+
+const navItems = SITE_CONFIG.navItems.map((item) => ({
+	name: item.label,
+	path: item.href,
+}));
 ---
 
 <header class="sticky top-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800">
     <div class="container mx-auto px-4 py-4 flex justify-between items-center">
         <!-- Logo -->
         <a href="/" class="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-            十方空烬
+            {SITE_CONFIG.author}
         </a>
 
         <!-- 导航 -->
@@ -29,8 +28,8 @@ const navItems = [
 
         <!-- 主题切换按钮 -->
         <button id="theme-toggle" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800">
-            <span class="dark:hidden">🌙</span>
-            <span class="hidden dark:inline">☀️</span>
+            <span class="dark:hidden">夜</span>
+            <span class="hidden dark:inline">日</span>
         </button>
     </div>
 </header>

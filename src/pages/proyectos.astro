@@ -1,167 +1,69 @@
 ---
-import "../styles/projects.css";
 import Layout from "../layouts/Layout.astro";
-import Hero from "../components/commons/hero/hero.astro";
-import ProjectCard from "../components/project/proyectCard.astro";
-import Banner from "../components/commons/banners/banner.astro";
-import { proyectos } from "../data/projectData.js";
+import { SITE_CONFIG } from "../config/site";
 ---
 
-<Layout title="Proyectos" description="Proyectos">
-  <Hero titulo="Proyectos" />
+<Layout title="项目" description="与大模型应用与云原生工程相关的代表性项目">
+  <section class="max-w-4xl mx-auto px-4 py-14">
+    <h1 class="text-4xl font-bold mb-4">项目</h1>
+    <p class="text-gray-700 dark:text-gray-300">
+      这些项目集中体现了我在 RAG、Agent 工程化与云原生存储方向的工作重心。
+    </p>
 
-  <!-- Botones -->
-  <div class="mt-6 mb-6 flex flex-wrap justify-center gap-3 px-2">
-    <button class="filter-btn cursor-pointer rounded-full bg-[#69c7c7] px-5 py-1.5 text-sm font-bold text-[#1d1250] drop-shadow-[2px_2px_0_#7836cf] transition-all duration-150 active:translate-y-0.5 active:drop-shadow-none" data-filter="all">
-      Todos
-    </button>
-    <button class="filter-btn cursor-pointer rounded-full bg-[#69c7c7] px-5 py-1.5 text-sm font-bold text-[#1d1250] drop-shadow-[2px_2px_0_#7836cf] transition-all duration-150 active:translate-y-0.5 active:drop-shadow-none" data-filter="fullstack">
-      Full Stack
-    </button>
-    <button class="filter-btn cursor-pointer rounded-full bg-[#69c7c7] px-5 py-1.5 text-sm font-bold text-[#1d1250] drop-shadow-[2px_2px_0_#7836cf] transition-all duration-150 active:translate-y-0.5 active:drop-shadow-none" data-filter="frontend">
-      Frontend
-    </button>
-    <button class="filter-btn cursor-pointer rounded-full bg-[#69c7c7] px-5 py-1.5 text-sm font-bold text-[#1d1250] drop-shadow-[2px_2px_0_#7836cf] transition-all duration-150 active:translate-y-0.5 active:drop-shadow-none" data-filter="backend">
-      Backend
-    </button>
-  </div>
+    <div class="mt-8 space-y-6">
+      <article class="p-6 rounded-xl border border-gray-200 dark:border-gray-800">
+        <h2 class="text-xl font-semibold">企业智能知识库系统（RAG应用）</h2>
+        <p class="mt-2 text-gray-700 dark:text-gray-300">
+          围绕企业内部文档、技术手册与故障案例构建统一检索问答平台，采用层级切片与重叠切片策略，结合混合检索与重排提升召回质量，提供流式问答接口并形成反馈闭环。
+        </p>
+        <div class="mt-3 flex flex-wrap gap-2 text-xs">
+          {["RAGFlow", "Elasticsearch", "向量检索", "混合召回", "重排", "FastAPI"].map((t) => (
+            <span class="px-2 py-1 rounded bg-gray-100 dark:bg-gray-800">{t}</span>
+          ))}
+        </div>
+      </article>
 
-  <!-- Cards -->
-  <div
-    id="projects-container"
-    class="4xl:px-96 flex flex-wrap justify-center gap-5 px-3 pt-5 xl:px-32 2xl:px-60"
-  >
-    {
-      proyectos.map((proyecto, index) => (
-        <ProjectCard
-          index={index}
-          titulo={proyecto.titulo}
-          descripcion={proyecto.descripcion}
-          imagen={proyecto.imagen}
-          tecnologias={proyecto.tecnologias}
-          demo={proyecto.demo}
-          codigo={proyecto.codigo}
-          categoria={proyecto.categoria}
-        />
-      ))
-    }
-  </div>
+      <article class="p-6 rounded-xl border border-gray-200 dark:border-gray-800">
+        <h2 class="text-xl font-semibold">智能问答助手（面向客服团队）</h2>
+        <p class="mt-2 text-gray-700 dark:text-gray-300">
+          面向客户支持团队的多轮问答能力建设，支持上下文记忆、追问澄清与知识溯源，提供可集成的 API 以便与内部工作台对接。
+        </p>
+        <div class="mt-3 flex flex-wrap gap-2 text-xs">
+          {["多轮对话", "上下文管理", "溯源", "服务化接口"].map((t) => (
+            <span class="px-2 py-1 rounded bg-gray-100 dark:bg-gray-800">{t}</span>
+          ))}
+        </div>
+      </article>
 
-  <!-- Ver el resto de los proyectos -->
-  <div class="flex justify-center mt-8">
-    <button
-      id="load-more"
-      class="px-6 py-2 cursor-pointer bg-[#69c7c7] text-[#1d1250] font-bold rounded-full hover:bg-[#46caca] drop-shadow-[2px_2px_0_#7836cf] active:translate-y-0.5 active:drop-shadow-none transition-all"
-    >
-      Ver más
-    </button>
-  </div>
+      <article class="p-6 rounded-xl border border-gray-200 dark:border-gray-800">
+        <h2 class="text-xl font-semibold">AI Agent 原型（工具调用与流程自动化）</h2>
+        <p class="mt-2 text-gray-700 dark:text-gray-300">
+          搭建可扩展的 Agent 框架，围绕内部 API 进行工具封装与函数调用编排，实现一句话触发的自动化流程，并支持对话式交互与多步任务执行。
+        </p>
+        <div class="mt-3 flex flex-wrap gap-2 text-xs">
+          {["LangChain", "Dify", "Function Calling", "工具编排"].map((t) => (
+            <span class="px-2 py-1 rounded bg-gray-100 dark:bg-gray-800">{t}</span>
+          ))}
+        </div>
+      </article>
 
-  <Banner />
+      <article class="p-6 rounded-xl border border-gray-200 dark:border-gray-800">
+        <h2 class="text-xl font-semibold">Kubernetes CSI 插件与 OpenStack Cinder 驱动</h2>
+        <p class="mt-2 text-gray-700 dark:text-gray-300">
+          负责存储系统与云平台的集成，覆盖动态卷供给、快照、克隆等能力，并通过兼容性测试与社区认证，提升容器化环境的资源利用率与稳定性。
+        </p>
+        <div class="mt-3 flex flex-wrap gap-2 text-xs">
+          {["Kubernetes", "CSI", "OpenStack", "Cinder", "容器化部署"].map((t) => (
+            <span class="px-2 py-1 rounded bg-gray-100 dark:bg-gray-800">{t}</span>
+          ))}
+        </div>
+      </article>
+    </div>
+
+    <div class="mt-10 p-6 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
+      <p class="text-gray-700 dark:text-gray-300">
+        如需进一步了解项目细节或讨论合作，欢迎通过 <a class="text-purple-600 dark:text-purple-400 hover:underline" href={`mailto:${SITE_CONFIG.email}`}>{SITE_CONFIG.email}</a> 联系。
+      </p>
+    </div>
+  </section>
 </Layout>
-
-<script is:inline>
-(function () {
-  /* ---------------- CONFIG ---------------- */
-  const VISIBLE_CLASS = "project-visible";
-  const HIDDEN_CLASS = "project-hidden";
-  const HIDE_TIMEOUT = 300;
-
-  const INITIAL_VISIBLE = 12;
-  let itemsToShow = INITIAL_VISIBLE;
-  let activeFilter = "all";
-  let cards = [];
-  let filterButtons = [];
-  let loadMoreBtn = null;
-
-  /* ---------------- HELPERS ---------------- */
-  function queryElements() {
-    cards = Array.from(document.querySelectorAll("[data-index]"));
-    filterButtons = Array.from(document.querySelectorAll(".filter-btn"));
-    loadMoreBtn = document.getElementById("load-more");
-  }
-
-  function showCard(card) {
-    card.style.display = "flex";
-    requestAnimationFrame(() => {
-      card.classList.remove(HIDDEN_CLASS);
-      card.classList.add(VISIBLE_CLASS);
-    });
-  }
-
-  function hideCard(card) {
-    card.classList.remove(VISIBLE_CLASS);
-    card.classList.add(HIDDEN_CLASS);
-    setTimeout(() => {
-      if (card.classList.contains(HIDDEN_CLASS)) {
-        card.style.display = "none";
-      }
-    }, HIDE_TIMEOUT);
-  }
-
-  function setActiveButton(btn) {
-    filterButtons.forEach((b) => b.classList.remove("active"));
-    if (btn) btn.classList.add("active");
-  }
-
-  /* ---------------- FILTRADO ---------------- */
-  function applyFilter(filter) {
-    activeFilter = filter ?? "all";
-    const normalized = activeFilter.toLowerCase();
-
-    cards = Array.from(document.querySelectorAll("[data-index]"));
-
-    const filteredCards = cards.filter((card) => {
-      const categoria = (card.dataset.categoria ?? "").toLowerCase();
-      return normalized === "all" || categoria === normalized;
-    });
-
-    cards.forEach((c) => hideCard(c));
-
-    filteredCards.forEach((card, i) => {
-      if (i < itemsToShow) showCard(card);
-    });
-
-    // botón ver más visible solo si hay más para ver
-    if (!loadMoreBtn) return;
-    loadMoreBtn.style.display = filteredCards.length > itemsToShow ? "block" : "none";
-  }
-
-  /* ---------------- Filtros eventos ---------------- */
-  function attachFilterEvents() {
-    if (!filterButtons.length) return;
-    filterButtons.forEach((btn) => {
-      btn.onclick = () => {
-        itemsToShow = INITIAL_VISIBLE; 
-        const filter = btn.dataset.filter || "all";
-        setActiveButton(btn);
-        applyFilter(filter);
-      };
-    });
-
-    // 在开始时激活“Todos”
-    const allBtn = document.querySelector('.filter-btn[data-filter="all"]');
-    setActiveButton(allBtn);
-  }
-
-  /* ---------------- Ver mas ---------------- */
-  function attachLoadMore() {
-    if (!loadMoreBtn) return;
-    loadMoreBtn.onclick = () => {
-      itemsToShow += INITIAL_VISIBLE; 
-      applyFilter(activeFilter); 
-    };
-  }
-
-  /* ---------------- INIT ---------------- */
-  function init() {
-    queryElements();
-    attachFilterEvents();
-    attachLoadMore();
-    applyFilter("all");
-  }
-
-  document.addEventListener("astro:page-load", init);
-  window.addEventListener("load", init);
-})();
-</script>

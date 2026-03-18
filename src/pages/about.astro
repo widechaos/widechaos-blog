@@ -1,22 +1,121 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import Hero from "../components/commons/hero/hero.astro";
-import AboutMe from "../components/about/aboutMe.astro";
-import Experience from "../components/about/experience.astro";
-import Features from "../components/about/features.astro";
-import Skills from "../components/about/skills.astro";
-import FaqsAbout from "../components/about/FaqsAbout.jsx";
-import BannerGithub from "../components/about/bannerGithub.astro";
-import Banner from "../components/commons/banners/banner.astro";
+import { SITE_CONFIG } from "../config/site";
 ---
 
-<Layout title="about" description="about">
-  <Hero titulo="Sobre Mi" />
-  <AboutMe />
-  <Experience />
-  <Features />
-  <Skills />
-  <FaqsAbout client:visible/>
-  <BannerGithub />
-  <Banner />
+<Layout title="关于" description="个人简介、工作经历与技术方向">
+  <section class="max-w-4xl mx-auto px-4 py-14">
+    <h1 class="text-4xl font-bold mb-4">关于我</h1>
+    <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+      我是 {SITE_CONFIG.author}，现居 {SITE_CONFIG.location}，求职方向为 {`高级AI应用开发工程师 / 大模型应用开发专家`}。
+      我擅长把“大模型能力”做成稳定、可观测、可扩展的产品能力，重点覆盖 RAG 检索增强、Agent 工具调用、多智能体协作、以及云原生部署与稳定性治理。
+    </p>
+
+    <div class="mt-8 grid md:grid-cols-2 gap-6">
+      <div class="p-6 rounded-xl border border-gray-200 dark:border-gray-800">
+        <h2 class="text-xl font-semibold mb-3">联系信息</h2>
+        <div class="space-y-2 text-gray-700 dark:text-gray-300">
+          <p>邮箱：{SITE_CONFIG.email}</p>
+          <p>电话：{SITE_CONFIG.phone}</p>
+        </div>
+      </div>
+      <div class="p-6 rounded-xl border border-gray-200 dark:border-gray-800">
+        <h2 class="text-xl font-semibold mb-3">技术栈</h2>
+        <ul class="text-gray-700 dark:text-gray-300 list-disc pl-5 space-y-1">
+          <li>AI与大模型：RAGFlow、LangChain、Dify、Transformers、Prompt Engineering、Function Calling、Agent开发</li>
+          <li>后端：Python、Go、FastAPI、Flask、Django</li>
+          <li>云原生：Kubernetes、Docker、OpenStack、CSI、Cinder</li>
+          <li>检索与数据：Elasticsearch、Redis、MySQL、PostgreSQL、向量数据库（Milvus/FAISS/pgvector）</li>
+          <li>自动化：Ansible、Jenkins、GitLab CI/CD</li>
+        </ul>
+      </div>
+    </div>
+
+    <section class="mt-10">
+      <h2 class="text-2xl font-bold mb-4">工作经历</h2>
+      <div class="space-y-6">
+        <div class="p-6 rounded-xl border border-gray-200 dark:border-gray-800">
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+            <h3 class="text-lg font-semibold">深圳通昭纪人工智能科技有限公司 · 高级开发工程师 / 技术负责人</h3>
+            <span class="text-sm text-gray-600 dark:text-gray-400">2026.3 - 至今</span>
+          </div>
+          <ul class="mt-3 list-disc pl-5 text-gray-700 dark:text-gray-300 space-y-1">
+            <li>从0到1搭建基于 LangChain 与 Dify 的多智能体协作框架，覆盖讲题、个性化推荐、情感陪伴等能力，支撑日均数万级请求。</li>
+            <li>构建智能引擎服务，通过异步、缓存与并行优化提升并发，API 响应稳定在 1.5 秒以内。</li>
+            <li>建立监控容错与内容安全过滤层，主导容器化部署与可用性保障。</li>
+          </ul>
+        </div>
+
+        <div class="p-6 rounded-xl border border-gray-200 dark:border-gray-800">
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+            <h3 class="text-lg font-semibold">湖南同有飞骥科技股份有限公司 · 高级开发工程师 / 技术负责人</h3>
+            <span class="text-sm text-gray-600 dark:text-gray-400">2023.5 - 2025.6</span>
+          </div>
+          <ul class="mt-3 list-disc pl-5 text-gray-700 dark:text-gray-300 space-y-1">
+            <li>主导基于 RAGFlow 的企业知识库系统，优化切片与召回排序，检索准确率提升 25%，响应时间降低 30%。</li>
+            <li>构建面向客服团队的智能问答助手，支持多轮对话、上下文理解与知识溯源，日均处理量显著提升。</li>
+            <li>完成 OpenStack Cinder 驱动与 Kubernetes CSI 插件开发并通过社区认证，提升容器化环境存储利用率。</li>
+          </ul>
+        </div>
+
+        <div class="p-6 rounded-xl border border-gray-200 dark:border-gray-800">
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+            <h3 class="text-lg font-semibold">北京星辰天合科技股份有限公司 · 解决方案架构师 / 技术顾问</h3>
+            <span class="text-sm text-gray-600 dark:text-gray-400">2021.3 - 2023.3</span>
+          </div>
+          <ul class="mt-3 list-disc pl-5 text-gray-700 dark:text-gray-300 space-y-1">
+            <li>面向重大项目提供产品对接与技术支持，设计多场景落地方案并推动交付。</li>
+            <li>组织行业研究与竞品分析，输出技术文档与内容材料，支撑产品与市场。</li>
+            <li>基于订单与客户数据产出分析报告，为管理决策提供支持。</li>
+          </ul>
+        </div>
+
+        <div class="p-6 rounded-xl border border-gray-200 dark:border-gray-800">
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+            <h3 class="text-lg font-semibold">杭州宏杉科技股份有限公司 · 软件开发工程师</h3>
+            <span class="text-sm text-gray-600 dark:text-gray-400">2016.7 - 2021.3</span>
+          </div>
+          <ul class="mt-3 list-disc pl-5 text-gray-700 dark:text-gray-300 space-y-1">
+            <li>设计、开发和维护 OpenStack Cinder 存储驱动，多次通过社区认证并推进流程自动化。</li>
+            <li>参与超融合分布式存储后台开发，优化数据管理与分发机制，提升系统可靠性与性能。</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="mt-10">
+      <h2 class="text-2xl font-bold mb-4">代表项目</h2>
+      <div class="space-y-6">
+        <div class="p-6 rounded-xl border border-gray-200 dark:border-gray-800">
+          <h3 class="text-lg font-semibold">企业智能知识库系统（RAG应用）</h3>
+          <p class="mt-2 text-gray-700 dark:text-gray-300">
+            统一企业内部文档与案例数据，通过混合检索与重排优化问答效果；提供流式接口并接入企业沟通工具，形成可迭代的反馈闭环。
+          </p>
+        </div>
+        <div class="p-6 rounded-xl border border-gray-200 dark:border-gray-800">
+          <h3 class="text-lg font-semibold">面向客服团队的智能问答助手</h3>
+          <p class="mt-2 text-gray-700 dark:text-gray-300">
+            支持多轮对话、上下文记忆与答案溯源，降低人工介入率并提升客服响应效率。
+          </p>
+        </div>
+        <div class="p-6 rounded-xl border border-gray-200 dark:border-gray-800">
+          <h3 class="text-lg font-semibold">Kubernetes 存储插件开发与认证</h3>
+          <p class="mt-2 text-gray-700 dark:text-gray-300">
+            主导 CSI 插件设计与实现，支持动态卷供给、快照、克隆等能力，并完成兼容性测试与认证。
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="mt-10">
+      <h2 class="text-2xl font-bold mb-4">教育背景</h2>
+      <div class="p-6 rounded-xl border border-gray-200 dark:border-gray-800">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+          <h3 class="text-lg font-semibold">中南大学 · 能源与动力工程（本科）</h3>
+          <span class="text-sm text-gray-600 dark:text-gray-400">2012.9 - 2017.6</span>
+        </div>
+        <p class="mt-2 text-gray-700 dark:text-gray-300">辅修：工商管理</p>
+      </div>
+    </section>
+  </section>
 </Layout>

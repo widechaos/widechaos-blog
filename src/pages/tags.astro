@@ -38,7 +38,7 @@ posts.forEach(post => {
 
           return (
             <a
-              href={`/tags/${tag.toLowerCase()}`}
+              href={`/tags/${encodeURIComponent(tag)}`}
               class="group relative inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all hover:scale-105"
               style={`background-color: ${color}20; color: ${color}; border: 1px solid ${color}30;`}
             >
@@ -98,7 +98,7 @@ posts.forEach(post => {
               {taggedPosts.length > 4 && (
                 <div class="mt-4 text-center">
                   <a
-                    href={`/tags/${tag.toLowerCase()}`}
+                    href={`/tags/${encodeURIComponent(tag)}`}
                     class="inline-block text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                   >
                     查看全部 {taggedPosts.length} 篇文章 →
