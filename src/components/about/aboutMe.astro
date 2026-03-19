@@ -1,5 +1,5 @@
 ---
-import MiFoto from "../../assets/img/MiFoto.png";
+import Fallback from "../../assets/blog-placeholder-about.jpg";
 ---
 
 <!-- Contenedor principal -->
@@ -11,8 +11,8 @@ import MiFoto from "../../assets/img/MiFoto.png";
     class="border-primary h-64 w-64 overflow-hidden rounded-2xl shadow-lg md:h-96 md:w-96 drop-shadow-[4px_4px_0_#7836cf]"
   >
     <img
-      src={MiFoto.src}
-      alt="Foto de Lautaro"
+      src={Fallback.src}
+      alt="Profile placeholder"
       class="h-full w-full object-cover"
     />
   </div>
@@ -20,54 +20,12 @@ import MiFoto from "../../assets/img/MiFoto.png";
   <!-- Texto -->
   <div class="flex-1 text-center text-gray-300 lg:text-left">
     <h2 class="text-3xl font-bold text-white">
-      Mi nombre es <span class="text-white text-shadow">Lautaro</span>
+      教育背景与研究方向
     </h2>
     <p class="mt-4">
-      Soy de <span class="text-primary font-semibold">Argentina</span> y actualmente
-      me desempeño como
-      <span class="text-primary font-semibold"
-        >desarrollador de software full-stack</span
-      >, con un enfoque en el <span class="text-primary font-semibold"
-        >desarrollo front-end</span
-      > y la
-      <span class="text-primary font-semibold">experiencia del usuario</span>,
-      usando tecnologías como <span class="text-primary italic"
-        >React, Astro, JavaScript, TypeScript, Bootstrap, Tailwind, CSS,
-        Node.js, Express.js, MongoDB y MySQL</span
-      >.
+      中南大学 能源与动力工程 本科（2012.9 - 2017.6），辅修 工商管理。
+      当前兴趣集中在大模型应用工程化（RAG/Agent）、云原生与存储系统，以及量化系统工程。
     </p>
-    <p class="mt-2">
-      Mi interés por la <span class="text-primary font-semibold"
-        >tecnología</span
-      > y la
-      <span class="text-primary font-semibold">programación</span> surgió mientras
-      cursaba una
-      <span class="text-primary font-semibold"
-        >Tecnicatura Universitaria en Automatización</span
-      > en la
-      <span class="text-primary font-semibold">UnCuyo</span>. En la clase de <span
-        class="text-primary font-semibold">informática</span
-      > tuve mi primer contacto con el mundo de la programación. Motivado por la
-      <span class="text-primary font-semibold">curiosidad</span>, continué
-      estudiando de manera
-      <span class="text-primary font-semibold">autodidacta</span>, luego en una
-      <span class="text-primary font-semibold"
-        >Tecnicatura enfocada en desarrollo de software</span
-      >, y decidí que esto era a lo que quería dedicarme a nivel <span
-        class="text-primary font-semibold">profesional</span
-      >.
-    </p>
-    <p class="mt-2">
-      Siempre estoy comprometido con un <span class="text-primary font-semibold"
-        >constante crecimiento</span
-      > y
-      <span class="text-primary font-semibold">mejora</span> en mis habilidades,
-      buscando adaptarme a los nuevos
-      <span class="text-primary font-semibold">avances tecnológicos</span> y superarme
-      a nivel
-      <span class="text-primary font-semibold">profesional</span> y <span
-        class="text-primary font-semibold">personal</span
-      >.
-    </p>
+    <p class="mt-2">技术关注：RAG 检索增强生成、函数调用与工具链编排、Agent 协作、多模态数据接入、K8s/CSI 存储、OpenStack Cinder。</p>
   </div>
 </div>

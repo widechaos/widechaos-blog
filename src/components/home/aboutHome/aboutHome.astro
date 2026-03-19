@@ -1,6 +1,6 @@
 ---
 import { HiArrowRight } from "react-icons/hi";
-import MiFoto from "../../../assets/img/MiFoto.png";
+import Fallback from "../../../assets/blog-placeholder-about.jpg";
 ---
 
 <section class="relative flex items-center justify-center px-4 pt-16">
@@ -18,8 +18,8 @@ import MiFoto from "../../../assets/img/MiFoto.png";
       class="bg-base-900 border-none flex w-full items-center justify-center overflow-hidden rounded-2xl border p-0 shadow-lg md:w-1/3 drop-shadow-[4px_4px_0_#7836cf]"
     >
       <img
-        src={MiFoto.src}
-        alt="Foto de Lautaro"
+        src={Fallback.src}
+        alt="Profile placeholder"
         class="h-full w-full object-cover"
       />
     </div>
@@ -28,14 +28,12 @@ import MiFoto from "../../../assets/img/MiFoto.png";
       class="bg-gray-900 border-none flex w-full flex-col justify-center rounded-2xl border p-6 shadow-lg md:w-2/3 drop-shadow-[4px_4px_0_#7836cf]"
     >
       <h2 class="text-white text-4xl font-bold drop-shadow-[2px_2px_0_#7836cf]">
-        Sobre Mí
+        关于我
       </h2>
       <p class="mt-2 font-semibold">
-        Mi nombre es Lautaro, soy Desarrollador de Software y actualmente me
-        desempeño como Web Developer, con un enfoque en el Frontend y la
-        experiencia del usuario. Trabajo con tecnologías como React, Node.js,
-        Astro, JavaScript, TypeScript, Bootstrap, Tailwind CSS, SASS, Figma,
-        entre otras.
+        教育背景：中南大学 能源与动力工程 本科（辅修工商管理）。当前专注于
+        AI 应用工程化（RAG/Agent）、云原生与存储以及量化系统工程。技术栈覆盖
+        Python/Go/TypeScript、FastAPI/Flask、LangChain/RAGFlow、Kubernetes/CSI、Elasticsearch/Milvus 等。
       </p>
 
       <a

@@ -1,57 +1,58 @@
 ---
-// src/components/Header.astro
-const navItems = [
-    { name: '首页', path: '/' },
-    { name: '博客', path: '/blog' },
-    { name: '关于', path: '/about' },
-    { name: '项目', path: '/projects' },
-];
+import { SITE_CONFIG } from "../config/site";
+
+const navItems = SITE_CONFIG.navItems ?? [];
 ---
 
 <header class="sticky top-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800">
-    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-        <!-- Logo -->
-        <a href="/" class="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-            十方空烬
+  <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+    <a
+      href="/"
+      class="font-extrabold text-gray-900 dark:text-white tracking-wide"
+    >
+      {SITE_CONFIG.author}
+    </a>
+
+    <nav class="hidden md:flex space-x-8">
+      {navItems.map((item) => (
+        <a
+          href={item.href}
+          class="text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+        >
+          {item.label}
         </a>
+      ))}
+    </nav>
 
-        <!-- 导航 -->
-        <nav class="hidden md:flex space-x-8">
-            {navItems.map(item => (
-                <a
-                    href={item.path}
-                    class="text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
-                >
-                    {item.name}
-                </a>
-            ))}
-        </nav>
-
-        <!-- 主题切换按钮 -->
-        <button id="theme-toggle" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-800">
-            <span class="dark:hidden">🌙</span>
-            <span class="hidden dark:inline">☀️</span>
-        </button>
-    </div>
+    <button
+      id="theme-toggle"
+      type="button"
+      class="rounded-md px-3 py-2 text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+      aria-label="Toggle theme"
+    >
+      <span class="dark:hidden">🌙</span>
+      <span class="hidden dark:inline">☀️</span>
+    </button>
+  </div>
 </header>
 
-<script>
-// 主题切换逻辑
-document.getElementById('theme-toggle').addEventListener('click', () => {
-    if (document.documentElement.classList.contains('dark')) {
-        document.documentElement.classList.remove('dark');
-        localStorage.setItem('theme', 'light');
+<script is:inline>
+  const toggleBtn = document.getElementById("theme-toggle");
+  const setTheme = (theme) => {
+    if (theme === "dark") {
+      document.documentElement.classList.add("dark");
     } else {
-        document.documentElement.classList.add('dark');
-        localStorage.setItem('theme', 'dark');
+      document.documentElement.classList.remove("dark");
     }
-});
+    localStorage.setItem("theme", theme);
+  };
 
-// 初始化主题
-if (localStorage.getItem('theme') === 'dark' ||
-    (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-    document.documentElement.classList.add('dark');
-} else {
-    document.documentElement.classList.remove('dark');
-}
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const savedTheme = localStorage.getItem("theme");
+  setTheme(savedTheme ?? (prefersDark ? "dark" : "light"));
+
+  toggleBtn?.addEventListener("click", () => {
+    const isDark = document.documentElement.classList.contains("dark");
+    setTheme(isDark ? "light" : "dark");
+  });
 </script>

@@ -2,10 +2,11 @@
 import { FiMenu, FiX } from "react-icons/fi";
 import NotificationBell from "./notificationBell.jsx";
 import { FaLinkedinIn, FaGithub } from "react-icons/fa6";
+import { SITE_CONFIG } from "../../../config/site";
 
 const links = [
   { name: "首页", href: "/" },
-  { name: "文章", href: "/proyectos" },
+  { name: "项目", href: "/projects" },
   { name: "关于", href: "/about" },
   { name: "联系", href: "/contact" },
 ];
@@ -25,7 +26,7 @@ const links = [
         <h3
           class="text-[#69c7c7] text-3xl font-bold drop-shadow-[1.5px_1.5px_0_#7836cf]"
         >
-          WideChaos
+          {SITE_CONFIG.author}
         </h3>
       </a>
 
@@ -46,26 +47,6 @@ const links = [
 
         <li class="flex items-center gap-3">
           <NotificationBell client:visible />
-
-          <a
-            href="https://www.linkedin.com/in/lautaro-rodr%C3%ADguez-collins-40505624a/"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="LinkedIn"
-          >
-            <FaLinkedinIn
-              className="h-7 w-7 cursor-pointer hover:text-[#7836cf]"
-            />
-          </a>
-
-          <a
-            href="https://github.com/Lautaro-R-collins"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="GitHub"
-          >
-            <FaGithub className="h-7 w-7 cursor-pointer hover:text-[#7836cf]" />
-          </a>
         </li>
       </ul>
 

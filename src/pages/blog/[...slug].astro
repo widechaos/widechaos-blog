@@ -12,6 +12,7 @@ export async function getStaticPaths() {
 
 const { post } = Astro.props;
 const { Content } = await post.render();
+const pubDate = post.data.pubDate ? new Date(post.data.pubDate) : null;
 ---
 
 <BaseLayout title={post.data.title}>
@@ -20,11 +21,13 @@ const { Content } = await post.render();
       <h1 style="font-size: 2.5rem; font-weight: bold; margin-bottom: 1rem;">
         {post.data.title}
       </h1>
-      <div style="color: #666; font-size: 0.9rem;">
-        <time>{new Date(post.data.pubDate).toLocaleDateString('zh-CN')}</time>
-        {post.data.author && (
-          <span style="margin-left: 1rem;">作者: {post.data.author}</span>
+      <div style="color: #666; font-size: 0.9rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+        {pubDate && (
+          <time datetime={pubDate.toISOString()}>
+            {pubDate.toLocaleDateString("zh-CN")}
+          </time>
         )}
+        {post.data.author && <span>作者: {post.data.author}</span>}
       </div>
     </header>
 
@@ -32,17 +35,19 @@ const { Content } = await post.render();
       <Content />
     </div>
 
-    {post.data.tags && post.data.tags.length > 0 && (
+    {Array.isArray(post.data.tags) && post.data.tags.length > 0 && (
       <footer style="margin-top: 3rem; padding-top: 1rem; border-top: 1px solid #eee;">
         <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
-          {post.data.tags.map(tag => (
-            <span style="
-              background: #f0f0f0;
-              padding: 0.3rem 0.8rem;
-              border-radius: 20px;
-              font-size: 0.9rem;
-              color: #555;
-            ">
+          {post.data.tags.map((tag) => (
+            <span
+              style="
+                background: #f0f0f0;
+                padding: 0.3rem 0.8rem;
+                border-radius: 20px;
+                font-size: 0.9rem;
+                color: #555;
+              "
+            >
               #{tag}
             </span>
           ))}

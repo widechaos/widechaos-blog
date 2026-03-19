@@ -4,7 +4,7 @@ export const SITE_CONFIG = {
   title: "十方空烬的博客",
   description: "voidemper | 十方空烬 - 技术探索与生活思考",
   author: "十方空烬",
-  email: "你的邮箱（可选）",
+  email: "ai@widechaos.cn",
   
   // 社交链接
   social: {

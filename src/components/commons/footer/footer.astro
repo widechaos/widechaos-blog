@@ -1,5 +1,6 @@
 ---
 import SocialIcons from "../socialIcons/socialIcons.jsx";
+import { SITE_CONFIG } from "../../../config/site";
 ---
 
 <footer class="bg-gray-950 text-white">
@@ -11,7 +12,7 @@ import SocialIcons from "../socialIcons/socialIcons.jsx";
       <h3
         class="text-[#69c7c7] text-4xl font-bold drop-shadow-[1.5px_1.5px_0_#7836cf]"
       >
-        WideChaos
+        {SITE_CONFIG.author}
       </h3>
     </a>
 
@@ -24,12 +25,10 @@ import SocialIcons from "../socialIcons/socialIcons.jsx";
           <a href="/" class="hover:text-[#552496] font-semibold">首页</a>
         </li>
         <li>
-          <a href="/Proyectos" class="hover:text-[#552496] font-semibold"
-            >文章</a>
+          <a href="/projects" class="hover:text-[#552496] font-semibold">项目</a>
         </li>
         <li>
-          <a href="/lautaro" class="hover:text-[#552496] font-semibold"
-            >关于</a>
+          <a href="/about" class="hover:text-[#552496] font-semibold">关于</a>
         </li>
         <li>
           <a href="/contact" class="hover:text-[#552496] font-semibold"
@@ -48,6 +47,6 @@ import SocialIcons from "../socialIcons/socialIcons.jsx";
   <div
     class="w-full border-t border-gray-600 py-10 text-center text-sm text-gray-500"
   >
-    xe333@sina.com
+    ai@widechaos.cn
   </div>
 </footer>
