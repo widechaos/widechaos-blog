@@ -47,9 +47,8 @@ const navItems = SITE_CONFIG.navItems ?? [];
     localStorage.setItem("theme", theme);
   };
 
-  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
   const savedTheme = localStorage.getItem("theme");
-  setTheme(savedTheme ?? (prefersDark ? "dark" : "light"));
+  setTheme(savedTheme ?? "dark");
 
   toggleBtn?.addEventListener("click", () => {
     const isDark = document.documentElement.classList.contains("dark");
