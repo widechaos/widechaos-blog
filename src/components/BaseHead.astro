@@ -76,4 +76,4 @@ const absoluteOgImage = new URL(image.src, Astro.site ?? Astro.url).toString();
   content="default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; script-src 'self' https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://www.google-analytics.com https://stats.g.doubleclick.net; upgrade-insecure-requests"
 />
 
-<script src="/js/head-init.js"></script>
+<script src="/js/head-init.js" is:inline></script>

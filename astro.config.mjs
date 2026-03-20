@@ -9,7 +9,6 @@ export default defineConfig({
   site: "https://blog.widechaos.cn",
   redirects: {
     "/proyectos": "/projects",
-    "/proyectos/": "/projects",
   },
   vite: {
     plugins: [tailwindcss()],
