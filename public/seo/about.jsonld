@@ -1,0 +1,22 @@
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "十方空烬",
+  "alternateName": "WideChaos",
+  "url": "https://blog.widechaos.cn/about",
+  "image": "https://blog.widechaos.cn/favicon.svg",
+  "email": "mailto:ai@widechaos.cn",
+  "jobTitle": ["Agent Developer", "LLM Application Engineer"],
+  "knowsAbout": [
+    "Multi-Agent",
+    "Agent",
+    "LLM",
+    "RAG",
+    "Function-calling",
+    "RLHF",
+    "Fine-tuning",
+    "MLOps",
+    "Cloud Native"
+  ],
+  "sameAs": ["https://github.com/widechaos"]
+}

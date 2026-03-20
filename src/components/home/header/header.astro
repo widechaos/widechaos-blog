@@ -1,6 +1,42 @@
 ---
 import SocialIcons from "../../commons/socialIcons/socialIcons.jsx";
 import TypeEfect from "../header/typeEfect.jsx";
+import { getCollection } from "astro:content";
+import { PROJECTS } from "../../../config/site";
+
+const posts = await getCollection("blog");
+const tags = posts
+  .filter((p) => !p.data.draft)
+  .flatMap((p) => p.data.tags ?? [])
+  .map((t) => String(t).trim())
+  .filter(Boolean);
+
+const tagCounts = tags.reduce<Record<string, number>>((acc, tag) => {
+  acc[tag] = (acc[tag] ?? 0) + 1;
+  return acc;
+}, {});
+
+const topTags = Object.entries(tagCounts)
+  .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "zh-CN"))
+  .slice(0, 6)
+  .map(([tag]) => tag);
+
+const projectTech = PROJECTS.flatMap((p) => p.tech ?? [])
+  .map((t) => String(t).trim())
+  .filter(Boolean);
+
+const keywordSet = new Set([
+  ...topTags,
+  ...projectTech,
+  "Agent",
+  "RAG",
+  "LLM",
+  "MLOps",
+  "Function-calling",
+  "UX/UI",
+]);
+
+const keywords = Array.from(keywordSet).slice(0, 10);
 ---
 
 <header class="relative h-screen bg-gray-950 overflow-hidden">
@@ -22,7 +58,7 @@ import TypeEfect from "../header/typeEfect.jsx";
       构建、思考、破界
     </h1>
 
-    <TypeEfect client:visible />
+    <TypeEfect client:visible strings={keywords} />
 
     <p
       class="text-xs md:text-xl text-white max-w-sm md:max-w-xl font-semibold mt-3"

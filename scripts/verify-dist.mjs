@@ -69,7 +69,6 @@ async function main() {
     path.join(DIST_DIR, "about", "index.html"),
     path.join(DIST_DIR, "projects", "index.html"),
     path.join(DIST_DIR, "tags", "index.html"),
-    path.join(DIST_DIR, "archive", "index.html"),
   ];
 
   const existingSamples = [];

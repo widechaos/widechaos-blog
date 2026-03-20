@@ -14,7 +14,6 @@ export async function GET(context: { site: URL }) {
   const staticPaths = [
     "/",
     "/blog",
-    "/archive",
     "/tags",
     "/about",
     "/projects",

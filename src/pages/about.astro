@@ -1,22 +1,86 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import Hero from "../components/commons/hero/hero.astro";
-import AboutMe from "../components/about/aboutMe.astro";
-import Experience from "../components/about/experience.astro";
-import Features from "../components/about/features.astro";
-import Skills from "../components/about/skills.astro";
-import FaqsAbout from "../components/about/FaqsAbout.jsx";
-import BannerGithub from "../components/about/bannerGithub.astro";
 import Banner from "../components/commons/banners/banner.astro";
 ---
 
-<Layout title="about" description="about">
+<Layout title="关于" description="Agent / LLM 应用工程师：多智能体协同、RAG、Function-calling、微调与 MLOps">
+  <script type="application/ld+json" src="/seo/about.jsonld" is:inline></script>
   <Hero titulo="关于" />
-  <AboutMe />
-  <Experience />
-  <Features />
-  <Skills />
-  <FaqsAbout client:visible/>
-  <BannerGithub />
+
+  <section class="mx-auto max-w-6xl px-6 py-14 text-white/90">
+    <div class="rounded-2xl border border-white/10 bg-white/5 p-8 md:p-10">
+      <h2 class="text-2xl font-extrabold text-white">① 个人定位与使命</h2>
+      <p class="mt-4 leading-relaxed text-white/80">
+        我是一名面向生产环境的 Agent Developer / LLM Application Engineer，长期聚焦
+        Multi-Agent 协同编排、RAG（Retrieval-Augmented Generation）、Function-calling
+        与云原生交付，把「可解释、可观测、可迭代」的 AI 系统落到真实业务里。使命是让
+        LLM 从 Demo 走向可靠生产：在推理延迟 &lt; 200ms（缓存/路由/并发优化）前提下，
+        通过评测驱动迭代把 Agent 任务成功率提升到 ≥ 98%，并将关键指标（准确率/召回率/一致性）
+        在微调后提升 ≥ 15%。
+      </p>
+
+      <h2 class="mt-10 text-2xl font-extrabold text-white">② 核心技术矩阵</h2>
+      <div class="mt-4 grid gap-6 md:grid-cols-2">
+        <div class="rounded-xl border border-white/10 bg-black/20 p-6">
+          <h3 class="text-lg font-bold text-white">Agent &amp; LLM 工程</h3>
+          <ul class="mt-3 list-disc space-y-2 pl-5 text-white/80">
+            <li>Multi-Agent 协作：Planner/Executor/Verifier，工具路由与权限隔离</li>
+            <li>RAG：向量检索 + 混合检索（BM25/Embedding），重排（rerank）与引用溯源</li>
+            <li>Function-calling：Schema 约束、错误恢复、重试策略与幂等设计</li>
+            <li>评测体系：离线基准集 + 在线 A/B，覆盖 hallucination、groundedness 与 latency</li>
+          </ul>
+        </div>
+        <div class="rounded-xl border border-white/10 bg-black/20 p-6">
+          <h3 class="text-lg font-bold text-white">MLOps &amp; 云原生</h3>
+          <ul class="mt-3 list-disc space-y-2 pl-5 text-white/80">
+            <li>训练/微调：LoRA/QLoRA，数据治理与指令对齐（RLHF/偏好优化思路）</li>
+            <li>推理服务：容器化部署、弹性伸缩、灰度发布与可回滚策略</li>
+            <li>可观测性：Tracing/metrics/logs，面向 Prompt 与检索链路的观测面板</li>
+            <li>安全合规：CSP/最小权限、敏感信息脱敏、数据访问审计</li>
+          </ul>
+        </div>
+      </div>
+
+      <h2 class="mt-10 text-2xl font-extrabold text-white">③ 典型项目案例</h2>
+      <ul class="mt-4 space-y-4 text-white/80">
+        <li class="rounded-xl border border-white/10 bg-black/20 p-6">
+          <div class="text-lg font-bold text-white">企业知识库 RAG Agent</div>
+          <div class="mt-2 leading-relaxed">
+            构建端到端 RAG 管线：文档切分、Embedding、混合检索、重排与引用输出；
+            通过离线评测 + 在线监控把关键问答的 groundedness 提升 ≥ 15%，并将 P95 推理链路控制在 &lt; 200ms（缓存 + 预计算 + 并发调优）。
+          </div>
+        </li>
+        <li class="rounded-xl border border-white/10 bg-black/20 p-6">
+          <div class="text-lg font-bold text-white">多智能体任务编排平台</div>
+          <div class="mt-2 leading-relaxed">
+            设计 Planner/Executor/Verifier 的多智能体协作，落地 Function-calling 工具链，
+            引入任务回放与失败样本库，将 Agent 任务成功率稳定在 ≥ 98%，并提供可观测面板定位检索/工具调用/输出一致性问题。
+          </div>
+        </li>
+      </ul>
+
+      <h2 class="mt-10 text-2xl font-extrabold text-white">④ 开源贡献与专利</h2>
+      <p class="mt-4 leading-relaxed text-white/80">
+        维护并参与开源生态（围绕 Agent、RAG、MLOps 与工程化工具链），持续输出可复用的
+        Prompt/评测脚手架与部署模板；专利与技术成果以不泄露客户信息为原则进行整理与公开。
+      </p>
+
+      <h2 class="mt-10 text-2xl font-extrabold text-white">⑤ 技术博客与演讲</h2>
+      <p class="mt-4 leading-relaxed text-white/80">
+        我在本站持续记录 Agent、LLM、RAG、Function-calling、微调、MLOps 与云原生落地的实践与复盘，
+        关注可观测性、可靠性与成本控制；也会以工程视角输出对产品体验（UX/UI）与信息架构的思考。
+      </p>
+
+      <h2 class="mt-10 text-2xl font-extrabold text-white">⑥ 联系方式</h2>
+      <p class="mt-4 text-white/80">
+        Email：<a class="underline hover:text-white" href="mailto:ai@widechaos.cn">ai@widechaos.cn</a>
+        <span class="mx-2 text-white/40">|</span>
+        GitHub：<a class="underline hover:text-white" href="https://github.com/widechaos">widechaos</a>
+        <span class="mx-2 text-white/40">|</span>
+        也可以在 <a class="underline hover:text-white" href="/contact">联系页</a> 直接留言。
+      </p>
+    </div>
+  </section>
   <Banner />
 </Layout>
