@@ -1,23 +1,42 @@
 ---
-import "../styles/global.css";
 import type { ImageMetadata } from "astro";
 import FallbackImage from "../assets/blog-placeholder-1.jpg";
 import { SITE_CONFIG } from "../config/site";
 
 interface Props {
-  title: string;
-  description: string;
+  title?: string;
+  description?: string;
   image?: ImageMetadata;
+  noindex?: boolean;
+  canonical?: string;
 }
 
-const { title, description, image = FallbackImage } = Astro.props;
-const pageTitle = `${title} | ${SITE_CONFIG.title}`;
-const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? Astro.url);
+const {
+  title,
+  description,
+  image = FallbackImage,
+  noindex = false,
+  canonical,
+} = Astro.props;
+
+const baseTitle = title ?? SITE_CONFIG.title;
+const pageTitle =
+  baseTitle === SITE_CONFIG.title
+    ? SITE_CONFIG.title
+    : `${baseTitle} | ${SITE_CONFIG.title}`;
+const pageDescription = description ?? SITE_CONFIG.description;
+const canonicalURL = canonical
+  ? new URL(canonical, Astro.site ?? Astro.url)
+  : new URL(Astro.url.pathname, Astro.site ?? Astro.url);
+const absoluteOgImage = new URL(image.src, Astro.site ?? Astro.url).toString();
 ---
 
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="generator" content={Astro.generator} />
+<meta name="color-scheme" content="dark light" />
+
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
 <link
   rel="preload"
@@ -32,15 +51,29 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? Astro.url);
 
 <title>{pageTitle}</title>
 <meta name="title" content={pageTitle} />
-<meta name="description" content={description} />
+<meta name="description" content={pageDescription} />
+
+{noindex ? <meta name="robots" content="noindex,nofollow" /> : null}
 
 <meta property="og:type" content="website" />
 <meta property="og:url" content={canonicalURL.toString()} />
-<meta property="og:title" content={title} />
-<meta property="og:description" content={description} />
-<meta property="og:image" content={new URL(image.src, Astro.url).toString()} />
+<meta property="og:title" content={baseTitle} />
+<meta property="og:description" content={pageDescription} />
+<meta property="og:image" content={absoluteOgImage} />
 
 <meta property="twitter:card" content="summary_large_image" />
-<meta property="twitter:title" content={title} />
-<meta property="twitter:description" content={description} />
-<meta property="twitter:image" content={new URL(image.src, Astro.url).toString()} />
+<meta property="twitter:title" content={baseTitle} />
+<meta property="twitter:description" content={pageDescription} />
+<meta property="twitter:image" content={absoluteOgImage} />
+
+<meta name="referrer" content="strict-origin-when-cross-origin" />
+<meta
+  http-equiv="Permissions-Policy"
+  content="geolocation=(), microphone=(), camera=(), payment=(), usb=()"
+/>
+<meta
+  http-equiv="Content-Security-Policy"
+  content="default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; script-src 'self' https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https://www.google-analytics.com https://stats.g.doubleclick.net; upgrade-insecure-requests"
+/>
+
+<script src="/js/head-init.js"></script>

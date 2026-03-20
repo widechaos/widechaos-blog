@@ -7,6 +7,10 @@ import react from "@astrojs/react";
 // https://astro.build/config
 export default defineConfig({
   site: "https://blog.widechaos.cn",
+  redirects: {
+    "/proyectos": "/projects",
+    "/proyectos/": "/projects",
+  },
   vite: {
     plugins: [tailwindcss()],
   },

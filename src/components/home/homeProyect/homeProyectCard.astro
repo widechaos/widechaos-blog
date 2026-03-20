@@ -17,8 +17,12 @@ const { titulo, imagen, tecnologias, demo, codigo } = Astro.props;
 >
   <img
     src={imagen}
-    alt={`Proyecto: ${titulo}`}
+    alt={`项目封面：${titulo}`}
     class="h-52 p-3 w-full object-cover rounded-2xl"
+    width="1200"
+    height="675"
+    loading="lazy"
+    decoding="async"
   />
 
   <div class="flex flex-col grow p-3">

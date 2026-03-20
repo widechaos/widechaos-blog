@@ -1,6 +1,8 @@
 ---
 import SocialIcons from "../socialIcons/socialIcons.jsx";
 import { SITE_CONFIG } from "../../../config/site";
+
+const links = SITE_CONFIG.navItems.filter((item) => item.href !== "/");
 ---
 
 <footer class="bg-gray-950 text-white">
@@ -21,18 +23,22 @@ import { SITE_CONFIG } from "../../../config/site";
       <ul
         class="flex flex-col items-center space-y-2 text-gray-400 lg:flex-row lg:items-start lg:space-y-0 lg:space-x-6"
       >
+        {
+          links.map((link) => (
+            <li>
+              <a href={link.href} class="hover:text-[#552496] font-semibold">
+                {link.label}
+              </a>
+            </li>
+          ))
+        }
         <li>
-          <a href="/" class="hover:text-[#552496] font-semibold">首页</a>
+          <a href="/feed.xml" class="hover:text-[#552496] font-semibold">RSS</a>
         </li>
         <li>
-          <a href="/projects" class="hover:text-[#552496] font-semibold">项目</a>
-        </li>
-        <li>
-          <a href="/about" class="hover:text-[#552496] font-semibold">关于</a>
-        </li>
-        <li>
-          <a href="/contact" class="hover:text-[#552496] font-semibold"
-            >联系</a>
+          <a href="/sitemap.xml" class="hover:text-[#552496] font-semibold">
+            站点地图
+          </a>
         </li>
       </ul>
     </nav>
@@ -47,6 +53,11 @@ import { SITE_CONFIG } from "../../../config/site";
   <div
     class="w-full border-t border-gray-600 py-10 text-center text-sm text-gray-500"
   >
-    ai@widechaos.cn
+    <a
+      class="font-semibold text-gray-400 transition-colors hover:text-[#69c7c7]"
+      href={`mailto:${SITE_CONFIG.email}`}
+    >
+      {SITE_CONFIG.email}
+    </a>
   </div>
 </footer>

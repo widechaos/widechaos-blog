@@ -3,6 +3,8 @@ title: "欢迎来到我的博客"
 pubDate: "2024-12-26"
 description: "这是我的第一篇博客文章"
 tags: ["开始", "欢迎"]
+author: "十方空烬"
+readTime: 8
 ---
 
 这是一个测试文档

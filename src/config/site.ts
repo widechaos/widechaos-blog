@@ -39,6 +39,7 @@ export const SITE_CONFIG = {
     { label: "标签", href: "/tags" },
     { label: "关于", href: "/about" },
     { label: "项目", href: "/projects" },
+    { label: "联系", href: "/contact" },
   ],
 };
 

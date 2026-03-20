@@ -2,23 +2,25 @@
 import "../styles/global.css";
 import Navbar from "../components/commons/navbar/navbar.astro";
 import Footer from "../components/commons/footer/footer.astro";
+import BaseHead from "../components/BaseHead.astro";
 import { SITE_CONFIG } from "../config/site";
 
 const {
-  title = "WideChaos",
-  description = "AI 应用开发 · 大模型工程化 · 云原生与存储",
+  title,
+  description,
+  image,
+  noindex = false,
 } = Astro.props;
-const pageTitle = `${title} | ${SITE_CONFIG.title}`;
 ---
 
-<html lang="zh-CN">
+<html lang="zh-CN" class="dark">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="generator" content={Astro.generator} />
-    <meta name="description" content={description} />
-    <title>{pageTitle}</title>
+    <BaseHead
+      title={title}
+      description={description ?? SITE_CONFIG.description}
+      image={image}
+      noindex={noindex}
+    />
   </head>
   <body class="min-h-screen bg-[#0b0616] text-gray-100 antialiased">
     <Navbar />

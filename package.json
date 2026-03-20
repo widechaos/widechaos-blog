@@ -6,6 +6,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "verify:dist": "node scripts/verify-dist.mjs",
+    "audit:deps": "npm audit --audit-level=high",
     "astro": "astro"
   },
   "dependencies": {

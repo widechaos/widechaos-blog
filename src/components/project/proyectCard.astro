@@ -23,8 +23,12 @@ const { titulo, descripcion, imagen, tecnologias, demo, codigo, categoria, index
 >
   <img
     src={imagen}
-    alt={`Imagen del proyecto ${titulo}`}
+    alt={`项目封面：${titulo}`}
     class="h-50 w-full rounded-2xl object-cover p-3"
+    width="1200"
+    height="675"
+    loading="lazy"
+    decoding="async"
   />
   <div class="flex grow flex-col px-3 pb-3">
     <h3 class="text-xl font-semibold text-white drop-shadow-[1px_1px_0_#7836cf]">{titulo}</h3>

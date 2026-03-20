@@ -15,7 +15,10 @@ import { SITE_CONFIG } from "../config/site";
           <span class="text-white font-extrabold text-2xl drop-shadow-[1px_1px_0_#0debd8]">WC</span>
         </div>
 
-        <svg viewBox="0 0 200 200" class="animate-spin-slow absolute h-48 w-48">
+        <svg
+          viewBox="0 0 200 200"
+          class="absolute h-48 w-48 animate-[spin_25s_linear_infinite]"
+        >
           <path
             id="circlePathText"
             d="M100,100 m-77,0 a77,77 0 1,1 154,0 a77,77 0 1,1 -154,0"
@@ -42,15 +45,3 @@ import { SITE_CONFIG } from "../config/site";
     </div>
   </section>
 </Layout>
-
-<style>
-  .animate-spin-slow {
-    animation: spin 25s linear infinite;
-  }
-
-  @keyframes spin {
-    100% {
-      transform: rotate(360deg);
-    }
-  }
-</style>

@@ -1,15 +1,9 @@
 ---
 import { FiMenu, FiX } from "react-icons/fi";
 import NotificationBell from "./notificationBell.jsx";
-import { FaLinkedinIn, FaGithub } from "react-icons/fa6";
 import { SITE_CONFIG } from "../../../config/site";
 
-const links = [
-  { name: "首页", href: "/" },
-  { name: "项目", href: "/projects" },
-  { name: "关于", href: "/about" },
-  { name: "联系", href: "/contact" },
-];
+const links = SITE_CONFIG.navItems;
 ---
 
 <nav class="relative">
@@ -39,12 +33,22 @@ const links = [
                 href={link.href}
                 class="nav-link font-bold transition-colors duration-300 text-white hover:text-[#7d2dac]"
               >
-                {link.name}
+                {link.label}
               </a>
             </li>
           ))
         }
 
+        <li>
+          <button
+            id="theme-toggle"
+            type="button"
+            class="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-bold text-white/80 transition-colors hover:border-white/20 hover:text-white"
+            aria-label="切换主题"
+          >
+            主题
+          </button>
+        </li>
         <li class="flex items-center gap-3">
           <NotificationBell client:visible />
         </li>
@@ -52,10 +56,17 @@ const links = [
 
       <!-- Mobile right-side icons -->
       <div class="flex md:hidden items-center gap-4 z-50">
+        <button
+          id="theme-toggle-mobile"
+          type="button"
+          class="rounded-full border border-white/10 bg-white/5 px-3 py-2 text-xs font-bold text-white/80 transition-colors hover:border-white/20 hover:text-white"
+          aria-label="切换主题"
+        >
+          主题
+        </button>
         <NotificationBell client:visible />
-        <label for="menu-toggle" class="cursor-pointer">
-          <FiMenu className="h-7 w-7 text-white peer-checked:hidden" />
-          <FiX className="h-7 w-7 text-white hidden peer-checked:block" />
+        <label for="menu-toggle" class="cursor-pointer" aria-label="打开菜单">
+          <FiMenu className="h-7 w-7 text-white" />
         </label>
       </div>
     </div>
@@ -85,7 +96,7 @@ const links = [
               href={link.href}
               class="nav-link-mobile text-lg font-bold text-white hover:text-[#69c7c7] transition-colors duration-300"
             >
-              {link.name}
+              {link.label}
             </a>
           </li>
         ))
@@ -96,6 +107,28 @@ const links = [
 
 <script>
   (function () {
+    function getTheme() {
+      const savedTheme = localStorage.getItem("theme");
+      return savedTheme === "light" ? "light" : "dark";
+    }
+
+    function setTheme(theme) {
+      localStorage.setItem("theme", theme);
+      if (theme === "dark") document.documentElement.classList.add("dark");
+      else document.documentElement.classList.remove("dark");
+      document.documentElement.style.colorScheme = theme;
+      updateThemeButtons();
+    }
+
+    function updateThemeButtons() {
+      const theme = getTheme();
+      const label = theme === "dark" ? "暗色" : "亮色";
+      const desktopBtn = document.getElementById("theme-toggle");
+      const mobileBtn = document.getElementById("theme-toggle-mobile");
+      if (desktopBtn) desktopBtn.textContent = label;
+      if (mobileBtn) mobileBtn.textContent = label;
+    }
+
     function markActiveLinks() {
       const currentPath = window.location.pathname.replace(/\/$/, "") || "/";
       const desktopLinks = Array.from(
@@ -127,6 +160,23 @@ const links = [
       document.addEventListener("DOMContentLoaded", markActiveLinks);
     } else {
       markActiveLinks();
+    }
+
+    function attachThemeToggle() {
+      const desktopBtn = document.getElementById("theme-toggle");
+      const mobileBtn = document.getElementById("theme-toggle-mobile");
+      [desktopBtn, mobileBtn].filter(Boolean).forEach((btn) => {
+        btn.addEventListener("click", () => {
+          setTheme(getTheme() === "dark" ? "light" : "dark");
+        });
+      });
+      updateThemeButtons();
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", attachThemeToggle);
+    } else {
+      attachThemeToggle();
     }
 
     window.addEventListener("popstate", markActiveLinks);

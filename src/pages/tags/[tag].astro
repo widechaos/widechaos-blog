@@ -13,13 +13,13 @@ export async function getStaticPaths() {
     });
 
   return Array.from(tagSet).map((tag) => ({
-    params: { tag: tag.toLowerCase() },
+    params: { tag: encodeURIComponent(tag.toLowerCase()) },
     props: { tag },
   }));
 }
 
 const { tag } = Astro.props as { tag: string };
-const tagParam = (Astro.params.tag ?? "").toLowerCase();
+const tagParam = decodeURIComponent(Astro.params.tag ?? "").toLowerCase();
 const posts = await getCollection("blog");
 const taggedPosts = posts
   .filter((post) => !post.data.draft)

@@ -30,8 +30,20 @@ export async function GET(context: { site: URL }) {
       lastmod: post.data.updatedDate ?? post.data.pubDate,
     }));
 
+  const tagSet = new Set<string>();
+  posts
+    .filter((post) => !post.data.draft)
+    .forEach((post) => {
+      (post.data.tags ?? []).forEach((tag) => tagSet.add(tag));
+    });
+
+  const tagPaths = Array.from(tagSet)
+    .map((tag) => `/tags/${encodeURIComponent(tag.toLowerCase())}`)
+    .sort((a, b) => a.localeCompare(b, "en"));
+
   const urls: { loc: string; lastmod?: Date }[] = [
     ...staticPaths.map((p) => ({ loc: new URL(p, site).toString() })),
+    ...tagPaths.map((p) => ({ loc: new URL(p, site).toString() })),
     ...postPaths.map((p) => ({
       loc: new URL(p.path, site).toString(),
       lastmod: p.lastmod,

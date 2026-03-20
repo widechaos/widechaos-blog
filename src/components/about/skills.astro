@@ -12,28 +12,29 @@
   <div class="mt-10 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
     {
       [
-        { name: "HTML", icon: "html5" },
-        { name: "CSS", icon: "css3" },
-        { name: "JavaScript", icon: "javascript" },
-        { name: "TypeScript", icon: "typescript" },
-        { name: "Python", icon: "python" },
-        { name: "React", icon: "react" },
-        { name: "Astro", icon: "astro" },
-        { name: "Next.js", icon: "nextjs" },
-        { name: "Tailwind", icon: "tailwindcss" },
-        { name: "Node.js", icon: "nodejs" },
-        { name: "Express", icon: "express" },
-        { name: "Git", icon: "git" },
+        { name: "HTML", label: "HTML" },
+        { name: "CSS", label: "CSS" },
+        { name: "JavaScript", label: "JS" },
+        { name: "TypeScript", label: "TS" },
+        { name: "Python", label: "Py" },
+        { name: "React", label: "React" },
+        { name: "Astro", label: "Astro" },
+        { name: "Next.js", label: "Next" },
+        { name: "Tailwind", label: "TW" },
+        { name: "Node.js", label: "Node" },
+        { name: "Express", label: "Express" },
+        { name: "Git", label: "Git" },
       ].map((skill) => (
         <div class="relative group">
           <div class="absolute inset-0 -z-10 rounded-lg  blur-3xl opacity-0 transition-opacity group-hover:opacity-100" />
 
           <div class="flex flex-col items-center bg-gray-900 p-4 drop-shadow-[4px_4px_0_#7836cf] rounded-lg shadow-md transition-transform hover:scale-105">
-            <img
-              src={`https://cdn.jsdelivr.net/gh/devicons/devicon/icons/${skill.icon}/${skill.icon}-original.svg`}
-              alt={skill.name}
-              class="w-12 h-12"
-            />
+            <div
+              class="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white font-extrabold tracking-wide"
+              aria-hidden="true"
+            >
+              {skill.label}
+            </div>
             <p class="mt-2 text-white text-lg font-semibold drop-shadow-[1px_1px_0_#7836cf]">{skill.name}</p>
           </div>
         </div>

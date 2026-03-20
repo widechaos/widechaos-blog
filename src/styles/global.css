@@ -75,3 +75,137 @@
 .text-shadow {
   text-shadow: 2px 2px 0 #6d0deb;
 }
+
+:where(
+    a,
+    button,
+    input,
+    textarea,
+    select,
+    summary,
+    [role="button"],
+    [tabindex]:not([tabindex="-1"])
+  ):focus-visible {
+  outline: 2px solid #69c7c7;
+  outline-offset: 2px;
+  border-radius: 0.5rem;
+}
+
+.ab-b-only {
+  display: none;
+}
+
+:root[data-ab="b"] .ab-a-only {
+  display: none;
+}
+
+:root[data-ab="b"] .ab-b-only {
+  display: initial;
+}
+
+@keyframes scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-scroll {
+  animation: scroll 60s linear infinite;
+}
+
+.animate-paused {
+  animation-play-state: paused;
+}
+
+@media (min-width: 768px) {
+  .animate-scroll {
+    animation-duration: 80s;
+  }
+}
+
+.tag-chip {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.tag-chip--tech {
+  background-color: rgba(59, 130, 246, 0.12);
+  border-color: rgba(59, 130, 246, 0.18);
+  color: #3b82f6;
+}
+
+.tag-chip--code {
+  background-color: rgba(139, 92, 246, 0.12);
+  border-color: rgba(139, 92, 246, 0.18);
+  color: #8b5cf6;
+}
+
+.tag-chip--life {
+  background-color: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.18);
+  color: #10b981;
+}
+
+.tag-chip--think {
+  background-color: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.18);
+  color: #f59e0b;
+}
+
+.tag-chip--read {
+  background-color: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.18);
+  color: #ef4444;
+}
+
+.tag-chip--quant {
+  background-color: rgba(99, 102, 241, 0.12);
+  border-color: rgba(99, 102, 241, 0.18);
+  color: #6366f1;
+}
+
+.tag-chip--ai {
+  background-color: rgba(236, 72, 153, 0.12);
+  border-color: rgba(236, 72, 153, 0.18);
+  color: #ec4899;
+}
+
+.tag-chip--default {
+  background-color: rgba(107, 114, 128, 0.12);
+  border-color: rgba(107, 114, 128, 0.18);
+  color: #6b7280;
+}
+
+.tag-heading--tech {
+  color: #3b82f6;
+}
+
+.tag-heading--code {
+  color: #8b5cf6;
+}
+
+.tag-heading--life {
+  color: #10b981;
+}
+
+.tag-heading--think {
+  color: #f59e0b;
+}
+
+.tag-heading--read {
+  color: #ef4444;
+}
+
+.tag-heading--quant {
+  color: #6366f1;
+}
+
+.tag-heading--ai {
+  color: #ec4899;
+}
+
+.tag-heading--default {
+  color: #6b7280;
+}
