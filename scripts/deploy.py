@@ -11,7 +11,7 @@ def ci_passed(revision):
 def main():
  p=argparse.ArgumentParser();p.add_argument('--config',type=Path,required=True,help='Private local deployment settings, outside the repository');p.add_argument('--ref',default='origin/main');p.add_argument('--target',help='Existing SSH alias for the content host')
  p.add_argument('--bridge',help='Existing SSH host/alias for the management machine');p.add_argument('--bridge-port',type=int,default=22)
- p.add_argument('--root');p.add_argument('--container')
+ p.add_argument('--root');p.add_argument('--container');p.add_argument('--timeout',type=int,default=600)
  group=p.add_mutually_exclusive_group();group.add_argument('--apply',action='store_true');group.add_argument('--rollback',action='store_true');a=p.parse_args()
  config_path=a.config.resolve()
  if config_path==ROOT or ROOT in config_path.parents:p.error('Keep deployment settings outside this public repository')
@@ -34,8 +34,11 @@ def main():
  wrapper='import json,subprocess\np=json.load(__import__("sys").stdin)\nr=subprocess.run(["python3","-c",'+repr(script)+'],input=json.dumps(p["payload"]),text=True,capture_output=True)\nprint(r.stdout);print(r.stderr[-1000:] if r.returncode else "");raise SystemExit(r.returncode)'
  if a.bridge:
   outer='import json,subprocess,sys\np=json.load(sys.stdin)\nr=subprocess.run(["ssh","-T","-o","BatchMode=yes","-o","ConnectTimeout=15",'+repr(a.target)+',"python3 -c "+__import__("shlex").quote('+repr(wrapper)+')],input=json.dumps(p),text=True,capture_output=True)\nprint(r.stdout);print(r.stderr[-1000:] if r.returncode else "");raise SystemExit(r.returncode)'
-  command=['ssh','-p',str(a.bridge_port),'-T','-o','BatchMode=yes','-o','ConnectTimeout=15',a.bridge,'python3 -c '+__import__('shlex').quote(outer)]
- else:command=['ssh','-T','-o','BatchMode=yes','-o','ConnectTimeout=15',a.target,'python3 -c '+__import__('shlex').quote(wrapper)]
- result=subprocess.run(command,input=json.dumps({'payload':payload}),text=True,capture_output=True,timeout=180)
+  command=['ssh','-p',str(a.bridge_port),'-T','-o','BatchMode=yes','-o','ConnectTimeout=15','-o','ServerAliveInterval=10','-o','ServerAliveCountMax=3',a.bridge,'python3 -c '+__import__('shlex').quote(outer)]
+ else:command=['ssh','-T','-o','BatchMode=yes','-o','ConnectTimeout=15','-o','ServerAliveInterval=10','-o','ServerAliveCountMax=3',a.target,'python3 -c '+__import__('shlex').quote(wrapper)]
+ try:
+  result=subprocess.run(command,input=json.dumps({'payload':payload}),text=True,capture_output=True,timeout=a.timeout)
+ except subprocess.TimeoutExpired:
+  raise SystemExit('Deployment transport timed out; verify the host deployment receipt before retrying. No connection settings are printed.')
  print(result.stdout);print(result.stderr[-1000:] if result.returncode else '');raise SystemExit(result.returncode)
 if __name__=='__main__':main()

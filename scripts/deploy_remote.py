@@ -19,7 +19,7 @@ def allowed(name):
 
 def unpack(body):
  files={}
- with tarfile.open(fileobj=io.BytesIO(body),mode='r:') as archive:
+ with tarfile.open(fileobj=io.BytesIO(body),mode='r:*') as archive:
   for item in archive.getmembers():
    if not item.isfile() or item.name in files:raise ValueError('Unexpected release member')
    if item.name!='release.json' and not allowed(item.name):raise ValueError('Non-site file in release')
@@ -112,11 +112,11 @@ def run(payload):
   try:
    for name,value in files.items():atomic(root/name,value)
    # This runs with production's Python and original Markdown renderer before restart.
-   command('docker','exec',container,'python','-c','from app.main import app,_personal_site; d=_personal_site.bundle(); assert isinstance(d["articles"],list); assert isinstance(d["projects"],list)')
+   command('docker','exec',container,'python','-c','from app.site_content.content_service import ContentService; from app.site_content.ssr import render; from app.routes import blog; s=ContentService("content/site-catalog.json",blog_dir="content/blog",render=blog._parse); d=s.bundle(); page,status=render("app/personal_site","/",d); assert status==200; assert isinstance(d["articles"],list)')
    if any(digest(root/name)!=sha for name,sha in before_content.items()):raise ValueError('Content changed during deployment; inspect concurrent publishing')
    command('docker','restart',container);health=verify(payload['private_probes'])
    release=control/manifest['revision'];release.mkdir(exist_ok=True,mode=0o700)
-   atomic(release/'release.tar',body);atomic(release/'release.json',json.dumps(manifest,indent=2).encode())
+   atomic(release/'release.tar.gz',body);atomic(release/'release.json',json.dumps(manifest,indent=2).encode())
    atomic(state_path,json.dumps({**manifest,'backup':backup.name},indent=2).encode())
    return {'ok':True,'operation':'deploy','revision':manifest['revision'],'changedFiles':len(changes),**health}
   except Exception:

@@ -26,9 +26,9 @@ jobs:
       - run: npm run check && npm run validate && npm test
       - run: python -m unittest discover -s integration -p 'test_*.py'
       - run: python -m unittest discover -s tests -p 'test_*.py'
-      - run: python scripts/build_release.py --ref HEAD --output artifacts/site.tar
+      - run: python scripts/build_release.py --ref HEAD --output artifacts/site.tar.gz
       - uses: actions/upload-artifact@v4
         with:
           name: website-${{ github.sha }}
-          path: artifacts/site.tar
+          path: artifacts/site.tar.gz
           retention-days: 14

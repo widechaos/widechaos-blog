@@ -1,5 +1,5 @@
 """Build a reproducible, source-only release from one Git commit."""
-import argparse,hashlib,io,json,re,subprocess,tarfile
+import argparse,gzip,hashlib,io,json,re,subprocess,tarfile
 from pathlib import Path
 ROOT=Path(__file__).resolve().parent.parent
 REPOSITORY='https://github.com/widechaos/widechaos-blog'
@@ -23,7 +23,7 @@ def release_bytes(ref='HEAD'):
  with tarfile.open(fileobj=output,mode='w') as archive:
   for name,body in sorted({**files,'release.json':(json.dumps(manifest,indent=2)+'\n').encode()}.items()):
    info=tarfile.TarInfo(name);info.size=len(body);info.mode=0o644;info.mtime=0;archive.addfile(info,io.BytesIO(body))
- return output.getvalue(),manifest
+ return gzip.compress(output.getvalue(),mtime=0),manifest
 
 def main():
  p=argparse.ArgumentParser();p.add_argument('--ref',default='HEAD');p.add_argument('--output',type=Path,required=True);a=p.parse_args()
