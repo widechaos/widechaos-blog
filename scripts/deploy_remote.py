@@ -54,6 +54,23 @@ def command(*args):
  if r.returncode:raise RuntimeError('Command failed: '+args[0]+' '+r.stderr[-600:])
  return r.stdout
 
+def require_capacity(proc=Path('/proc')):
+ memory={line.split(':',1)[0]:int(line.split()[1]) for line in (proc/'meminfo').read_text().splitlines() if line.split()[1].isdigit()}
+ if memory.get('MemAvailable',0)<384*1024:
+  raise RuntimeError('Deployment deferred: less than 384 MiB available memory; no site files changed')
+ for name,limit in (('memory',5),('io',10)):
+  path=proc/'pressure'/name
+  if path.exists():
+   for line in path.read_text().splitlines():
+    if line.startswith('full '):
+     values=dict(item.split('=') for item in line.split()[1:])
+     if float(values['avg10'])>=limit:
+      raise RuntimeError('Deployment deferred: host '+name+' pressure is high; no site files changed')
+
+def preflight(container,source,seconds=45):
+ # Enforce the deadline inside the container; killing the Docker client alone leaves its child running.
+ return command('docker','exec',container,'timeout','--signal=TERM','--kill-after=5',str(seconds),'python','-c',source)
+
 def verify(probes):
  for attempt in range(40):
   try:
@@ -98,8 +115,9 @@ def run(payload):
   body=base64.b64decode(payload['archive'],validate=True);files,manifest=unpack(body)
   changes=[name for name,value in files.items() if digest(root/name)!=hashlib.sha256(value).hexdigest()]
   if not payload['apply']:return {'operation':'plan','revision':manifest['revision'],'changes':changes,'liveContent':'preserved'}
+  require_capacity()
   # The host's existing framework remains intact; only this small dependency is needed.
-  command('docker','exec',container,'python','-c','import bleach,markdown,yaml; from app.routes import blog; assert callable(blog._parse)')
+  preflight(container,'import bleach,markdown,yaml; from app.routes import blog; assert callable(blog._parse)')
   backup=control/('before-'+str(time.time_ns()));backup.mkdir(mode=0o700)
   for name in files:
    target=root/name
@@ -112,7 +130,7 @@ def run(payload):
   try:
    for name,value in files.items():atomic(root/name,value)
    # This runs with production's Python and original Markdown renderer before restart.
-   command('docker','exec',container,'python','-c','from app.site_content.content_service import ContentService; from app.site_content.ssr import render; from app.routes import blog; s=ContentService("content/site-catalog.json",blog_dir="content/blog",render=blog._parse); d=s.bundle(); page,status=render("app/personal_site","/",d); assert status==200; assert isinstance(d["articles"],list)')
+   preflight(container,'from app.site_content.content_service import ContentService; from app.site_content.ssr import render; from app.routes import blog; s=ContentService("content/site-catalog.json",blog_dir="content/blog",render=blog._parse); d=s.bundle(); page,status=render("app/personal_site","/",d); assert status==200; assert isinstance(d["articles"],list)')
    if any(digest(root/name)!=sha for name,sha in before_content.items()):raise ValueError('Content changed during deployment; inspect concurrent publishing')
    command('docker','restart',container);health=verify(payload['private_probes'])
    release=control/manifest['revision'];release.mkdir(exist_ok=True,mode=0o700)

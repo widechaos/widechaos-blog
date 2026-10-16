@@ -1,9 +1,29 @@
-import importlib.util,io,json,sys,tarfile,tempfile,unittest
+import importlib.util,io,json,os,shutil,sys,tarfile,tempfile,unittest
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT/'scripts'))
-from deploy_remote import allowed,unpack,restore
+from deploy_remote import allowed,unpack,restore,require_capacity,preflight
+from unittest.mock import patch
 from check_source import findings
 class ReleaseSafety(unittest.TestCase):
+ def test_capacity_gate_rejects_low_memory_and_stalled_host(self):
+  with tempfile.TemporaryDirectory() as directory:
+   proc=Path(directory);(proc/'pressure').mkdir()
+   (proc/'meminfo').write_text('MemTotal: 1717408 kB\nMemAvailable: 100000 kB\n')
+   with self.assertRaisesRegex(RuntimeError,'memory'):require_capacity(proc)
+   (proc/'meminfo').write_text('MemAvailable: 700000 kB\n')
+   (proc/'pressure/io').write_text('some avg10=40 avg60=0 avg300=0 total=1\nfull avg10=11 avg60=0 avg300=0 total=1\n')
+   with self.assertRaisesRegex(RuntimeError,'io pressure'):require_capacity(proc)
+   (proc/'pressure/io').write_text('full avg10=0 avg60=0 avg300=0 total=1\n')
+   require_capacity(proc)
+ @unittest.skipUnless(shutil.which('timeout'),'GNU timeout is required')
+ def test_preflight_deadline_is_inside_container(self):
+  with tempfile.TemporaryDirectory() as directory:
+   root=Path(directory);docker=root/'docker';pidfile=root/'child.pid'
+   docker.write_text('#!/bin/sh\nshift 2\nexec "$@"\n');docker.chmod(0o700)
+   with patch.dict(os.environ,{'PATH':str(root)+os.pathsep+os.environ['PATH']}):
+    with self.assertRaisesRegex(RuntimeError,'Command failed'):
+     preflight('web','import os,time; from pathlib import Path; Path('+repr(str(pidfile))+').write_text(str(os.getpid())); time.sleep(30)',seconds=1)
+   with self.assertRaises(ProcessLookupError):os.kill(int(pidfile.read_text()),0)
  def test_private_paths_never_enter_payload(self):
   for name in ('content/blog/post.md','content/site-catalog.json','.env','app/main.py','app/routes/tasks.py','app/services/auth.py','app/static/private.html','app/static/lifehub.js','app/static/quant.js','../static/app.js','ssl/private.key'):
    self.assertFalse(allowed(name),name)
