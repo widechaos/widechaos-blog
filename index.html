@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-CN" data-motion="on">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <meta
+      name="description"
+      content="十方空烬 · Ember。作品、文字与持续的探索。Build. Break. Rebuild."
+    />
+    <title>十方空烬 · Ember</title>
+    <link rel="icon" href="/static/x-sword.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/static/style.css" />
+    <link rel="stylesheet" href="/static/project-demos.css" />
+    <link rel="stylesheet" href="/static/content-layout.css" />
+    <script type="module" src="/static/app.js"></script>
+  </head>
+  <body>
+    <a class="skip" href="#main">跳到内容 / Skip to content</a>
+    <div class="reading-progress" aria-hidden="true"></div>
+    <header id="header"></header>
+    <main id="main" tabindex="-1"></main>
+    <footer id="footer"></footer>
+    <dialog id="search-dialog" aria-label="搜索 / Search">
+      <form method="dialog">
+        <button class="close-search" aria-label="关闭搜索 / Close search">
+          ×
+        </button>
+      </form>
+      <label for="global-search" id="search-label">搜索作品和文章</label
+      ><input
+        id="global-search"
+        type="search"
+        autocomplete="off"
+        placeholder="搜索 / Search"
+      />
+      <div id="search-results" aria-live="polite"></div>
+    </dialog>
+    <div id="announcer" class="sr-only" role="status" aria-live="polite"></div>
+    <noscript
+      ><div class="no-js">
+        请启用 JavaScript 浏览交互预览。<a href="https://widechaos.cn/blog"
+          >阅读已发布文章</a
+        >
+      </div></noscript
+    >
+  </body>
+</html>

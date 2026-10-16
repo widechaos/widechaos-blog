@@ -1,0 +1,1031 @@
+{
+  "projects": [
+    {
+      "id": "bulletin",
+      "title": "Bulletin",
+      "tag": "Desktop utility",
+      "zh": "Python + Qt 桌面新闻弹幕：实时标题、透明窗口、鼠标穿透。",
+      "en": "A Python + Qt desktop news overlay: live headlines, a transparent window, and click-through interaction.",
+      "url": "https://github.com/widechaos/Bulletin",
+      "kind": "tool",
+      "status": "published",
+      "featuredRank": 2,
+      "demo": "bulletin",
+      "topics": [
+        "systems"
+      ],
+      "tool": {
+        "availability": "install"
+      }
+    },
+    {
+      "id": "router",
+      "title": "Bilingual Router LoRA",
+      "tag": "MLX / LoRA",
+      "zh": "双语路由合成实验：严格全字段通过率 7.6% → 47.2%；JSON 合法率 98.6% → 95.5%。576 条合成测试，不代表生产效果。",
+      "en": "Synthetic bilingual routing experiment: strict all-field accuracy 7.6% → 47.2%; JSON validity 98.6% → 95.5%. 576 synthetic tests, not production results.",
+      "url": "https://huggingface.co/WideChaos/bilingual-router-qwen2.5-0.5b-lora-v2",
+      "article": "2026-10-15-lora-routing-json-reliability",
+      "kind": "experiment",
+      "status": "published",
+      "featuredRank": 1,
+      "demo": "router",
+      "topics": [
+        "model-evaluation"
+      ],
+      "publishedAt": "2026-10-13",
+      "updatedAt": "2026-10-15"
+    },
+    {
+      "id": "navigator",
+      "title": "DeepSeek Navigator",
+      "tag": "Userscript · Install available",
+      "zh": "把长对话变成问答目录，支持一键定位。",
+      "en": "A browser userscript that turns long DeepSeek conversations into a question-and-answer outline with one-click navigation.",
+      "url": "https://github.com/widechaos/deepseek-chat-navigator",
+      "kind": "tool",
+      "status": "published",
+      "topics": [
+        "systems"
+      ],
+      "tool": {
+        "availability": "install",
+        "url": "https://greasyfork.org/zh-CN/scripts/560039-deepseek-chat-navigator"
+      }
+    },
+    {
+      "id": "obsidian",
+      "title": "Obsidian Cinematic",
+      "tag": "Obsidian interface layer",
+      "zh": "Obsidian 的 CSS 动效层：玻璃标注、呼吸提示、图片显现。",
+      "en": "A cinematic CSS motion layer for Obsidian: glass callouts, breathing alerts, image reveals.",
+      "url": "https://github.com/widechaos/obsidian-cinematic-ui",
+      "kind": "tool",
+      "status": "published",
+      "featuredRank": 3,
+      "demo": "obsidian",
+      "topics": [
+        "systems"
+      ],
+      "tool": {
+        "availability": "install"
+      }
+    },
+    {
+      "id": "evidence",
+      "title": "Evidence Agent",
+      "tag": "Local 14B evaluation: 9/20",
+      "zh": "公开研究工具与可检查的模型轨迹。本地 14B 评测 9/20，边界随原作公开。",
+      "en": "Public research tools with inspectable model traces. Documented local 14B evaluation: 9/20.",
+      "url": "https://huggingface.co/spaces/WideChaos/evidence-agent",
+      "kind": "experiment",
+      "status": "published",
+      "topics": [
+        "model-evaluation"
+      ]
+    },
+    {
+      "id": "contracts",
+      "title": "Bilingual Patch Contracts",
+      "tag": "Synthetic bilingual evaluation",
+      "zh": "合成双语评测数据与离线评分包。离线 fixture 不代表模型成绩。",
+      "en": "Synthetic bilingual evaluation data and offline scoring. Fixtures are not model results.",
+      "url": "https://huggingface.co/datasets/WideChaos/bilingual-patch-contracts",
+      "kind": "experiment",
+      "status": "published",
+      "topics": [
+        "model-evaluation"
+      ]
+    },
+    {
+      "id": "heartiger",
+      "title": "Heartiger",
+      "tag": "Design in progress",
+      "zh": "设计中的个人生活系统：轻量日记、智能整理、逐步生长的第二大脑。",
+      "en": "Designing an agent-driven personal life OS: lightweight journaling, intelligent organization, and a growing second brain.",
+      "url": "https://github.com/widechaos/Heartiger",
+      "kind": "design",
+      "status": "published",
+      "topics": [
+        "systems"
+      ]
+    }
+  ],
+  "tools": [
+    {
+      "id": "markdown-converter",
+      "title": "Markdown converter",
+      "titleZh": "Markdown 转换器",
+      "titleEn": "Markdown converter",
+      "zh": "浏览器里的 Markdown 转换工具，直接打开使用。",
+      "en": "A Markdown conversion tool that opens directly in the browser.",
+      "url": "https://widechaos.cn/cyber-markdown-converter",
+      "availability": "web",
+      "tag": "MARKDOWN",
+      "status": "published"
+    }
+  ],
+  "collection": [
+    {
+      "title": "Databricks Academy · Generative AI Fundamentals",
+      "url": "assets/certificates/databricks-generative-ai.png",
+      "image": "/static/assets/collection/29f1581c5758ec6864f1-light.svg",
+      "kind": "learning",
+      "status": "published"
+    },
+    {
+      "title": "Databricks Academy · AI Agent Fundamentals",
+      "url": "assets/certificates/databricks-ai-agent.png",
+      "image": "/static/assets/collection/941fb8c4f35937df063f-light.svg",
+      "kind": "learning",
+      "status": "published"
+    },
+    {
+      "title": "Databricks Academy · AI Security Fundamentals",
+      "url": "assets/certificates/databricks-ai-security.png",
+      "image": "/static/assets/collection/7ae062d0e10238b65687-light.svg",
+      "kind": "learning",
+      "status": "published"
+    },
+    {
+      "title": "Hugging Face · Fundamentals of Agents · Unit 1 certificate",
+      "url": "assets/certificates/huggingface-agents-unit1.png",
+      "image": "/static/assets/collection/fcce51a17a26424c61eb-light.svg",
+      "kind": "learning",
+      "status": "published"
+    },
+    {
+      "title": "Hugging Face · Agents Course certificate",
+      "url": "assets/certificates/huggingface-agents-course.png",
+      "image": "/static/assets/collection/19c2fc201a209771fe73-light.svg",
+      "kind": "learning",
+      "status": "published"
+    },
+    {
+      "title": "Alibaba Cloud · Apsara Clouder · Generative AI",
+      "url": "assets/certificates/alibaba-cloud-generative-ai.png",
+      "image": "/static/assets/collection/2f2a114038a1e08188fd-light.svg",
+      "kind": "learning",
+      "status": "published"
+    },
+    {
+      "title": "Cognitive Class · Prompt Engineering for Everyone certificate",
+      "url": "assets/certificates/cognitive-class-prompt-engineering.png",
+      "image": "/static/assets/collection/e90ec5fb86acbd612639-light.svg",
+      "kind": "learning",
+      "status": "published"
+    },
+    {
+      "title": "Cognitive Class · Build Your Own Chatbot certificate",
+      "url": "assets/certificates/cognitive-class-chatbot.png",
+      "image": "/static/assets/collection/675a6532b03012945927-light.svg",
+      "kind": "learning",
+      "status": "published"
+    },
+    {
+      "title": "Cognitive Class · Fundamentals of AI certificate",
+      "url": "assets/certificates/cognitive-class-fundamentals-ai.png",
+      "image": "/static/assets/collection/9cdd8377d08371b31a6d-light.svg",
+      "kind": "learning",
+      "status": "published"
+    },
+    {
+      "title": "Cognitive Class · Machine Learning with Python certificate",
+      "url": "assets/certificates/cognitive-class-machine-learning.png",
+      "image": "/static/assets/collection/062b8590be830862da00-light.svg",
+      "kind": "learning",
+      "status": "published"
+    },
+    {
+      "title": "IBM SkillsBuild · Artificial Intelligence Fundamentals certificate",
+      "url": "assets/certificates/ibm-skillsbuild-ai-fundamentals.png",
+      "image": "/static/assets/collection/e8e1e922ca9ac3d8e34f-light.svg",
+      "kind": "learning",
+      "status": "published"
+    },
+    {
+      "title": "Kaggle: Benchmark Task local builder",
+      "url": "https://www.kaggle.com/certification/badges/xover2022/107",
+      "image": "/static/assets/collection/33e35f2aae7c3eee81f4-light.svg",
+      "kind": "community",
+      "status": "published"
+    },
+    {
+      "title": "Kaggle: Python Coder",
+      "url": "https://www.kaggle.com/certification/badges/xover2022/30",
+      "image": "/static/assets/collection/6991af5f83f5860308bf-light.svg",
+      "kind": "community",
+      "status": "published"
+    },
+    {
+      "title": "Kaggle · Code Tagger",
+      "url": "https://www.kaggle.com/certification/badges/xover2022/37",
+      "image": "/static/assets/collection/4ec814e4245f4c0f3ace-light.svg",
+      "kind": "community",
+      "status": "published"
+    },
+    {
+      "title": "Kaggle · 2 Years on Kaggle",
+      "url": "https://www.kaggle.com/certification/badges/xover2022/50",
+      "image": "/static/assets/collection/c27ea82c99238d507f54-light.svg",
+      "kind": "community",
+      "status": "published"
+    },
+    {
+      "title": "Kaggle · Bookmarker",
+      "url": "https://www.kaggle.com/xover2022",
+      "image": "/static/assets/collection/2135e11d761578599cba-light.svg",
+      "kind": "community",
+      "status": "published"
+    },
+    {
+      "title": "Kaggle · Collector",
+      "url": "https://www.kaggle.com/xover2022",
+      "image": "/static/assets/collection/38f3e7ff5abd1f49f263-light.svg",
+      "kind": "community",
+      "status": "published"
+    },
+    {
+      "title": "Kaggle · API Notebook Creator",
+      "url": "https://www.kaggle.com/xover2022",
+      "image": "/static/assets/collection/2ee97e4d00a3d5cbe073-light.svg",
+      "kind": "community",
+      "status": "published"
+    },
+    {
+      "title": "Kaggle · Colab Coder",
+      "url": "https://www.kaggle.com/xover2022",
+      "image": "/static/assets/collection/547500d5dfbcc8e43589-light.svg",
+      "kind": "community",
+      "status": "published"
+    },
+    {
+      "title": "Kaggle · Dataset Creator",
+      "url": "https://www.kaggle.com/xover2022",
+      "image": "/static/assets/collection/0fe0868a7e0ca9aa3cf6-light.svg",
+      "kind": "community",
+      "status": "published"
+    },
+    {
+      "title": "Kaggle · API Dataset Creator",
+      "url": "https://www.kaggle.com/xover2022",
+      "image": "/static/assets/collection/70cbb28e82f689a4d39a-light.svg",
+      "kind": "community",
+      "status": "published"
+    },
+    {
+      "title": "Kaggle · Dataset Documenter",
+      "url": "https://www.kaggle.com/xover2022",
+      "image": "/static/assets/collection/a658121678fe803f6c2e-light.svg",
+      "kind": "community",
+      "status": "published"
+    },
+    {
+      "title": "Kaggle · Dataset Tagger",
+      "url": "https://www.kaggle.com/xover2022",
+      "image": "/static/assets/collection/6ffca57dd0cd0514cf7a-light.svg",
+      "kind": "community",
+      "status": "published"
+    },
+    {
+      "title": "DEV: Writing Debut",
+      "url": "https://dev.to/widechaos",
+      "image": "/static/assets/collection/c674d22332a1f1ef2dcd-light.svg",
+      "kind": "community",
+      "status": "published"
+    },
+    {
+      "title": "DEV: Hacktoberfest 2026 Challenge Completion",
+      "url": "https://dev.to/widechaos",
+      "image": "/static/assets/collection/5afd34d4e89f1c41bf63-light.svg",
+      "kind": "community",
+      "status": "published"
+    },
+    {
+      "title": "2,000 reading hours",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/3e121afbbd99230a6c83-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "2,000 reading days",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/6d4fcc84b40a44692882-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "500 books read",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/adac10662efcec5f2e92-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "100 books finished",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/5b6a52caf977413d8155-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "50 highly rated books read",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/e71e1b13b0fd4c4076d9-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "30 consecutive reading days",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/711b52515364f29ca681-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "3,000 likes received",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/8ef0025d5740be6607a6-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "200 thoughts shared",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/d0b7d0d80d3f7fa20beb-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "10 book reviews",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/700d3f91ad6c095770b4-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Book recommendations for 10 readers",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/fd18ee0f205fda49a761-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "21-day Reading Challenge",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/3395d2a4bf7b07b4499c-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "World Book Day · Mountain and River Poet",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/1e612802cca6b4b9431d-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "50 books finished",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/c936b99fac96f8b839e0-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "10 highly rated books read",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/9839eab8fe4f8b7394a9-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 40 · 2026",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/54fb2001650dc31828f5-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading month · 2026",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/52e98fbc214774c2ba48-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 37 · 2026",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/5f856d6f21e0e9f8a8a6-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 35 · 2026",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/15039af6404aacefb24d-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 25 · 2026",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/1942c6bbd3222088482d-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 21 · 2026",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/a83daff0211fc270feeb-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading month · 2026",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/0df3af209b80117147d1-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 20 · 2026",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/8c4711b1c31ebd4b6b9b-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 16 · 2026",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/f1ba194c2bdd291992a9-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 14 · 2026",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/3628589ab8d5063094ea-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading month · 2026",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/27bd2251b8cfec24be16-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 12 · 2026",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/f0211ac94d8cba0bd0bd-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Raging reading week 11 · 2026",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/5f6174fb1b62ec5eca9e-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 10 · 2026",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/3e97f81c081e5d2f3bb5-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Raging reading week 9 · 2026",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/8bbed3ab324a35ebbf82-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 8 · 2026",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/482ac1d630f4a977b5d3-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading month · 2026",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/1150a40bbf39fa12737f-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 7 · 2026",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/927ef4298fdaac40436d-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 6 · 2026",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/e214f5f7c63049d8314c-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 5 · 2026",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/ed3b49ac5f74bb66af05-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 31 · 2025",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/84ea17f2eeab20cc7443-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 28 · 2025",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/e3a6c2d28c96dea4b8af-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 27 · 2025",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/7741b8c5511f793121d3-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 19 · 2025",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/035dce37d5825984a640-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 15 · 2025",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/5c6ddd735379a8b510a5-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 14 · 2025",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/4e5c1b9d8f4b853d06b3-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Raging reading week 41 · 2024",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/7ed85bb26b2a0daaf35f-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading month · 2024",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/fa8d3d2fed2912357e45-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 34 · 2024",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/d9e4d02f3bbfe8f629ac-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 33 · 2024",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/8e257ad392423f8b3b07-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 32 · 2024",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/caf810a73b624cabf0cd-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 31 · 2024",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/f06fbe6fa8ffbd98c828-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Raging reading week 30 · 2024",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/693996744cf2c173979e-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 19 · 2024",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/252cb752657a1a297b5d-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading month · 2024",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/07c893a55eacc6cac3e7-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 15 · 2024",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/b7faaad2035c23a37406-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading month · 2024",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/155d6b87078b10db0375-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Raging reading week 13 · 2024",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/4c3a0b312065c4a07e12-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 12 · 2024",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/b49472efe70178897afa-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 11 · 2024",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/a584c14e648b820c709e-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 10 · 2024",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/43096d5ffcdb1b273db2-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading month · 2024",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/eae71bb2386bd05ca28e-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 9 · 2024",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/1b169f2208ff75180fd2-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 8 · 2024",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/e4eb16052125ea2197c4-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading month · 2024",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/533725d968ac5cfbe742-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading month · 2024",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/a1cf3a8ee5a36ac95d31-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Raging reading week 4 · 2024",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/7b4ee6f2c4bae10bbe7e-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Raging reading week 3 · 2024",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/295c358a29977f5212cb-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 2 · 2024",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/a6399e537d3a08e61192-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading month · 2023",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/5ef707f3173872cced96-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 52 · 2023",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/f275c2599b021b7e1ca5-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 51 · 2023",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/05e9ddedbf1d7e9215fc-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 50 · 2023",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/cb165a4cac87cff7d3f1-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 49 · 2023",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/2a75f78c32e72d54524b-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 45 · 2023",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/1e8c237e86c8bb293399-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading month · 2023",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/6ed50b6fef5a62c95a35-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 42 · 2023",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/d4afb8b59006866edfd7-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 41 · 2023",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/0770bac4f7f35df0a9e6-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 39 · 2023",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/d42e51b3f57968a61dd9-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 27 · 2023",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/85094d5e477fd993782a-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "5 book reviews",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/7c012b8d24676656173d-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "5 highly rated books read",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/0ba5ec8f394f2a5b84c1-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "1,000 reading days",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/d4bc2bb9d297f4df729d-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "100 thoughts shared",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/211e2b8c8601f8f9d918-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "50 thoughts shared",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/ce6dfea3c8a86c25487f-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "10 thoughts shared",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/daea9e45b79347d96c21-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "2,000 likes received",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/97d19123b3298c341ae6-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "1,000 likes received",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/2b05c00bf08d6661845f-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "500 likes received",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/1af7f38b667e25545dfa-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "100 likes received",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/b2b58d7522a6b0aa73c8-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "50 likes received",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/ab1b64517a6fa3007427-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "10 books finished",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/50e34f560f7da5002d77-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "100 books read",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/f6da6fd2546baf82c462-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "50 books read",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/0971bd031a6bfd3c0937-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "500 reading days",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/b80bcf6a81644f4e310a-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "365 reading days",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/e00a95992d0f490c567b-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "200 reading days",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/3b4313480efc76899cdd-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "100 reading days",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/02a20c59ae9aa8b89854-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "1,000 reading hours",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/08c04c26c9616aed9b08-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "500 reading hours",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/247369052985d2c68ebe-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "100 reading hours",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/24b033a71b01504486e3-light.svg",
+      "kind": "reading",
+      "status": "published"
+    }
+  ],
+  "topics": {
+    "model-evaluation": {
+      "zh": "模型实验",
+      "en": "Model experiments"
+    },
+    "systems": {
+      "zh": "系统设计",
+      "en": "Systems"
+    },
+    "retrieval": {
+      "zh": "检索",
+      "en": "Retrieval"
+    }
+  },
+  "projectKinds": {
+    "tool": {
+      "zh": "工具",
+      "en": "Tools"
+    },
+    "experiment": {
+      "zh": "实验",
+      "en": "Experiments"
+    },
+    "design": {
+      "zh": "设计",
+      "en": "Design"
+    }
+  },
+  "contact": {
+    "email": "ai@widechaos.cn"
+  },
+  "articleMetadata": {
+    "2026-10-15-lora-routing-json-reliability-en": {
+      "translationKey": "2026-10-15-lora-routing-json-reliability",
+      "summary": "On 576 synthetic tests, better routing came with fewer valid JSON responses. The split, failure analysis, and limits behind the headline score.",
+      "topics": [
+        "model-evaluation"
+      ]
+    },
+    "2026-10-15-lora-routing-json-reliability-zh": {
+      "translationKey": "2026-10-15-lora-routing-json-reliability",
+      "summary": "576 条合成测试里，路由准确率提高了，合法 JSON 却减少了。记录数据划分、失败归因，以及这组结果能说明什么。",
+      "topics": [
+        "model-evaluation"
+      ]
+    },
+    "2026-09-15-unify-the-site": {
+      "translationKey": "2026-09-15-unify-the-site",
+      "summary": "几个各自能跑的页面，为什么会成为维护负担？一次统一后端、设计和内容入口的记录。",
+      "topics": [
+        "systems"
+      ]
+    },
+    "2026-09-12-rag-in-production": {
+      "translationKey": "2026-09-12-rag-in-production",
+      "summary": "混合召回、重排候选数与延迟预算：把 RAG 从演示推进到实际使用时，需要一起考虑的几件事。",
+      "topics": [
+        "retrieval"
+      ]
+    }
+  }
+}

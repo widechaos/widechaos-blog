@@ -1,0 +1,1155 @@
+{
+  "articles": [
+    {
+      "id": "2026-10-15-lora-routing-json-reliability-en",
+      "title": "My LoRA improved routing and made JSON less reliable",
+      "url": "https://widechaos.cn/blog/2026-10-15-lora-routing-json-reliability-en",
+      "lang": "en",
+      "body": "<p><em>By Renchao Wu</em></p>\n<p>My small routing model became much better at returning the expected fields after fine-tuning. It also became slightly worse at returning valid JSON.</p>\n<p>On 576 held-out synthetic requests, strict all-field accuracy rose from 7.6% to 47.2%. JSON validity fell from 98.6% to 95.5%. The same adapter that improved the headline score introduced more responses a strict parser could not read.</p>\n<p>I published the <a href=\"https://huggingface.co/WideChaos/bilingual-router-qwen2.5-0.5b-lora-v2\">MLX adapter and reproduction package</a>, the <a href=\"https://huggingface.co/datasets/WideChaos/bilingual-router-lora-v2\">synthetic dataset</a>, and a <a href=\"https://www.kaggle.com/code/xover2022/bilingual-router-lora-v2-frozen-output-check\">Kaggle notebook for checking the frozen outputs</a>. The useful result is the tradeoff, together with the evidence needed to inspect it.</p>\n<h2 id=\"the-task-turn-a-request-into-a-small-routing-decision\">The task: turn a request into a small routing decision</h2>\n<p>The experiment uses Qwen2.5-0.5B-Instruct to handle English, Chinese, and mixed-language requests. The output contract covers notes, scheduling, calculations, requests needing clarification, and unsupported requests.</p>\n<p>A response must satisfy several checks. It must parse as strict JSON, match the permitted schema, choose the correct route, and contain exactly the expected field values. Passing one check does not imply passing the next. A parser can accept an invented route; a schema validator can accept a correctly typed but wrong value.</p>\n<p>The schema is present in the prompt for both the base model and the adapter. Neither arm gets credit for guessing a hidden interface.</p>\n<p>This is a personal synthetic experiment. Its templates share vocabulary across splits, and their language variants were written by one author. It does not measure open-domain assistant quality or production routing reliability.</p>\n<h2 id=\"a-family-split-was-not-enough\">A family split was not enough</h2>\n<p>My first version split template families before expanding language variants. That avoided putting a direct translation of the same example in both training and test, but it left another problem: related families could still describe almost the same situation.</p>\n<p>A complete scheduling request and its missing-time sibling belong together. Different family IDs do not make them independent scenarios.</p>\n<p>For v2, I bound 77 families into 23 explicit scenario clusters, including paraphrases and complete/missing-information siblings. I split those clusters before expanding English, Chinese, and mixed variants. The resulting splits contain 1,026 training rows, 291 validation rows, and 576 test rows. The test covers 23 families in seven held-out clusters.</p>\n<p>Those clusters are a documented judgment, not proof of semantic independence. I froze the manifest before the v2 run and kept v1 as a separate history. The v1 and v2 test scores are not comparable. The split changes and audit are recorded in the <a href=\"https://huggingface.co/WideChaos/bilingual-router-qwen2.5-0.5b-lora-v2/blob/main/REVIEW.md\">public review</a>.</p>\n<p>One consequence mattered a lot: the entire <code>percent_of</code> scenario landed in test. The training set never taught the model that operation. Calculation results therefore include an out-of-training probe, rather than an ordinary sample of familiar calculations.</p>\n<h2 id=\"the-result-depends-on-what-gets-counted\">The result depends on what gets counted</h2>\n<p>The frozen v2 test produced these rounded percentages:</p>\n<table>\n<thead>\n<tr>\n<th>Check</th>\n<th style=\"text-align: right;\">Base model</th>\n<th style=\"text-align: right;\">LoRA adapter</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Strict JSON</td>\n<td style=\"text-align: right;\">98.6%</td>\n<td style=\"text-align: right;\">95.5%</td>\n</tr>\n<tr>\n<td>Schema-valid</td>\n<td style=\"text-align: right;\">40.6%</td>\n<td style=\"text-align: right;\">95.0%</td>\n</tr>\n<tr>\n<td>Correct route</td>\n<td style=\"text-align: right;\">35.6%</td>\n<td style=\"text-align: right;\">72.2%</td>\n</tr>\n<tr>\n<td>Strict all-field match</td>\n<td style=\"text-align: right;\">7.6%</td>\n<td style=\"text-align: right;\">47.2%</td>\n</tr>\n<tr>\n<td>Cross-language equal and correct</td>\n<td style=\"text-align: right;\">2.6%</td>\n<td style=\"text-align: right;\">43.1%</td>\n</tr>\n</tbody>\n</table>\n<p>The base model usually produced parseable JSON, but often used fields or routes outside the contract. The adapter learned much more of the interface and selected the right route more often. That gain coexisted with a regression in parseability.</p>\n<p>Strict all-field match requires schema-valid, type-checked output and exact expected values. The scorer rejects duplicate keys, nonfinite values, Markdown fences, and extra text. It also rejects Python's tempting shortcuts: <code>true</code> does not count as integer <code>1</code>, and <code>3.0</code> does not satisfy an integer-only field.</p>\n<p>The frozen scorer keeps operand order as part of the gold contract. A separate <code>commutative_ok</code> metric exists for diagnosis; it does not silently replace the headline score. In this v2 run, it did not rescue any swap-only failures.</p>\n<p>Validation strict accuracy was almost flat: 25.4% for the base and 25.8% for the adapter. The large test gain was concentrated in notes and scheduling. Treating the 47.2% aggregate as a general improvement would hide that unevenness.</p>\n<h2 id=\"the-failures-changed-the-next-experiment\">The failures changed the next experiment</h2>\n<p>The adapter's strict calculation score was zero. For held-out percentage requests, it produced familiar operations such as <code>div</code> or <code>add</code>. It had learned useful routing patterns without acquiring the missing operation through this training set.</p>\n<p>Clarification and rejection were also weak. Their route accuracies were about 24% and 47%. An underspecified request was still often treated as an action to execute. In a real system, that behavior would matter even if an aggregate score looked encouraging.</p>\n<p>I initially described all 26 invalid adapter outputs as coming from the unseen operation. A later question prompted a recount of the original frozen predictions. That explanation was too broad. The corrected breakdown is:</p>\n<table>\n<thead>\n<tr>\n<th>Gold task</th>\n<th style=\"text-align: right;\">Invalid JSON outputs</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>Calculation using <code>percent_of</code></td>\n<td style=\"text-align: right;\">13</td>\n</tr>\n<tr>\n<td>Percentage request missing a number; clarification required</td>\n<td style=\"text-align: right;\">10</td>\n</tr>\n<tr>\n<td>Underspecified note request; clarification required</td>\n<td style=\"text-align: right;\">3</td>\n</tr>\n</tbody>\n</table>\n<p>The final group included repeated keys or truncation. No other test families produced invalid JSON. The language counts were eight English, nine Chinese, and nine mixed.</p>\n<p>That correction matters to diagnosis. Adding training examples for an unseen operation would not, by itself, explain the underspecified-note failures. I would test missing-information handling separately and examine the repeated-key outputs before deciding what to change.</p>\n<p>The <a href=\"https://huggingface.co/WideChaos/bilingual-router-qwen2.5-0.5b-lora-v2/blob/main/REVIEW.md#failures-kept-not-hidden\">corrected repository-root review</a> is the source for this breakdown. The existing <code>experiment.zip</code> and Kaggle frozen package still contain the earlier review text. Their outputs, weights, and aggregate scores have not changed. This was a recount, not another training run.</p>\n<h2 id=\"what-actually-ran\">What actually ran</h2>\n<p>Training ran locally on Apple silicon with MLX. The published adapter is in MLX-LM format; it is neither a standalone model nor a PEFT adapter.</p>\n<p>The base is <code>Qwen/Qwen2.5-0.5B-Instruct</code>, fixed at revision <code>7ae557604adf67be50417f59c2c2f167def9a775</code>. The run used LoRA rank 8, scale 20, 16 layers, learning rate <code>1e-4</code>, batch size 1, and 1,500 iterations. The seed was 42. I used the final checkpoint as declared, rather than selecting it against the test results.</p>\n<p>Evaluation loaded the saved adapter in fresh processes. Both arms used greedy decoding with the same prompt and a 96-token output limit. A second training run with the same seed produced a bit-identical adapter; evaluation was not repeated. That checks repeatability under this setup, not robustness across seeds or environments.</p>\n<p>There are only seven test clusters. The published family-bootstrap intervals for strict accuracy are wide: roughly 1–16% for the base and 28–67% for the adapter. The 576 rows include language triples and related examples; they are not 576 independent real-world situations.</p>\n<h2 id=\"two-different-ways-to-reproduce-it\">Two different ways to reproduce it</h2>\n<p>If you want to inspect scoring without running a model, use the <a href=\"https://www.kaggle.com/code/xover2022/bilingual-router-lora-v2-frozen-output-check\">Kaggle frozen-output notebook</a>. It loads saved predictions, checks the frozen artifacts, and recalculates scores on CPU. Its successful cloud run is evidence for that scoring path. It does not establish cloud training or inference performance.</p>\n<p>To rerun training on compatible Apple silicon, follow the <a href=\"https://huggingface.co/WideChaos/bilingual-router-qwen2.5-0.5b-lora-v2#reproduce-the-experiment\">model repository instructions</a>. After downloading the repository and extracting its <code>experiment.zip</code> at the repository root:</p>\n<div class=\"codehilite\"><pre><span></span><code>unzip<span class=\"w\"> </span>experiment.zip\n<span class=\"nb\">cd</span><span class=\"w\"> </span>reproduction\nbash<span class=\"w\"> </span>scripts/run_all.sh\n</code></pre></div>\n\n<p>The script installs pinned dependencies, downloads the fixed base revision, regenerates data, checks the scorer, trains, reloads the adapter, and evaluates both arms. New run outputs remain separate from the published frozen outputs. Runtime and memory will depend on the machine.</p>\n<p>Code, data, and adapter are published under Apache-2.0 with license and notice files. The base weights are not redistributed. Read the corrected root review alongside the historical package before interpreting failure attribution.</p>\n<h2 id=\"what-i-would-change-next\">What I would change next</h2>\n<p>I would keep this test frozen and build a separate experiment around the weaknesses it exposed: missing-information requests, unsupported requests, and operations absent from training. I would also compare ordinary decoding with a constrained-output path on the same requests, reporting format compliance and field correctness separately.</p>\n<p>Those experiments have not run. They would answer different questions from this release.</p>\n<p>For this run, the adapter was better at the declared routing contract overall, still failed every strict held-out calculation, and made valid JSON less dependable. I would want all three facts in front of me before deciding whether to put it behind an API.</p>",
+      "translationKey": "2026-10-15-lora-routing-json-reliability",
+      "status": "published",
+      "publishedAt": "2026-10-15",
+      "topics": [
+        "model-evaluation"
+      ],
+      "summary": "On 576 synthetic tests, better routing came with fewer valid JSON responses. The split, failure analysis, and limits behind the headline score."
+    },
+    {
+      "id": "2026-10-15-lora-routing-json-reliability-zh",
+      "title": "我的 LoRA 更会选路由了，JSON 却更不可靠了",
+      "url": "https://widechaos.cn/blog/2026-10-15-lora-routing-json-reliability-zh",
+      "lang": "zh",
+      "body": "<p><em>By Renchao Wu</em></p>\n<p>微调之后，我的小型路由模型更擅长返回预期字段，却略微更不擅长输出合法 JSON。</p>\n<p>在 576 条留出的合成请求上，严格全字段通过率从 7.6% 升到 47.2%，JSON 合法率却从 98.6% 降到 95.5%。提高总分的同一个适配器，也制造了更多严格解析器读不懂的回答。</p>\n<p>我公开了 <a href=\"https://huggingface.co/WideChaos/bilingual-router-qwen2.5-0.5b-lora-v2\">MLX 适配器和复现包</a>、<a href=\"https://huggingface.co/datasets/WideChaos/bilingual-router-lora-v2\">合成数据集</a>，以及<a href=\"https://www.kaggle.com/code/xover2022/bilingual-router-lora-v2-frozen-output-check\">检查冻结输出的 Kaggle Notebook</a>。这次实验值得留下的，是这个取舍，以及可以逐项检查它的证据。</p>\n<h2 id=\"_1\">任务：把请求变成一个小型路由决策</h2>\n<p>实验用 Qwen2.5-0.5B-Instruct 处理英文、中文和中英混合请求。输出契约覆盖笔记、日程、计算、需要澄清的请求和不支持的请求。</p>\n<p>一次回答要通过好几层检查：能被严格解析为 JSON，符合允许的 schema，选对路由，并且所有字段值与预期完全一致。通过前一层，不保证通过后一层。解析器能读懂一个编造的路由，schema 校验器也可能放过一个类型正确、值却错误的字段。</p>\n<p>基座模型和适配器的提示词都包含 schema，双方都不需要猜一个隐藏接口。</p>\n<p>这是一项个人合成实验。不同划分的模板仍共享词汇，各语言版本也由同一个作者编写。它不能衡量开放领域助手的能力或生产路由系统的可靠性。</p>\n<h2 id=\"_2\">按模板家族划分，还不够</h2>\n<p>第一版先划分模板家族，再展开语言变体。这样避免了同一个例子的直接译文同时进入训练集和测试集，却留下了另一个问题：相关家族仍可能描述几乎相同的场景。</p>\n<p>完整的日程请求和缺少时间的同类请求，应归为一组。家族编号不同，并不会让它们成为独立场景。</p>\n<p>在 v2 中，我把 77 个家族归入 23 个明确的场景簇，纳入改写，以及信息完整和信息缺失的同类请求。先划分场景簇，再展开英文、中文和混合语言版本。最终得到 1,026 条训练数据、291 条验证数据和 576 条测试数据。测试集覆盖七个留出场景簇中的 23 个家族。</p>\n<p>这些场景簇是有记录的人工判断，并不是语义独立性的证明。我在 v2 运行前冻结了划分清单，将 v1 保留为单独的历史。v1 和 v2 的测试分数不能直接比较。划分变化及审计见<a href=\"https://huggingface.co/WideChaos/bilingual-router-qwen2.5-0.5b-lora-v2/blob/main/REVIEW.md\">公开复核记录</a>。</p>\n<p>有一个结果影响很大：整个 <code>percent_of</code> 场景被分到了测试集，训练集从未教过模型这项运算。因此，计算成绩里包含了训练之外的探测，不能把它当成对熟悉计算任务的普通抽样。</p>\n<h2 id=\"_3\">结果取决于到底在算什么</h2>\n<p>冻结的 v2 测试得到以下四舍五入后的百分比：</p>\n<table>\n<thead>\n<tr>\n<th>检查项</th>\n<th style=\"text-align: right;\">基座模型</th>\n<th style=\"text-align: right;\">LoRA 适配器</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>严格 JSON 合法</td>\n<td style=\"text-align: right;\">98.6%</td>\n<td style=\"text-align: right;\">95.5%</td>\n</tr>\n<tr>\n<td>符合 schema</td>\n<td style=\"text-align: right;\">40.6%</td>\n<td style=\"text-align: right;\">95.0%</td>\n</tr>\n<tr>\n<td>路由正确</td>\n<td style=\"text-align: right;\">35.6%</td>\n<td style=\"text-align: right;\">72.2%</td>\n</tr>\n<tr>\n<td>严格全字段匹配</td>\n<td style=\"text-align: right;\">7.6%</td>\n<td style=\"text-align: right;\">47.2%</td>\n</tr>\n<tr>\n<td>跨语言一致且正确</td>\n<td style=\"text-align: right;\">2.6%</td>\n<td style=\"text-align: right;\">43.1%</td>\n</tr>\n</tbody>\n</table>\n<p>基座模型通常能输出可解析的 JSON，却经常使用契约之外的字段或路由。适配器学会了更多接口约束，也更常选对路由；与此同时，可解析性退步了。</p>\n<p>严格全字段匹配要求输出符合 schema、通过类型检查，并且值与预期完全相同。评分器拒绝重复键、非有限数值、Markdown 代码围栏和额外文字，也拒绝 Python 中容易混过去的类型关系：<code>true</code> 不算整数 <code>1</code>，<code>3.0</code> 也不能满足只接受整数的字段。</p>\n<p>冻结评分器将操作数顺序作为标准答案契约的一部分。另设的 <code>commutative_ok</code> 指标用于诊断，不会悄悄取代主指标。在这次 v2 运行中，它没有挽回任何仅由操作数交换造成的失败。</p>\n<p>验证集的严格准确率几乎没有变化：基座为 25.4%，适配器为 25.8%。测试集的大幅提升主要集中在笔记和日程。把 47.2% 的总通过率理解为普遍改善，会掩盖这种不均衡。</p>\n<h2 id=\"_4\">失败改变了下一轮实验的方向</h2>\n<p>适配器的严格计算成绩为零。面对留出的百分比请求，它输出了熟悉的 <code>div</code> 或 <code>add</code> 等运算。它学会了一些有用的路由模式，却没有通过这份训练集获得缺失的运算。</p>\n<p>澄清和拒绝也很弱，两者的路由准确率约为 24% 和 47%。信息不足的请求，仍经常被当成可以直接执行的动作。即使总分看起来不错，这种行为在真实系统里也很要紧。</p>\n<p>我最初把适配器的全部 26 条非法 JSON 输出归因于未见运算。后来一次追问促使我重新统计原始冻结预测，发现这个解释说过头了。更正后的分类如下：</p>\n<table>\n<thead>\n<tr>\n<th>标准任务</th>\n<th style=\"text-align: right;\">非法 JSON 输出数</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>使用 <code>percent_of</code> 的计算</td>\n<td style=\"text-align: right;\">13</td>\n</tr>\n<tr>\n<td>缺少一个数值、需要澄清的百分比请求</td>\n<td style=\"text-align: right;\">10</td>\n</tr>\n<tr>\n<td>信息不足、需要澄清的笔记请求</td>\n<td style=\"text-align: right;\">3</td>\n</tr>\n</tbody>\n</table>\n<p>最后一组包含重复键或截断。测试中的其他家族没有产生非法 JSON。按语言计，英文八条、中文九条、混合语言九条。</p>\n<p>这个更正会影响诊断。只给未见运算增加训练样本，不能解释信息不足的笔记请求为何失败。我会单独测试缺失信息的处理，并检查重复键输出，再决定改什么。</p>\n<p>上述分类以<a href=\"https://huggingface.co/WideChaos/bilingual-router-qwen2.5-0.5b-lora-v2/blob/main/REVIEW.md#failures-kept-not-hidden\">仓库根目录更正后的复核记录</a>为准。现有 <code>experiment.zip</code> 和 Kaggle 冻结包仍包含较早的复核文字，输出、权重和总体分数没有变化。这是一次重新计数，没有重新训练。</p>\n<h2 id=\"_5\">实际运行了什么</h2>\n<p>训练使用 MLX，在本地 Apple silicon 上完成。公开适配器采用 MLX-LM 格式，既不是独立模型，也不是 PEFT 适配器。</p>\n<p>基座为 <code>Qwen/Qwen2.5-0.5B-Instruct</code>，固定修订为 <code>7ae557604adf67be50417f59c2c2f167def9a775</code>。LoRA rank 为 8、scale 为 20、层数为 16，学习率 <code>1e-4</code>，batch size 为 1，迭代 1,500 次，seed 为 42。我按声明使用最终 checkpoint，没有根据测试成绩挑选。</p>\n<p>评测在新进程中重新加载保存的适配器。两组使用相同提示词、贪心解码和 96 token 输出上限。相同 seed 的第二次训练得到逐比特一致的适配器，没有重复评测。这验证了该设置下的可重复性，没有验证跨 seed 或跨环境的稳健性。</p>\n<p>测试集只有七个场景簇。公开的按家族 bootstrap 估计中，严格准确率区间很宽：基座约为 1–16%，适配器约为 28–67%。576 条数据包含语言三元组和相关例子，不能把它们视为 576 个独立的真实场景。</p>\n<h2 id=\"_6\">两种不同的复现方式</h2>\n<p>如果只想检查评分、不运行模型，可以使用 <a href=\"https://www.kaggle.com/code/xover2022/bilingual-router-lora-v2-frozen-output-check\">Kaggle 冻结输出 Notebook</a>。它读取保存的预测，检查冻结产物，并在 CPU 上重新计算分数。成功的云端运行证明了这条评分路径可行，没有证明云端训练或推理性能。</p>\n<p>要在兼容的 Apple silicon 上重跑训练，请遵循<a href=\"https://huggingface.co/WideChaos/bilingual-router-qwen2.5-0.5b-lora-v2#reproduce-the-experiment\">模型仓库说明</a>。下载仓库后，在仓库根目录解压 <code>experiment.zip</code>：</p>\n<div class=\"codehilite\"><pre><span></span><code>unzip<span class=\"w\"> </span>experiment.zip\n<span class=\"nb\">cd</span><span class=\"w\"> </span>reproduction\nbash<span class=\"w\"> </span>scripts/run_all.sh\n</code></pre></div>\n\n<p>脚本会安装固定版本的依赖、下载固定修订的基座、重新生成数据、检查评分器、训练、重新加载适配器，并评测两组。新运行的输出与公开的冻结输出分开保存。耗时和内存取决于机器。</p>\n<p>代码、数据和适配器以 Apache-2.0 发布，附许可和 notice 文件，不重新分发基座权重。理解失败归因时，应同时阅读更正后的根目录复核记录和历史包。</p>\n<h2 id=\"_7\">接下来我会改什么</h2>\n<p>我会保留这份测试不动，另做实验研究它暴露的弱点：缺失信息的请求、不支持的请求，以及训练里没有出现的运算。我也会在同一批请求上比较普通解码和受约束输出，分别报告格式合规和字段正确性。</p>\n<p>这些实验尚未运行，它们回答的问题也与这次发布不同。</p>\n<p>这次适配器对既定路由契约的整体表现更好，却仍未通过任何严格留出计算测试，而且合法 JSON 更不稳定。在决定是否把它接到 API 后面之前，我希望这三个事实都摆在眼前。</p>",
+      "translationKey": "2026-10-15-lora-routing-json-reliability",
+      "status": "published",
+      "publishedAt": "2026-10-15",
+      "topics": [
+        "model-evaluation"
+      ],
+      "summary": "576 条合成测试里，路由准确率提高了，合法 JSON 却减少了。记录数据划分、失败归因，以及这组结果能说明什么。"
+    },
+    {
+      "id": "2026-09-15-unify-the-site",
+      "title": "把散落的站，捏成一处",
+      "url": "https://widechaos.cn/blog/2026-09-15-unify-the-site",
+      "lang": "zh",
+      "body": "<h2 id=\"_1\">起因</h2>\n<p><code>widechaos.cn</code> 这个域名跟了我很多年。它下面陆陆续续长出过一些东西：一个量化的后台、一个任务中枢、一个 Markdown 小工具，还有一个我用 Astro 搭在 GitHub Pages 上、然后几乎忘了的博客。</p>\n<p>它们各自都还能跑，但合在一起看，就是<strong>一堆互不认识的页面</strong>：设计不统一、后端不统一、身份也不统一（我在 GitHub 叫一个名，博客上叫另一个名）。</p>\n<h2 id=\"_2\">决定</h2>\n<p>与其继续零敲碎打，不如定一个原则：</p>\n<blockquote>\n<p>一个后端，一套设计，一个身份。</p>\n</blockquote>\n<ul>\n<li><strong>后端统一</strong>到我最熟的 FastAPI，不再一半 GitHub Pages、一半自建服务器。</li>\n<li><strong>设计统一</strong>成现在这套：深色、渐变、等宽字，够我认领的那点赛博气质。</li>\n<li><strong>身份统一</strong>成「十方空烬 / Ember」，连带那句我很喜欢的偈子——<em>智灯已灭余空烬，犹自光明照十方</em>。</li>\n</ul>\n<h2 id=\"_3\">接下来</h2>\n<p>这个博客本身也是「内核优先」的：文章是 Markdown 文件，发布走的是我的 Agent（傻妞）——她写文件、提交、上线，我只负责想写什么。样式可以慢慢调，能持续产出才是关键。</p>\n<p>先这样。后面会写一些真正的工程复盘。</p>",
+      "translationKey": "2026-09-15-unify-the-site",
+      "status": "published",
+      "publishedAt": "2026-09-15",
+      "topics": [
+        "systems"
+      ],
+      "summary": "几个各自能跑的页面，为什么会成为维护负担？一次统一后端、设计和内容入口的记录。"
+    },
+    {
+      "id": "2026-09-12-rag-in-production",
+      "title": "RAG 上生产：召回、重排与那 200ms",
+      "url": "https://widechaos.cn/blog/2026-09-12-rag-in-production",
+      "lang": "zh",
+      "body": "<p>Demo 阶段的 RAG 很容易「看起来能用」：塞一个向量库，接一个大模型，问答就通了。但一旦上生产，三个问题会立刻浮出来——<strong>召回准不准、重排贵不贵、延迟扛不扛得住</strong>。</p>\n<h2 id=\"_1\">一、召回：别只靠向量</h2>\n<p>纯向量检索在语义相近但用词不同的场景很强，可一旦用户的 query 里带了<strong>专有名词、编号、精确措辞</strong>，稠密向量反而容易漂。实测里更稳的是混合召回：</p>\n<ul>\n<li>BM25 / 全文检索抓精确命中；</li>\n<li>Embedding 抓语义邻近；</li>\n<li>两路结果做融合（RRF 或加权），再进重排。</li>\n</ul>\n<p>分层 + 重叠切片也很关键：切太碎丢上下文，切太大稀释相关度。</p>\n<h2 id=\"_2\">二、重排：值这个钱，但要卡预算</h2>\n<p><code>bge-reranker</code> 这类交叉编码器能把初排的噪声压下去不少，代价是<strong>每个候选都要过一遍模型</strong>。实用的做法：</p>\n<ol>\n<li>初排召回放宽（比如 topK=50）；</li>\n<li>只对前 N（比如 20）做重排；</li>\n<li>重排结果取前 5 喂给生成。</li>\n</ol>\n<p>准确率的提升通常值这一步，但 N 要卡死，别让它吃掉你的延迟预算。</p>\n<h2 id=\"200ms\">三、延迟：200ms 不是靠单点，是靠省</h2>\n<p>把 P95 推理链路压进几百毫秒，靠的不是某一个快，而是每一段都省：</p>\n<table>\n<thead>\n<tr>\n<th>环节</th>\n<th>手段</th>\n</tr>\n</thead>\n<tbody>\n<tr>\n<td>检索</td>\n<td>预计算 embedding、向量库分片、缓存热 query</td>\n</tr>\n<tr>\n<td>重排</td>\n<td>限候选数、批量推理</td>\n</tr>\n<tr>\n<td>生成</td>\n<td>路由到合适规格的模型、流式返回先给首字</td>\n</tr>\n</tbody>\n</table>\n<h2 id=\"_3\">小结</h2>\n<p>RAG 从 Demo 到生产，本质是从「能答」到「稳、准、快地答」。召回用混合、重排卡预算、延迟靠层层省——这三条是我反复验证有效的地基。</p>\n<p>评测要跟上：groundedness、召回率、一致性、延迟，一个都不能只凭感觉。</p>",
+      "translationKey": "2026-09-12-rag-in-production",
+      "status": "published",
+      "publishedAt": "2026-09-12",
+      "topics": [
+        "retrieval"
+      ],
+      "summary": "混合召回、重排候选数与延迟预算：把 RAG 从演示推进到实际使用时，需要一起考虑的几件事。"
+    }
+  ],
+  "projects": [
+    {
+      "id": "bulletin",
+      "title": "Bulletin",
+      "tag": "Desktop utility",
+      "zh": "Python + Qt 桌面新闻弹幕：实时标题、透明窗口、鼠标穿透。",
+      "en": "A Python + Qt desktop news overlay: live headlines, a transparent window, and click-through interaction.",
+      "url": "https://github.com/widechaos/Bulletin",
+      "kind": "tool",
+      "status": "published",
+      "featuredRank": 2,
+      "demo": "bulletin",
+      "topics": [
+        "systems"
+      ],
+      "tool": {
+        "availability": "install"
+      }
+    },
+    {
+      "id": "router",
+      "title": "Bilingual Router LoRA",
+      "tag": "MLX / LoRA",
+      "zh": "双语路由合成实验：严格全字段通过率 7.6% → 47.2%；JSON 合法率 98.6% → 95.5%。576 条合成测试，不代表生产效果。",
+      "en": "Synthetic bilingual routing experiment: strict all-field accuracy 7.6% → 47.2%; JSON validity 98.6% → 95.5%. 576 synthetic tests, not production results.",
+      "url": "https://huggingface.co/WideChaos/bilingual-router-qwen2.5-0.5b-lora-v2",
+      "article": "2026-10-15-lora-routing-json-reliability",
+      "kind": "experiment",
+      "status": "published",
+      "featuredRank": 1,
+      "demo": "router",
+      "topics": [
+        "model-evaluation"
+      ]
+    },
+    {
+      "id": "navigator",
+      "title": "DeepSeek Navigator",
+      "tag": "Userscript · Install available",
+      "zh": "把长对话变成问答目录，支持一键定位。",
+      "en": "A browser userscript that turns long DeepSeek conversations into a question-and-answer outline with one-click navigation.",
+      "url": "https://github.com/widechaos/deepseek-chat-navigator",
+      "kind": "tool",
+      "status": "published",
+      "topics": [
+        "systems"
+      ],
+      "tool": {
+        "availability": "install",
+        "url": "https://greasyfork.org/zh-CN/scripts/560039-deepseek-chat-navigator"
+      }
+    },
+    {
+      "id": "obsidian",
+      "title": "Obsidian Cinematic",
+      "tag": "Obsidian interface layer",
+      "zh": "Obsidian 的 CSS 动效层：玻璃标注、呼吸提示、图片显现。",
+      "en": "A cinematic CSS motion layer for Obsidian: glass callouts, breathing alerts, image reveals.",
+      "url": "https://github.com/widechaos/obsidian-cinematic-ui",
+      "kind": "tool",
+      "status": "published",
+      "featuredRank": 3,
+      "demo": "obsidian",
+      "topics": [
+        "systems"
+      ],
+      "tool": {
+        "availability": "install"
+      }
+    },
+    {
+      "id": "evidence",
+      "title": "Evidence Agent",
+      "tag": "Local 14B evaluation: 9/20",
+      "zh": "公开研究工具与可检查的模型轨迹。本地 14B 评测 9/20，边界随原作公开。",
+      "en": "Public research tools with inspectable model traces. Documented local 14B evaluation: 9/20.",
+      "url": "https://huggingface.co/spaces/WideChaos/evidence-agent",
+      "kind": "experiment",
+      "status": "published",
+      "topics": [
+        "model-evaluation"
+      ]
+    },
+    {
+      "id": "contracts",
+      "title": "Bilingual Patch Contracts",
+      "tag": "Synthetic bilingual evaluation",
+      "zh": "合成双语评测数据与离线评分包。离线 fixture 不代表模型成绩。",
+      "en": "Synthetic bilingual evaluation data and offline scoring. Fixtures are not model results.",
+      "url": "https://huggingface.co/datasets/WideChaos/bilingual-patch-contracts",
+      "kind": "experiment",
+      "status": "published",
+      "topics": [
+        "model-evaluation"
+      ]
+    },
+    {
+      "id": "heartiger",
+      "title": "Heartiger",
+      "tag": "Design in progress",
+      "zh": "设计中的个人生活系统：轻量日记、智能整理、逐步生长的第二大脑。",
+      "en": "Designing an agent-driven personal life OS: lightweight journaling, intelligent organization, and a growing second brain.",
+      "url": "https://github.com/widechaos/Heartiger",
+      "kind": "design",
+      "status": "published",
+      "topics": [
+        "systems"
+      ]
+    }
+  ],
+  "collection": [
+    {
+      "title": "Databricks Academy · Generative AI Fundamentals",
+      "url": "assets/certificates/databricks-generative-ai.png",
+      "image": "/static/assets/collection/29f1581c5758ec6864f1-light.svg",
+      "kind": "learning",
+      "status": "published"
+    },
+    {
+      "title": "Databricks Academy · AI Agent Fundamentals",
+      "url": "assets/certificates/databricks-ai-agent.png",
+      "image": "/static/assets/collection/941fb8c4f35937df063f-light.svg",
+      "kind": "learning",
+      "status": "published"
+    },
+    {
+      "title": "Databricks Academy · AI Security Fundamentals",
+      "url": "assets/certificates/databricks-ai-security.png",
+      "image": "/static/assets/collection/7ae062d0e10238b65687-light.svg",
+      "kind": "learning",
+      "status": "published"
+    },
+    {
+      "title": "Hugging Face · Fundamentals of Agents · Unit 1 certificate",
+      "url": "assets/certificates/huggingface-agents-unit1.png",
+      "image": "/static/assets/collection/fcce51a17a26424c61eb-light.svg",
+      "kind": "learning",
+      "status": "published"
+    },
+    {
+      "title": "Hugging Face · Agents Course certificate",
+      "url": "assets/certificates/huggingface-agents-course.png",
+      "image": "/static/assets/collection/19c2fc201a209771fe73-light.svg",
+      "kind": "learning",
+      "status": "published"
+    },
+    {
+      "title": "Alibaba Cloud · Apsara Clouder · Generative AI",
+      "url": "assets/certificates/alibaba-cloud-generative-ai.png",
+      "image": "/static/assets/collection/2f2a114038a1e08188fd-light.svg",
+      "kind": "learning",
+      "status": "published"
+    },
+    {
+      "title": "Cognitive Class · Prompt Engineering for Everyone certificate",
+      "url": "assets/certificates/cognitive-class-prompt-engineering.png",
+      "image": "/static/assets/collection/e90ec5fb86acbd612639-light.svg",
+      "kind": "learning",
+      "status": "published"
+    },
+    {
+      "title": "Cognitive Class · Build Your Own Chatbot certificate",
+      "url": "assets/certificates/cognitive-class-chatbot.png",
+      "image": "/static/assets/collection/675a6532b03012945927-light.svg",
+      "kind": "learning",
+      "status": "published"
+    },
+    {
+      "title": "Cognitive Class · Fundamentals of AI certificate",
+      "url": "assets/certificates/cognitive-class-fundamentals-ai.png",
+      "image": "/static/assets/collection/9cdd8377d08371b31a6d-light.svg",
+      "kind": "learning",
+      "status": "published"
+    },
+    {
+      "title": "Cognitive Class · Machine Learning with Python certificate",
+      "url": "assets/certificates/cognitive-class-machine-learning.png",
+      "image": "/static/assets/collection/062b8590be830862da00-light.svg",
+      "kind": "learning",
+      "status": "published"
+    },
+    {
+      "title": "IBM SkillsBuild · Artificial Intelligence Fundamentals certificate",
+      "url": "assets/certificates/ibm-skillsbuild-ai-fundamentals.png",
+      "image": "/static/assets/collection/e8e1e922ca9ac3d8e34f-light.svg",
+      "kind": "learning",
+      "status": "published"
+    },
+    {
+      "title": "Kaggle: Benchmark Task local builder",
+      "url": "https://www.kaggle.com/certification/badges/xover2022/107",
+      "image": "/static/assets/collection/33e35f2aae7c3eee81f4-light.svg",
+      "kind": "community",
+      "status": "published"
+    },
+    {
+      "title": "Kaggle: Python Coder",
+      "url": "https://www.kaggle.com/certification/badges/xover2022/30",
+      "image": "/static/assets/collection/6991af5f83f5860308bf-light.svg",
+      "kind": "community",
+      "status": "published"
+    },
+    {
+      "title": "Kaggle · Code Tagger",
+      "url": "https://www.kaggle.com/certification/badges/xover2022/37",
+      "image": "/static/assets/collection/4ec814e4245f4c0f3ace-light.svg",
+      "kind": "community",
+      "status": "published"
+    },
+    {
+      "title": "Kaggle · 2 Years on Kaggle",
+      "url": "https://www.kaggle.com/certification/badges/xover2022/50",
+      "image": "/static/assets/collection/c27ea82c99238d507f54-light.svg",
+      "kind": "community",
+      "status": "published"
+    },
+    {
+      "title": "Kaggle · Bookmarker",
+      "url": "https://www.kaggle.com/xover2022",
+      "image": "/static/assets/collection/2135e11d761578599cba-light.svg",
+      "kind": "community",
+      "status": "published"
+    },
+    {
+      "title": "Kaggle · Collector",
+      "url": "https://www.kaggle.com/xover2022",
+      "image": "/static/assets/collection/38f3e7ff5abd1f49f263-light.svg",
+      "kind": "community",
+      "status": "published"
+    },
+    {
+      "title": "Kaggle · API Notebook Creator",
+      "url": "https://www.kaggle.com/xover2022",
+      "image": "/static/assets/collection/2ee97e4d00a3d5cbe073-light.svg",
+      "kind": "community",
+      "status": "published"
+    },
+    {
+      "title": "Kaggle · Colab Coder",
+      "url": "https://www.kaggle.com/xover2022",
+      "image": "/static/assets/collection/547500d5dfbcc8e43589-light.svg",
+      "kind": "community",
+      "status": "published"
+    },
+    {
+      "title": "Kaggle · Dataset Creator",
+      "url": "https://www.kaggle.com/xover2022",
+      "image": "/static/assets/collection/0fe0868a7e0ca9aa3cf6-light.svg",
+      "kind": "community",
+      "status": "published"
+    },
+    {
+      "title": "Kaggle · API Dataset Creator",
+      "url": "https://www.kaggle.com/xover2022",
+      "image": "/static/assets/collection/70cbb28e82f689a4d39a-light.svg",
+      "kind": "community",
+      "status": "published"
+    },
+    {
+      "title": "Kaggle · Dataset Documenter",
+      "url": "https://www.kaggle.com/xover2022",
+      "image": "/static/assets/collection/a658121678fe803f6c2e-light.svg",
+      "kind": "community",
+      "status": "published"
+    },
+    {
+      "title": "Kaggle · Dataset Tagger",
+      "url": "https://www.kaggle.com/xover2022",
+      "image": "/static/assets/collection/6ffca57dd0cd0514cf7a-light.svg",
+      "kind": "community",
+      "status": "published"
+    },
+    {
+      "title": "DEV: Writing Debut",
+      "url": "https://dev.to/widechaos",
+      "image": "/static/assets/collection/c674d22332a1f1ef2dcd-light.svg",
+      "kind": "community",
+      "status": "published"
+    },
+    {
+      "title": "DEV: Hacktoberfest 2026 Challenge Completion",
+      "url": "https://dev.to/widechaos",
+      "image": "/static/assets/collection/5afd34d4e89f1c41bf63-light.svg",
+      "kind": "community",
+      "status": "published"
+    },
+    {
+      "title": "2,000 reading hours",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/3e121afbbd99230a6c83-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "2,000 reading days",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/6d4fcc84b40a44692882-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "500 books read",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/adac10662efcec5f2e92-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "100 books finished",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/5b6a52caf977413d8155-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "50 highly rated books read",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/e71e1b13b0fd4c4076d9-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "30 consecutive reading days",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/711b52515364f29ca681-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "3,000 likes received",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/8ef0025d5740be6607a6-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "200 thoughts shared",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/d0b7d0d80d3f7fa20beb-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "10 book reviews",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/700d3f91ad6c095770b4-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Book recommendations for 10 readers",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/fd18ee0f205fda49a761-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "21-day Reading Challenge",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/3395d2a4bf7b07b4499c-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "World Book Day · Mountain and River Poet",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/1e612802cca6b4b9431d-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "50 books finished",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/c936b99fac96f8b839e0-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "10 highly rated books read",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/9839eab8fe4f8b7394a9-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 40 · 2026",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/54fb2001650dc31828f5-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading month · 2026",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/52e98fbc214774c2ba48-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 37 · 2026",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/5f856d6f21e0e9f8a8a6-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 35 · 2026",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/15039af6404aacefb24d-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 25 · 2026",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/1942c6bbd3222088482d-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 21 · 2026",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/a83daff0211fc270feeb-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading month · 2026",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/0df3af209b80117147d1-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 20 · 2026",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/8c4711b1c31ebd4b6b9b-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 16 · 2026",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/f1ba194c2bdd291992a9-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "World Book Day · Mountain and River Poet",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/1e612802cca6b4b9431d-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 14 · 2026",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/3628589ab8d5063094ea-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "21-day Reading Challenge",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/3395d2a4bf7b07b4499c-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading month · 2026",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/27bd2251b8cfec24be16-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 12 · 2026",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/f0211ac94d8cba0bd0bd-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Raging reading week 11 · 2026",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/5f6174fb1b62ec5eca9e-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 10 · 2026",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/3e97f81c081e5d2f3bb5-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Raging reading week 9 · 2026",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/8bbed3ab324a35ebbf82-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 8 · 2026",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/482ac1d630f4a977b5d3-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading month · 2026",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/1150a40bbf39fa12737f-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "2,000 reading days",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/6d4fcc84b40a44692882-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 7 · 2026",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/927ef4298fdaac40436d-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "50 highly rated books read",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/e71e1b13b0fd4c4076d9-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 6 · 2026",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/e214f5f7c63049d8314c-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 5 · 2026",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/ed3b49ac5f74bb66af05-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "500 books read",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/adac10662efcec5f2e92-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 31 · 2025",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/84ea17f2eeab20cc7443-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 28 · 2025",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/e3a6c2d28c96dea4b8af-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 27 · 2025",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/7741b8c5511f793121d3-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 19 · 2025",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/035dce37d5825984a640-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 15 · 2025",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/5c6ddd735379a8b510a5-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 14 · 2025",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/4e5c1b9d8f4b853d06b3-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Raging reading week 41 · 2024",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/7ed85bb26b2a0daaf35f-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "2,000 reading hours",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/3e121afbbd99230a6c83-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading month · 2024",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/fa8d3d2fed2912357e45-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 34 · 2024",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/d9e4d02f3bbfe8f629ac-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 33 · 2024",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/8e257ad392423f8b3b07-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 32 · 2024",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/caf810a73b624cabf0cd-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 31 · 2024",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/f06fbe6fa8ffbd98c828-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Raging reading week 30 · 2024",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/693996744cf2c173979e-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "100 books finished",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/5b6a52caf977413d8155-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 19 · 2024",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/252cb752657a1a297b5d-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading month · 2024",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/07c893a55eacc6cac3e7-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 15 · 2024",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/b7faaad2035c23a37406-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading month · 2024",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/155d6b87078b10db0375-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Raging reading week 13 · 2024",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/4c3a0b312065c4a07e12-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 12 · 2024",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/b49472efe70178897afa-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 11 · 2024",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/a584c14e648b820c709e-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 10 · 2024",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/43096d5ffcdb1b273db2-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading month · 2024",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/eae71bb2386bd05ca28e-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 9 · 2024",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/1b169f2208ff75180fd2-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 8 · 2024",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/e4eb16052125ea2197c4-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading month · 2024",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/533725d968ac5cfbe742-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading month · 2024",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/a1cf3a8ee5a36ac95d31-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Raging reading week 4 · 2024",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/7b4ee6f2c4bae10bbe7e-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Raging reading week 3 · 2024",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/295c358a29977f5212cb-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 2 · 2024",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/a6399e537d3a08e61192-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Book recommendations for 10 readers",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/fd18ee0f205fda49a761-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading month · 2023",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/5ef707f3173872cced96-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 52 · 2023",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/f275c2599b021b7e1ca5-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 51 · 2023",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/05e9ddedbf1d7e9215fc-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 50 · 2023",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/cb165a4cac87cff7d3f1-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 49 · 2023",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/2a75f78c32e72d54524b-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 45 · 2023",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/1e8c237e86c8bb293399-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading month · 2023",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/6ed50b6fef5a62c95a35-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 42 · 2023",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/d4afb8b59006866edfd7-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 41 · 2023",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/0770bac4f7f35df0a9e6-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 39 · 2023",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/d42e51b3f57968a61dd9-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "50 books finished",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/c936b99fac96f8b839e0-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "Perfect reading week 27 · 2023",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/85094d5e477fd993782a-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "10 book reviews",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/700d3f91ad6c095770b4-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "5 book reviews",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/7c012b8d24676656173d-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "10 highly rated books read",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/9839eab8fe4f8b7394a9-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "5 highly rated books read",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/0ba5ec8f394f2a5b84c1-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "3,000 likes received",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/8ef0025d5740be6607a6-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "1,000 reading days",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/d4bc2bb9d297f4df729d-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "200 thoughts shared",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/d0b7d0d80d3f7fa20beb-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "100 thoughts shared",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/211e2b8c8601f8f9d918-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "50 thoughts shared",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/ce6dfea3c8a86c25487f-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "10 thoughts shared",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/daea9e45b79347d96c21-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "2,000 likes received",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/97d19123b3298c341ae6-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "1,000 likes received",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/2b05c00bf08d6661845f-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "500 likes received",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/1af7f38b667e25545dfa-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "100 likes received",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/b2b58d7522a6b0aa73c8-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "50 likes received",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/ab1b64517a6fa3007427-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "10 books finished",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/50e34f560f7da5002d77-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "100 books read",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/f6da6fd2546baf82c462-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "50 books read",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/0971bd031a6bfd3c0937-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "500 reading days",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/b80bcf6a81644f4e310a-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "365 reading days",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/e00a95992d0f490c567b-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "200 reading days",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/3b4313480efc76899cdd-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "100 reading days",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/02a20c59ae9aa8b89854-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "1,000 reading hours",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/08c04c26c9616aed9b08-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "500 reading hours",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/247369052985d2c68ebe-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "100 reading hours",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/24b033a71b01504486e3-light.svg",
+      "kind": "reading",
+      "status": "published"
+    },
+    {
+      "title": "30 consecutive reading days",
+      "url": "https://weread.qq.com/",
+      "image": "/static/assets/collection/711b52515364f29ca681-light.svg",
+      "kind": "reading",
+      "status": "published"
+    }
+  ],
+  "tools": [
+    {
+      "id": "markdown-converter",
+      "title": "Markdown converter",
+      "titleZh": "Markdown 转换器",
+      "titleEn": "Markdown converter",
+      "zh": "浏览器里的 Markdown 转换工具，直接打开使用。",
+      "en": "A Markdown conversion tool that opens directly in the browser.",
+      "url": "https://widechaos.cn/cyber-markdown-converter",
+      "availability": "web",
+      "tag": "MARKDOWN",
+      "status": "published"
+    }
+  ],
+  "topics": {
+    "model-evaluation": {
+      "zh": "模型实验",
+      "en": "Model experiments"
+    },
+    "systems": {
+      "zh": "系统设计",
+      "en": "Systems"
+    },
+    "retrieval": {
+      "zh": "检索",
+      "en": "Retrieval"
+    }
+  },
+  "contact": {
+    "email": "ai@widechaos.cn"
+  },
+  "projectKinds": {
+    "tool": {
+      "zh": "工具",
+      "en": "Tools"
+    },
+    "experiment": {
+      "zh": "实验",
+      "en": "Experiments"
+    },
+    "design": {
+      "zh": "设计",
+      "en": "Design"
+    }
+  }
+}

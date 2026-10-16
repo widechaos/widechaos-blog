@@ -1,37 +1,52 @@
-# widechaos-blog
+# 十方空烬 · WideChaos
 
-基于 Astro + React 的个人站点与博客，面向 GitHub Pages 部署。
+[widechaos.cn](https://widechaos.cn/) 的公开网站源码：首页、作品、十方志、工具、关于和现在。连续滚动的城市画面、作品演示、双语阅读与正文服务端渲染共用一套内容模型。
 
-## 主要特性
+主分支现在维护这版站点。旧 Astro 实现及原提交历史完整保留在 [`legacy-astro-2026-10-16`](https://github.com/widechaos/widechaos-blog/tree/legacy-astro-2026-10-16)，旧 GitHub Pages 工作流不再执行。
 
-- 内容源：Astro Content Collections（博客文章、标签、RSS、Sitemap 一致）
-- 安全策略：默认禁用 inline script/style 的 CSP（避免 XSS 风险）
-- SEO：统一 Head（canonical / OG / Twitter / noindex），自动生成 sitemap.xml 与 feed.xml
-- 体验：主题切换无闪烁（初始化脚本拆到 `public/js/head-init.js`）
+## 本地运行
 
-## 本次改动记录（与验证方式）
+需要 Python 3.11+ 和 Node.js 22。浏览器依赖已经放在 `static/vendor/`，没有 npm 安装步骤。
 
-- 去除归档入口：导航菜单移除 `/archive` 入口，并将 `/archive` 重定向到 `/blog`，同时从 sitemap 中移除归档路径
-- 首页动态关键词：首页 Typewriter 关键词由内容（博客 tags + 项目 tech）自动聚合，内容更新后随构建自动更新
-- About 重构：About 页面按「定位/技术矩阵/案例/开源/博客演讲/联系方式」重写，并增加 JSON-LD（`public/seo/about.jsonld`）
-- Pages 稳定性：发布产物包含 `public/CNAME`，避免自定义域名部署后丢失导致 404
+```sh
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+.venv/bin/python serve.py
+```
 
-## 命令
+打开 `http://127.0.0.1:9567/`。预览仅监听本机，文章从正式站公开 JSON 读取；开发作品使用 `examples/site-catalog.json`。示例数据仅供开发和测试，代码部署不会传入生产内容目录。
 
-在项目根目录执行：
+```sh
+npm run check
+npm run validate
+npm test
+.venv/bin/python -m unittest discover -s integration -p 'test_*.py'
+.venv/bin/python -m unittest discover -s tests -p 'test_*.py'
+python3 scripts/check_source.py
+```
 
-| Command | Action |
+## 更新与上线
+
+1. 修改源码，运行检查并提交到 `main`。
+2. GitHub Actions 检查源码、凭据、内容协议和发布包。
+3. 在已有管理终端使用私有部署配置，对通过 CI 的同一提交先查看计划，再部署。
+
+```sh
+python3 scripts/deploy.py --config /private/path/site-deploy.json
+python3 scripts/deploy.py --config /private/path/site-deploy.json --apply
+```
+
+这条路径使用现有 SSH 管理连接，不需要向 GitHub 保存服务器或发布平台密码。部署从 Git 提交构建文件白名单，保存可回退快照，验证公开页面和私有接口边界，失败自动恢复。代码更新与日常内容发布分别维护，详见 [部署与回滚](docs/deployment.md)、[文章与作品更新](docs/content.md)。
+
+## 源码范围
+
+| 目录 | 用途 |
 | --- | --- |
-| `npm ci` | 安装依赖 |
-| `npm run dev` | 本地开发（默认 `http://localhost:4321`） |
-| `npm run build` | 构建到 `./dist/` |
-| `npm run preview` | 预览构建产物 |
-| `npm run verify:dist` | 校验构建产物 SEO/meta 完整性 |
+| `static/`、`index.html` | 公开页面、样式、动效和素材 |
+| `integration/` | 公开文章读取、净化、翻译配对、SSR及作品目录校验 |
+| `scripts/` | 检查、可复现打包、部署和回滚 |
+| `examples/` | 已公开内容的开发测试样例，不部署 |
+| `tests/` | 内容模型、导入保护和部署边界测试 |
+| `docs/` | 维护与部署说明 |
 
-## CI / 部署
-
-- 工作流：`.github/workflows/deploy.yml`
-- 构建产物：`./dist`
-- GitHub Pages：通过 GitHub Actions 部署
-
-
+仓库不包含生产凭据、发布账号配置、私有业务代码、数据库、运行日志或审稿台账。生产继续使用已有内容引擎与认证。[隐私边界](docs/privacy.md)说明了检查与保护范围。

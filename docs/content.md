@@ -1,0 +1,34 @@
+# 文章与作品更新
+
+## 内容来源
+
+生产文章来自原 `content/blog/*.md` 与原渲染器；作品、工具及收藏来自同服务 `content/site-catalog.json`。本仓库不保存实时内容台账或发布凭据。`examples/` 是公开样例与测试夹具，不能拿它覆盖生产目录。
+
+文章继续由既有 blog 工具创建、修改、发布或撤回。只有明确 `published` 的正文进入公开 JSON、SSR、搜索与翻译关系。中英用同一 `translationKey` 或相同 stem 的 `-zh/-en` 配对；缺译文不生成链接，补译文不改变原首发日期。
+
+现有每日私人审稿流程保持：中英标题和正文齐全后送审，批准绑定两份原文与配图；发布前重新检查版本。每次审稿消息默认二十篇，余稿保留，这只是消息容量。具体执行与账号由原私有发布环境管理，不复制到本仓库。
+
+## 新作品与修订
+
+使用原 `site_catalog_get` 读取目录及 revision。准备增量后，用 `site_catalog_update` 携带现有批准引用与公开原作地址，先 `dry_run=true`，检查通过再应用。冲突时重新读取，不用旧目录覆盖并行更新。
+
+作品至少需要稳定 `id`、`title`、中英 `zh/en` 简介、公开 HTTPS 原作地址、已有 `kind` 与明确 `status`。已公开不等于已完成；设计中的产品保留自身状态描述。`featuredRank` 控制精选，普通作品自然进入目录、筛选、搜索和详情；`tool` 决定是否派生到工具目录，无需维护第二张作品卡。
+
+项目关联文章使用 `translationKey`。镜像平台不重复生成项目。撤回文章会从公开配对和作品关联中消失。
+
+## 摘要与回读
+
+目录里同语言 `articleMetadata[slug].summary` 优先于 Markdown 摘要。改正文时同步更新该摘要，或显式写空字符串清除覆盖；然后回读 `/static/content.json` 和对应正文，核对标题、摘要、正文、中英链接及原文 URL 后登记原发布回执。
+
+正文先由原 Markdown 渲染器生成，再统一净化 HTML。日期使用实际首发/修订日期。单语旧稿不会被界面语言自动翻译。
+
+## 开发与测试
+
+`npm run validate` 校验公开样例。`scripts/import-content.mjs` 仅供样例迁移和隔离验证，不能作为日常线上发布入口。开发服务器支持：
+
+```sh
+python3 integration/preview_server.py --public-web --port 9567
+python3 integration/preview_server.py --catalog /private/path/catalog.json --blog-dir /private/path/blog --port 9567
+```
+
+第二种只读本地隔离内容，素材放在仓库之外。不要把未审稿件、配置或凭据写入 `static/`。
