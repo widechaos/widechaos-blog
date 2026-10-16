@@ -31,13 +31,16 @@ def main():
   if a.apply and not ci_passed(manifest['revision']):raise SystemExit('The selected commit has no successful push CI run')
   payload['archive']=base64.b64encode(archive).decode()
  script=(ROOT/'scripts/deploy_remote.py').read_text()
- wrapper='import json,subprocess\np=json.load(__import__("sys").stdin)\nr=subprocess.run(["python3","-c",'+repr(script)+'],input=json.dumps(p["payload"]),text=True,capture_output=True)\nprint(r.stdout);print(r.stderr[-1000:] if r.returncode else "");raise SystemExit(r.returncode)'
+ import shlex
+ remote_command='python3 -c '+shlex.quote(script)
+ options=['-T','-o','BatchMode=yes','-o','ConnectTimeout=15','-o','ServerAliveInterval=10','-o','ServerAliveCountMax=3']
  if a.bridge:
-  outer='import json,subprocess,sys\np=json.load(sys.stdin)\nr=subprocess.run(["ssh","-T","-o","BatchMode=yes","-o","ConnectTimeout=15",'+repr(a.target)+',"python3 -c "+__import__("shlex").quote('+repr(wrapper)+')],input=json.dumps(p),text=True,capture_output=True)\nprint(r.stdout);print(r.stderr[-1000:] if r.returncode else "");raise SystemExit(r.returncode)'
-  command=['ssh','-p',str(a.bridge_port),'-T','-o','BatchMode=yes','-o','ConnectTimeout=15','-o','ServerAliveInterval=10','-o','ServerAliveCountMax=3',a.bridge,'python3 -c '+__import__('shlex').quote(outer)]
- else:command=['ssh','-T','-o','BatchMode=yes','-o','ConnectTimeout=15','-o','ServerAliveInterval=10','-o','ServerAliveCountMax=3',a.target,'python3 -c '+__import__('shlex').quote(wrapper)]
+  forward='import json,subprocess,sys\np=json.load(sys.stdin)\nr=subprocess.run('+repr(['ssh',*options,a.target,remote_command])+',input=json.dumps(p),text=True,capture_output=True)\nprint(r.stdout);print(r.stderr[-1000:] if r.returncode else "");raise SystemExit(r.returncode)'
+  command=['ssh','-p',str(a.bridge_port),*options,a.bridge,'python3 -c '+shlex.quote(forward)]
+ else:command=['ssh',*options,a.target,remote_command]
+
  try:
-  result=subprocess.run(command,input=json.dumps({'payload':payload}),text=True,capture_output=True,timeout=a.timeout)
+  result=subprocess.run(command,input=json.dumps(payload),text=True,capture_output=True,timeout=a.timeout)
  except subprocess.TimeoutExpired:
   raise SystemExit('Deployment transport timed out; verify the host deployment receipt before retrying. No connection settings are printed.')
  print(result.stdout);print(result.stderr[-1000:] if result.returncode else '');raise SystemExit(result.returncode)
