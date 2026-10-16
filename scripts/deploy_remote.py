@@ -6,12 +6,16 @@ from urllib.error import HTTPError
 
 MODULES={'__init__.py','content_service.py','site_catalog.py','ssr.py','production_adapter.py'}
 
+PUBLIC_ROOT={'app.js','content-model.js','style.css','content-layout.css','hero-art.js','project-demos.js','project-demos.css','avatar.png','city-art.png','mark.svg','x-sword.svg'}
+
 def allowed(name):
  p=Path(name)
  if p.is_absolute() or '..' in p.parts:return False
- return (name=='app/static/vendor/LICENSE.three.txt' or name=='app/personal_site/index.html' or name=='bin/site_catalog.py' or
-  (p.parent==Path('app/site_content') and p.name in MODULES) or
-  (name.startswith('app/static/') and re.fullmatch(r'app/static/[A-Za-z0-9_./%-]+',name) and p.suffix in {'.js','.css','.svg','.png','.jpg','.jpeg','.webp','.gif','.woff','.woff2','.ico'}))
+ if name in {'app/personal_site/index.html','bin/site_catalog.py'}:return True
+ if p.parent==Path('app/site_content'):return p.name in MODULES
+ if p.parent==Path('app/static'):return p.name in PUBLIC_ROOT
+ if p.parent==Path('app/static/vendor'):return p.name in {'three.module.js','three.core.js','LICENSE.three.txt'}
+ return p.parent==Path('app/static/assets/collection') and bool(re.fullmatch(r'[a-f0-9]{20}-light\.svg',p.name))
 
 def unpack(body):
  files={}
