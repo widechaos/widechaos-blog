@@ -1,7 +1,15 @@
 /* Server HTML is a plain reading copy for crawlers; keep it hidden until the
-   app has drawn the styled page, and reveal it anyway if the script fails. */
-.booting #header, .booting #main, .booting #footer { visibility: hidden; animation: boot-reveal 0s 3s forwards; }
+   app has drawn the styled page. A quiet loader shows only if that takes a
+   moment, and the plain copy appears only if the script never arrives. */
+.booting #header, .booting #main, .booting #footer { visibility: hidden; animation: boot-reveal 0s 10s forwards; }
+.booting body::before, .booting body::after { content: ''; position: fixed; z-index: 1000; opacity: 0; animation: boot-in .4s ease .35s forwards, boot-out 0s 10s forwards; }
+.booting body::before { inset: 0; background: #0c121a url('/static/x-sword.svg') center calc(50% - 18px) / 52px auto no-repeat; }
+.booting body::after { left: 50%; top: calc(50% + 34px); width: 120px; height: 1px; margin-left: -60px; background: linear-gradient(90deg, transparent, #a3bdc8, transparent) 0 0 / 50% 100% no-repeat; animation: boot-in .4s ease .35s forwards, boot-scan 1.3s ease-in-out .35s infinite, boot-out 0s 10s forwards; }
 @keyframes boot-reveal { to { visibility: visible; } }
+@keyframes boot-in { to { opacity: 1; } }
+@keyframes boot-out { to { visibility: hidden; } }
+@keyframes boot-scan { 0% { background-position: -100% 0; } 100% { background-position: 200% 0; } }
+@media (prefers-reduced-motion: reduce) { .booting body::after { animation: boot-in .4s ease .35s forwards, boot-out 0s 10s forwards; background-position: 50% 0; } }
 :root {
   --bg: #0c121a;
   --ink: #e6e9e4;
