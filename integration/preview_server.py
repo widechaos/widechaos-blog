@@ -36,8 +36,8 @@ def handler(root,service):
  return Handler
 
 if __name__=='__main__':
- p=argparse.ArgumentParser();p.add_argument('--port',type=int,default=9568);p.add_argument('--catalog',default=str(Path(__file__).resolve().parent.parent/'examples/site-catalog.json'));p.add_argument('--blog-dir');p.add_argument('--public-web',action='store_true');p.add_argument('--categories',help='JSON copy of the host section labels');a=p.parse_args()
- s=ContentService(a.catalog,blog_dir=a.blog_dir,bridge=not a.blog_dir,bridge_ttl=15,categories=json.loads(Path(a.categories).read_text()) if a.categories else None)
+ p=argparse.ArgumentParser();p.add_argument('--port',type=int,default=9568);p.add_argument('--catalog',default=str(Path(__file__).resolve().parent.parent/'examples/site-catalog.json'));p.add_argument('--blog-dir');p.add_argument('--public-web',action='store_true');p.add_argument('--categories',help='JSON copy of the host section labels');p.add_argument('--tag-labels',help='JSON copy of the engine tag names');a=p.parse_args()
+ s=ContentService(a.catalog,blog_dir=a.blog_dir,bridge=not a.blog_dir,bridge_ttl=15,categories=json.loads(Path(a.categories).read_text()) if a.categories else None,tag_labels=json.loads(Path(a.tag_labels).read_text()) if a.tag_labels else None)
  if a.public_web:
   from integration.public_source import public_posts
   import integration.content_service as module

@@ -286,3 +286,8 @@ html[data-motion="off"] .tag-fx, html[data-motion="off"] .tag-fx::after { animat
 .category-icon { width: 1.25em; height: 1.25em; flex: none; margin-right: .45em; vertical-align: -.25em; }
 .entry-topics .entry-category { display: inline-flex; align-items: center; }
 .topic-filters button .category-icon { width: 16px; height: 16px; margin-right: 0; }
+
+/* English signature words are longer; keep them on one line on wider screens. */
+html[lang="en"] .identity-tags { max-width: none; flex-wrap: nowrap; white-space: nowrap; }
+html[lang="en"] .identity-tags span + span::before { margin: 0 9px; }
+@media (max-width: 760px) { html[lang="en"] .identity-tags { flex-wrap: wrap; white-space: normal; } }

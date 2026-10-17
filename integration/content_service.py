@@ -44,7 +44,7 @@ def native_posts(blog_dir, render=None):
 def bridge_posts():
  raise RuntimeError('Choose --public-web or a local --blog-dir for preview')
 
-def build_bundle(posts,catalog,origin=ORIGIN,categories=None):
+def build_bundle(posts,catalog,origin=ORIGIN,categories=None,tag_labels=None):
  validate_catalog(catalog)
  data={section:[] for section in FIELDS}
  for section,fields in FIELDS.items():
@@ -92,14 +92,15 @@ def build_bundle(posts,catalog,origin=ORIGIN,categories=None):
  order=list(categories or {})+sorted({a['category'] for a in data['articles'] if a.get('category')}-set(categories or {}))
  labels=categories or {};fallback=catalog.get('categoryLabels',{})
  data['categories']=[{'id':c,'zh':c,'en':str(labels.get(c,{}).get('en') or fallback.get(c,c)),'desc':str(labels.get(c,{}).get('desc','')),'motto':str(labels.get(c,{}).get('motto',''))} for c in order if any(a.get('category')==c for a in data['articles'])]
+ data['tagLabels']={t:str(tag_labels[t]) for a in data['articles'] for t in a.get('tags',[]) if t in (tag_labels or {})}
  used={t for item in data['articles']+data['projects'] for t in item.get('topics',[])}
  data['topics']={k:v for k,v in data['topics'].items() if k in used}
  used_kinds={p['kind'] for p in data['projects']};data['projectKinds']={k:v for k,v in data['projectKinds'].items() if k in used_kinds}
  return data
 
 class ContentService:
- def __init__(self,catalog_path,blog_dir=None,bridge=False,render=None,bridge_ttl=1.0,categories=None):
-  self.categories=categories;self.catalog_path=Path(catalog_path);self.blog_dir=Path(blog_dir) if blog_dir else None;self.bridge=bridge;self.render=render;self.bridge_ttl=bridge_ttl;self._lock=threading.Lock();self._cache=None;self._fingerprint=None;self._at=0
+ def __init__(self,catalog_path,blog_dir=None,bridge=False,render=None,bridge_ttl=1.0,categories=None,tag_labels=None):
+  self.categories=categories;self.tag_labels=tag_labels;self.catalog_path=Path(catalog_path);self.blog_dir=Path(blog_dir) if blog_dir else None;self.bridge=bridge;self.render=render;self.bridge_ttl=bridge_ttl;self._lock=threading.Lock();self._cache=None;self._fingerprint=None;self._at=0
  def bundle(self):
   with self._lock:
    stat=self.catalog_path.stat();signature=[stat.st_mtime_ns,stat.st_size]
@@ -109,7 +110,7 @@ class ContentService:
    if valid:return copy.deepcopy(self._cache)
    catalog=json.loads(self.catalog_path.read_text())
    posts=bridge_posts() if self.bridge else native_posts(self.blog_dir,self.render)
-   data=build_bundle(posts,catalog,categories=self.categories)
+   data=build_bundle(posts,catalog,categories=self.categories,tag_labels=self.tag_labels)
    self._cache=data;self._fingerprint=signature;self._at=time.monotonic();return copy.deepcopy(data)
  def response(self):
   data=self.bundle();return data,'"'+digest(data)+'"'

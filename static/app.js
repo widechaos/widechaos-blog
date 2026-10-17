@@ -94,7 +94,8 @@ const categoryInfo = (id) => (data.categories || []).find((c) => c.id === id);
 const categoryName = (id) => (lang === "en" && categoryInfo(id)?.en) || id;
 const isRadar = (a) => /^oss-radar-/.test(a.id);
 // One shared label row: the section first, then the author's own tags.
-const entryLabels = (a, tagLimit = 3) => `${a.category ? `<span class="entry-category">${categoryIcon(a.category)}${esc(categoryName(a.category))}</span>` : ""}${(a.tags || []).slice(0, tagLimit).map((tag) => `<span>${esc(tag)}</span>`).join("")}`;
+const entryLabels = (a, tagLimit = 3) => `${a.category ? `<span class="entry-category">${categoryIcon(a.category)}${esc(categoryName(a.category))}</span>` : ""}${(a.tags || []).slice(0, tagLimit).map((tag) => `<span>${esc(tagName(tag))}</span>`).join("")}`;
+const tagName = (tag) => (lang === "en" && data.tagLabels?.[tag]) || tag;
 const workKind = (id) => data.projectKinds?.[id]?.[lang] || id;
 const toolName = (tool) => lang === "zh" ? tool.titleZh || tool.title : tool.titleEn || tool.title;
 const toolLabel = (tool) => tool.availability === "web" ? t("打开工具", "Open tool") : tool.id === "navigator" ? t("安装脚本", "Install userscript") : t("安装说明", "Setup guide");

@@ -14,4 +14,4 @@ Section icons in `static/app.js` are Phosphor Icons 2.1.1, light weight (MIT).
 
 ## Fonts
 
-`static/fonts/poem-mashanzheng.woff2` is Ma Shan Zheng and `static/fonts/poem-cormorant-italic.woff2` is Cormorant Garamond Italic, both subset to the characters the hero lines use. Both are under the SIL Open Font License 1.1; texts in `licenses/`.
+`static/fonts/poem-mashanzheng.woff2` is Ma Shan Zheng and `static/fonts/poem-cormorant-italic.woff2` is Cormorant Garamond Italic, both subset to the characters the hero lines use. Both are under the SIL Open Font License 1.1; texts in `docs/licenses/`.
