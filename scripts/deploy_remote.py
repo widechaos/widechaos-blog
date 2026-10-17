@@ -70,7 +70,8 @@ def require_capacity(proc=Path('/proc')):
    for line in path.read_text().splitlines():
     if line.startswith('full '):
      values=dict(item.split('=') for item in line.split()[1:])
-     if float(values['avg10'])>=limit:
+     # An idle host shows large 10-second IO spikes from a single small read; gate IO on the minute average.
+     if float(values['avg60' if name=='io' else 'avg10'])>=limit:
       raise RuntimeError('Deployment deferred: host '+name+' pressure is high; no site files changed')
 
 def preflight(container,source,seconds=45):
