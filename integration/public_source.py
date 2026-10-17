@@ -14,6 +14,7 @@ def public_posts():
    'title':article['title'],'date':article['publishedAt'],
    'updatedAt':article.get('updatedAt'), 'status':'published',
    'summary':article['summary'],'lang':article['lang'],
-   'translationKey':article['translationKey'],'topics':article.get('topics',[])
+   'translationKey':article['translationKey'],'topics':article.get('topics',[]),
+   **{k:article[k] for k in ('category','tags','series') if k in article}
   },'html':article['body']})
  return posts

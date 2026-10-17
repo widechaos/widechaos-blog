@@ -44,7 +44,7 @@ def native_posts(blog_dir, render=None):
 def bridge_posts():
  raise RuntimeError('Choose --public-web or a local --blog-dir for preview')
 
-def build_bundle(posts,catalog,origin=ORIGIN):
+def build_bundle(posts,catalog,origin=ORIGIN,categories=None):
  validate_catalog(catalog)
  data={section:[] for section in FIELDS}
  for section,fields in FIELDS.items():
@@ -78,9 +78,9 @@ def build_bundle(posts,catalog,origin=ORIGIN):
    if not valid_date(updated) or updated<published: raise ValueError('Invalid article update date')
    article['updatedAt']=updated
   if metadata.get('discussionUrl') and public_url(metadata['discussionUrl']): article['discussionUrl']=metadata['discussionUrl']
-  if not article['topics'] and meta.get('category'):
-   category=str(meta['category']);topic='category-'+hashlib.sha256(category.encode()).hexdigest()[:10]
-   data['topics'][topic]={'zh':category,'en':catalog.get('categoryLabels',{}).get(category,category)};article['topics']=[topic]
+  if meta.get('category'): article['category']=str(meta['category'])
+  if isinstance(meta.get('tags'),list): article['tags']=[str(t) for t in meta['tags'] if str(t).strip()][:8]
+  if meta.get('series'): article['series']=str(meta['series'])
   if any(t not in data['topics'] for t in article['topics']): raise ValueError('Unknown article topic')
   data['articles'].append(article)
  data['articles'].sort(key=lambda a:(a['publishedAt'],a['id']),reverse=True)
@@ -88,14 +88,18 @@ def build_bundle(posts,catalog,origin=ORIGIN):
  keys={a['id'] for a in data['articles']}|{a['translationKey'] for a in data['articles']}
  for p in data['projects']:
   if p.get('article') and p['article'] not in keys: p.pop('article')
+ # Engine sections keep their own order; labels come from the host blog when available.
+ order=list(categories or {})+sorted({a['category'] for a in data['articles'] if a.get('category')}-set(categories or {}))
+ labels=categories or {};fallback=catalog.get('categoryLabels',{})
+ data['categories']=[{'id':c,'zh':c,'en':str(labels.get(c,{}).get('en') or fallback.get(c,c)),'desc':str(labels.get(c,{}).get('desc','')),'motto':str(labels.get(c,{}).get('motto',''))} for c in order if any(a.get('category')==c for a in data['articles'])]
  used={t for item in data['articles']+data['projects'] for t in item.get('topics',[])}
  data['topics']={k:v for k,v in data['topics'].items() if k in used}
  used_kinds={p['kind'] for p in data['projects']};data['projectKinds']={k:v for k,v in data['projectKinds'].items() if k in used_kinds}
  return data
 
 class ContentService:
- def __init__(self,catalog_path,blog_dir=None,bridge=False,render=None,bridge_ttl=1.0):
-  self.catalog_path=Path(catalog_path);self.blog_dir=Path(blog_dir) if blog_dir else None;self.bridge=bridge;self.render=render;self.bridge_ttl=bridge_ttl;self._lock=threading.Lock();self._cache=None;self._fingerprint=None;self._at=0
+ def __init__(self,catalog_path,blog_dir=None,bridge=False,render=None,bridge_ttl=1.0,categories=None):
+  self.categories=categories;self.catalog_path=Path(catalog_path);self.blog_dir=Path(blog_dir) if blog_dir else None;self.bridge=bridge;self.render=render;self.bridge_ttl=bridge_ttl;self._lock=threading.Lock();self._cache=None;self._fingerprint=None;self._at=0
  def bundle(self):
   with self._lock:
    stat=self.catalog_path.stat();signature=[stat.st_mtime_ns,stat.st_size]
@@ -105,7 +109,7 @@ class ContentService:
    if valid:return copy.deepcopy(self._cache)
    catalog=json.loads(self.catalog_path.read_text())
    posts=bridge_posts() if self.bridge else native_posts(self.blog_dir,self.render)
-   data=build_bundle(posts,catalog)
+   data=build_bundle(posts,catalog,categories=self.categories)
    self._cache=data;self._fingerprint=signature;self._at=time.monotonic();return copy.deepcopy(data)
  def response(self):
   data=self.bundle();return data,'"'+digest(data)+'"'

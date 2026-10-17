@@ -1,3 +1,7 @@
+/* Server HTML is a plain reading copy for crawlers; keep it hidden until the
+   app has drawn the styled page, and reveal it anyway if the script fails. */
+.booting #header, .booting #main, .booting #footer { visibility: hidden; animation: boot-reveal 0s 3s forwards; }
+@keyframes boot-reveal { to { visibility: visible; } }
 :root {
   --bg: #0c121a;
   --ink: #e6e9e4;

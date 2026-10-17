@@ -109,7 +109,7 @@ const fragmentShader = /* glsl */ `
 `;
 
 /** Mount a decorative image treatment while retaining an ordinary image fallback. */
-export function mountHero(host, { image = '/static/city-art.png' } = {}) {
+export function mountHero(host, { image = '/static/city-art.jpg' } = {}) {
   if (!(host instanceof HTMLElement)) return { dispose() {}, setMode() {} };
 
   let disposed = false;

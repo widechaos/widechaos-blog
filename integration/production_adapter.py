@@ -1,6 +1,7 @@
 """Prepared adapter; installing is a separate, approved production action.
 Mount only behind the existing authentication middleware. No auth changes.
 """
+import sys
 from pathlib import Path
 from fastapi import Request
 from fastapi.responses import JSONResponse,HTMLResponse,Response
@@ -9,7 +10,9 @@ from .content_service import ContentService
 from .ssr import render
 
 def install(app, *, root, catalog_path, blog_dir, native_renderer=None):
- service=ContentService(catalog_path,blog_dir=blog_dir,render=native_renderer)
+ # The host blog module owns the section labels; reuse them instead of copying.
+ host=sys.modules.get(getattr(native_renderer,'__module__',''),None)
+ service=ContentService(catalog_path,blog_dir=blog_dir,render=native_renderer,categories=getattr(host,'CATEGORIES',None))
  async def content(request:Request):
   try:data,etag=service.response()
   except Exception:return JSONResponse({'error':'Public content temporarily unavailable'},503,headers={'Cache-Control':'no-store'})

@@ -20,17 +20,18 @@ function routerMarkup(language) {
   </section>`;
 }
 
-function bulletinMarkup(language) {
+function bulletinMarkup(language, headlines) {
   const t = (zh, en) => choose(language, zh, en);
-  const list = titles[language];
-  const rows = [list.slice(0, 3), list.slice(3, 6), [list[6], list[7], list[0]]];
+  const source = headlines?.length ? headlines : titles[language];
+  const list = Array.from({ length: 9 }, (_, i) => source[i % source.length]);
+  const rows = [list.slice(0, 3), list.slice(3, 6), list.slice(6, 9)];
   return `<section class="demo-root demo-bulletin" data-demo="bulletin" data-demo-lang="${language}" aria-label="${t('Bulletin 标题流展示', 'Bulletin title-stream demonstration')}">
     <div class="demo-topline"><span>BULLETIN</span><button type="button" class="demo-pause" data-demo-pause aria-pressed="false">${t('暂停', 'Pause')} <span aria-hidden="true">Ⅱ</span></button></div>
     <div class="demo-bulletin-window"><span class="demo-window-cross demo-window-cross-one" aria-hidden="true"></span><span class="demo-window-cross demo-window-cross-two" aria-hidden="true"></span>
       <div class="demo-stream" aria-hidden="true">${rows.map((row, index) => `<div class="demo-lane demo-lane-${index}"><div class="demo-lane-track">${[0, 1].map(() => `<div class="demo-lane-copy">${row.map((title, i) => `<span class="demo-headline"><i>${String(index * 3 + i + 1).padStart(2, '0')}</i>${escapeHTML(title)}</span>`).join('')}</div>`).join('')}</div></div>`).join('')}</div>
       <span class="demo-stream-word" aria-hidden="true">Bulletin</span>
     </div>
-    <p class="demo-caption">${t('标题流展示 · 使用本站作品与文章标题', 'Title-stream demonstration · project and article titles')}</p>
+    <p class="demo-caption">${headlines?.length ? t('标题流展示 · 本站最新文章与开源雷达', 'Title-stream demonstration · latest writing and radar picks') : t('标题流展示 · 使用本站作品与文章标题', 'Title-stream demonstration · project and article titles')}</p>
     <ul class="demo-sr">${list.map(title => `<li>${escapeHTML(title)}</li>`).join('')}</ul>
   </section>`;
 }
@@ -52,10 +53,10 @@ function obsidianMarkup(language) {
   </section>`;
 }
 
-export function demoMarkup(id, lang = 'zh') {
+export function demoMarkup(id, lang = 'zh', headlines = []) {
   const language = lang === 'en' ? 'en' : 'zh';
   if (id === 'router') return routerMarkup(language);
-  if (id === 'bulletin') return bulletinMarkup(language);
+  if (id === 'bulletin') return bulletinMarkup(language, headlines);
   if (id === 'obsidian') return obsidianMarkup(language);
   return '';
 }

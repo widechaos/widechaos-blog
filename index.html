@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-CN" data-motion="on">
+<html lang="zh-CN" data-motion="on" class="booting">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -13,6 +13,8 @@
     <link rel="stylesheet" href="/static/style.css" />
     <link rel="stylesheet" href="/static/project-demos.css" />
     <link rel="stylesheet" href="/static/content-layout.css" />
+    <link rel="modulepreload" href="/static/content-model.js" />
+    <link rel="modulepreload" href="/static/project-demos.js" />
     <script type="module" src="/static/app.js"></script>
   </head>
   <body>
@@ -35,6 +37,12 @@
         placeholder="搜索 / Search"
       />
       <div id="search-results" aria-live="polite"></div>
+    </dialog>
+    <dialog id="rss-dialog" aria-labelledby="rss-title">
+      <form method="dialog">
+        <button class="close-search" aria-label="关闭 / Close">×</button>
+      </form>
+      <div id="rss-content"></div>
     </dialog>
     <div id="announcer" class="sr-only" role="status" aria-live="polite"></div>
     <noscript

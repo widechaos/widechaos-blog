@@ -157,3 +157,43 @@
 
 #main > .page-wrap, #main > .article-page { animation: content-enter .22s ease-out; }
 @keyframes content-enter { from { opacity: .65; } to { opacity: 1; } }
+
+/* Sections, series and the journal list. */
+.entry-topics .entry-category { color: var(--ink); border: 1px solid #4a5d6b; padding: 0 7px; }
+.entry-topics span:not(.entry-category) { color: var(--muted); }
+.topic-filters .series-filter { border-style: dashed; }
+.category-motto { max-width: 760px; margin: 4px 0 18px; color: var(--muted); font: italic 14px/1.9 Georgia, 'Songti SC', serif; }
+.series-note { display: inline-block; margin-top: 12px; color: var(--accent); font: 11px/1.6 'SFMono-Regular', Consolas, monospace; }
+
+/* Contents: the article's top level, with its sub-level indented. */
+.article-toc > a.toc-depth-1 { padding-left: 14px; margin: 9px 0; font-size: 10.5px; color: #7f9192; }
+
+/* GitHub links collapse into a compact icon chip. */
+.gh-link { display: inline-flex; align-items: center; gap: 6px; padding: 1px 8px; border: 1px solid #3f525e; background: #13202a; color: var(--cyan); text-decoration: none !important; font: 12px/1.8 'SFMono-Regular', Consolas, monospace; vertical-align: baseline; }
+.gh-link:hover { border-color: var(--accent); color: var(--ink); }
+.gh-icon { width: 13px; height: 13px; flex: none; }
+
+/* Open Source Radar: one card per repository. */
+.radar-item { margin: 34px 0; padding: 26px 28px 8px; border: 1px solid var(--line); background: linear-gradient(160deg, #15222d, #0f1922); }
+.article-body .radar-item h3 { display: flex; align-items: baseline; gap: 14px; margin: 0 0 12px; font-size: clamp(21px, 2.2vw, 28px); }
+.radar-no { color: var(--accent); font: 13px/1 'SFMono-Regular', Consolas, monospace; }
+.radar-repo small { color: var(--muted); font-size: .62em; font-weight: 400; margin-right: 4px; }
+.radar-stats { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; margin-bottom: 18px; color: var(--muted); font: 12px/1.8 'SFMono-Regular', Consolas, monospace; }
+.radar-verdict { padding: 12px 16px; border-left: 2px solid var(--accent); background: #1a2a36; }
+.radar-check { color: var(--muted); font-size: 13px; }
+@media (max-width: 760px) { .radar-item { padding: 20px 16px 4px; margin: 26px -6px; } }
+
+/* Now page and project activity. */
+.now-updated { color: var(--muted); font: 12px/1.6 'SFMono-Regular', Consolas, monospace; margin: -20px 0 26px; }
+.now-page .section-title { margin-top: 70px; }
+.activity-line { display: block; margin-top: 8px; color: var(--accent); font: 11px/1.7 'SFMono-Regular', Consolas, monospace; }
+.activity-line:empty { display: none; }
+
+/* RSS subscribe panel. */
+#rss-content h2 { font-size: 23px; margin: 20px 0 14px; }
+#rss-content p { color: var(--muted); font-size: 14px; line-height: 1.9; }
+.feed-copy { display: flex; flex-wrap: wrap; gap: 10px; margin: 24px 0 18px; }
+.feed-copy input:not([hidden]) { flex: 1 1 260px; min-width: 0; background: #0d1619; color: var(--ink); border: 1px solid #4b6265; padding: 13px 14px; font: 13px 'SFMono-Regular', Consolas, monospace; }
+.feed-copy button { padding: 0 20px; min-height: 46px; background: #adbfca; color: #101b23; font-size: 13px; }
+.feed-copy .copy-status { flex-basis: 100%; color: var(--accent); font-size: 12px; }
+.feed-raw { color: var(--muted); font-size: 12px; }
