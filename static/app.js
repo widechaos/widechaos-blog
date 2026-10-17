@@ -56,6 +56,9 @@ const tags = () =>
       "Light",
     ],
   );
+const TAG_KEYS = ["scientist", "wordsmith", "artist", "tactician", "knight", "light"];
+// Each signature word reacts in its own way on hover; see .tag-fx in content-layout.css.
+const tagFx = (x, i) => `<em class="tag-fx" data-tag="${TAG_KEYS[i]}">${x}</em>`;
 const articleSet = () => selectArticlesForLanguage(data.articles, lang);
 const projectTitle = (id) => data.projects.find((p) => p.id === id)?.title;
 const desc = (p) => p[lang];
@@ -190,10 +193,10 @@ function home() {
   const featured = selectFeaturedProjects(data.projects, 3);
   const tools = availableTools(data).filter((tool) => !featured.some((p) => p.id === tool.projectId));
   return `<section class="hero" id="intro"><div class="hero-art" id="hero-art"><img src="/static/city-art.png" alt="" fetchpriority="high"></div><div class="hero-shade"></div><div class="hero-copy"><p class="eyebrow"><span class="accent-dot"></span> EMBER / RENCHAO WU</p><h1 aria-label="十方空烬"><span>十方</span><span class="name-second">空烬<span class="name-star" aria-hidden="true"><img src="/static/x-sword.svg" alt="" width="96" height="112"></span></span></h1><p class="hero-slogan">BUILD. BREAK. REBUILD.</p><p class="identity-tags">${tags()
-    .map((x) => `<span>${x}</span>`)
+    .map((x, i) => `<span>${tagFx(x, i)}</span>`)
     .join(
       "",
-    )}</p><div class="hero-links">${link("/projects", t("看作品", "Explore work") + " " + arrow, "primary-link")}${link("/blog", t("读十方志", "Read the journal") + " <span>↗</span>", "text-link")}</div></div>${lang === "zh" ? `<div class="hero-poem" lang="zh-CN"><span>智灯已灭余空烬</span><span>犹自光明照十方</span><i>十方空烬</i></div>` : `<div class="hero-poem hero-poem-en" lang="en"><p>From the ashes a fire shall be woken,<br>a light from the shadows shall spring.</p><small>— J.R.R. Tolkien</small></div>`}<div class="hero-bottom"><a href="#latest" class="scroll-cue"><span>↓</span> ${t("向下浏览", "SCROLL TO EXPLORE")}</a><span class="hero-location">WIDECHAOS.CN</span><button id="art-mode" aria-pressed="${light === "etch"}">${t("画面", "VIEW")} <b>${light === "neon" ? t("夜景", "NIGHT") : t("线描", "ETCH")}</b> ⇄</button></div></section>
+    )}</p><div class="hero-links">${link("/projects", t("看作品", "Explore work") + " " + arrow, "primary-link")}${link("/blog", t("读十方志", "Read the journal") + " <span>↗</span>", "text-link")}</div></div>${lang === "zh" ? `<div class="hero-poem" lang="zh-CN"><span>智灯已灭余空烬</span><span>犹自光明照十方</span></div>` : `<div class="hero-poem hero-poem-en" lang="en"><p>From the ashes a fire shall be woken,<br>a light from the shadows shall spring.</p><small>— J.R.R. Tolkien</small></div>`}<div class="hero-bottom"><a href="#latest" class="scroll-cue"><span>↓</span> ${t("向下浏览", "SCROLL TO EXPLORE")}</a><span class="hero-location">WIDECHAOS.CN</span><button id="art-mode" aria-pressed="${light === "etch"}">${t("画面", "VIEW")} <b>${light === "neon" ? t("夜景", "NIGHT") : t("线描", "ETCH")}</b> ⇄</button></div></section>
  ${homeJournal()}
  ${featured.length ? `<section class="section selected" id="selected">${sectionTitle("02", "精选作品", "Selected work", link("/projects", t("全部作品", "All work") + " " + arrow, "section-more"))}${featuredWork(featured[0], 0)}${featured.length > 1 ? `<div class="work-pair">${featured.slice(1).map((p, i) => featuredWork(p, i + 1)).join("")}</div>` : ""}</section>` : ""}
  ${tools.length ? `<section class="section home-tools" id="home-tools">${sectionTitle("03", "工具", "Tools", link("/tools", t("全部工具", "All tools") + " " + arrow, "section-more"))}<div class="home-tool-grid">${tools.slice(0, 2).map(tool => toolCard(tool, true)).join("")}</div></section>` : ""}
@@ -370,7 +373,7 @@ function about() {
   ];
   const selected = unique.filter((x) => x.kind === collectionFilter);
   return `<div class="page-wrap about-page">${pageHead("04", "关于我", "About me", "Build. Break. Rebuild.")}<div class="about-identity"><div class="portrait-wrap"><img src="/static/avatar.png" alt="十方空烬 · Ember" width="480" height="480"><div class="portrait-lines" aria-hidden="true"></div><span>RENCHAO WU / EMBER</span></div><div class="identity-block"><p class="eyebrow">十方空烬 · Ember</p><div class="large-tags">${tags()
-    .map((x, i) => `<span><small>0${i + 1}</small>${x}</span>`)
+    .map((x, i) => `<span><small>0${i + 1}</small>${tagFx(x, i)}</span>`)
     .join(
       "",
     )}</div><p class="identity-signature">Per aspera ad astra.</p></div></div><div class="about-poem"><span>智灯已灭余空烬</span><span>犹自光明照十方</span></div><blockquote class="tolkien">“From the ashes a fire shall be woken,<br>a light from the shadows shall spring.”<cite>— J.R.R. Tolkien</cite></blockquote><section class="about-manifesto" id="manifesto"><span class="eyebrow">MANIFESTO</span><h2>${t("短期促进生产，<br>长期促进革命。", "Short-term, fueling production.<br>Long-term, fueling the revolution.")}</h2></section><div class="about-follow">${link("/now", t("现在关注什么", "What I’m exploring now") + " " + arrow)}${data.contact?.email ? link("mailto:" + data.contact.email, t("给我写信", "Write to me") + " " + arrow) : ""}</div><section class="profiles" id="elsewhere">${sectionTitle("", "在别处", "Elsewhere")}<div class="profile-list">${PROFILES.map(([name, handle, url]) => link(url, `<span>${profileIcon(name)}${name}</span><small>${esc(handle)}</small>${arrow}`)).join("")}</div></section><section class="collection" id="collection">${sectionTitle("", "收藏与学习", "Collection")}<div class="filter-bar">${[

@@ -223,14 +223,15 @@
 .profile-list a:hover > span:first-child { color: var(--cyan); }
 @media (max-width: 760px) { .profile-list { grid-template-columns: 1fr; } }
 
-/* The small seal reads as a vermilion stamp, like a 朱批 beside the poem. */
-.hero-poem i { color: #d9553f; border-color: #d9553f; background: #d9553f14; box-shadow: 0 0 0 1px #d9553f22; }
+/* The vertical poem is the hero's second voice, so it gets real size. */
+.hero-poem:not(.hero-poem-en) { gap: clamp(18px, 2vw, 34px); }
+.hero-poem > span { font-size: clamp(24px, 2.75vw, 48px); letter-spacing: .26em; }
 /* English visitors get the Tolkien lines from the GitHub profile instead of vertical Chinese. */
-.hero-poem-en { flex-direction: column; align-items: flex-end; gap: 10px; text-align: right; }
+.hero-poem-en { flex-direction: column; align-items: flex-end; gap: 12px; text-align: right; top: 52%; }
 /* Layered shadows keep the lines legible on the lit towers without a visible backing box. */
-.hero-poem-en p { white-space: nowrap; font: italic clamp(16px, 1.35vw, 22px)/1.65 Georgia, 'Times New Roman', serif; color: #ecebe1; text-shadow: 0 0 2px #05090e, 0 1px 6px #05090e, 0 2px 22px #05090e, 0 0 46px #0a1018; }
+.hero-poem-en p { white-space: nowrap; font: italic clamp(20px, 2vw, 34px)/1.6 Georgia, 'Times New Roman', serif; color: #ecebe1; text-shadow: 0 0 2px #05090e, 0 1px 6px #05090e, 0 2px 22px #05090e, 0 0 46px #0a1018; }
 .hero-poem-en small { font: 11px/1.6 "SFMono-Regular", Consolas, monospace; color: #b8c4cb; letter-spacing: .06em; text-shadow: 0 1px 8px #000; }
-@media (max-width: 760px) { .hero-poem-en p { font-size: 12px; white-space: normal; max-width: 200px; } }
+@media (max-width: 760px) { .hero-poem > span { font-size: 17px; letter-spacing: .2em; } .hero-poem-en p { font-size: 13px; white-space: normal; max-width: 200px; } }
 
 /* A vermilion colophon beside the manifesto: Mao's "a single spark", tied to the ember theme. */
 .manifesto-section { --tribute: #b23a2a; }
@@ -246,3 +247,31 @@
   .manifesto-tribute[lang="zh-CN"] span, .manifesto-tribute[lang="zh-CN"] small { writing-mode: horizontal-tb; }
   .manifesto-tribute small { margin: 0; padding: 3px 6px; }
 }
+
+/* Signature words: each one reacts in the spirit of its meaning. */
+.identity-tags span { pointer-events: auto; }
+.tag-fx { position: relative; display: inline-block; font-style: normal; cursor: default; transition: color .35s, text-shadow .35s, transform .35s, letter-spacing .35s, font-family 0s; }
+/* 科学家: switches to a measuring typeface and a cold instrument glow. */
+.tag-fx[data-tag="scientist"]:hover { font-family: 'SFMono-Regular', Consolas, monospace; color: #9fe8f2; letter-spacing: .08em; text-shadow: 0 0 8px #49d6ec99; animation: fx-flicker .5s steps(4) 1; }
+/* 文豪: the stroke turns to brush, ink bleeding softly into the page. */
+.tag-fx[data-tag="wordsmith"]:hover { font-family: 'Kaiti SC', 'STKaiti', 'KaiTi', serif; color: #f4efe1; transform: scale(1.18); text-shadow: 0 0 1px #f4efe1, 0 0 10px #f4efe155; }
+/* 艺术家: colour runs through the word like wet paint. */
+.tag-fx[data-tag="artist"]:hover { color: transparent; background: linear-gradient(90deg, #ff7a6b, #ffd36b, #7be0b0, #6bb8ff, #c48bff, #ff7a6b) 0 0 / 300% 100%; -webkit-background-clip: text; background-clip: text; animation: fx-paint 2.4s linear infinite; }
+/* 战术大师: brackets close in like a target lock. */
+.tag-fx[data-tag="tactician"]::before, .tag-fx[data-tag="tactician"]::after { position: absolute; top: 0; color: #f5b24a; opacity: 0; transition: opacity .3s, transform .3s; }
+.tag-fx[data-tag="tactician"]::before { content: '['; left: -8px; transform: translateX(-8px); }
+.tag-fx[data-tag="tactician"]::after { content: ']'; right: -8px; transform: translateX(8px); }
+.tag-fx[data-tag="tactician"]:hover { color: #f5c46e; }
+.tag-fx[data-tag="tactician"]:hover::before, .tag-fx[data-tag="tactician"]:hover::after { opacity: 1; transform: none; }
+/* 侠: a blade of light cuts across and the word leans into the strike. */
+.tag-fx[data-tag="knight"] { overflow: hidden; vertical-align: bottom; }
+.tag-fx[data-tag="knight"]::after { content: ''; position: absolute; left: -60%; top: 50%; width: 60%; height: 1px; background: linear-gradient(90deg, transparent, #fff, #d9553f, transparent); transform: rotate(-14deg); opacity: 0; }
+.tag-fx[data-tag="knight"]:hover { color: #fff; transform: skewX(-10deg); }
+.tag-fx[data-tag="knight"]:hover::after { animation: fx-slash .45s ease-out 1 forwards; }
+/* 光: it simply blooms. */
+.tag-fx[data-tag="light"]:hover { color: #fffaf0; transform: scale(1.3); text-shadow: 0 0 6px #fff6dc, 0 0 16px #ffe7a8cc, 0 0 34px #ffd27a88, 0 0 60px #ffc35a55; }
+@keyframes fx-flicker { 0% { opacity: .3; } 50% { opacity: 1; } 75% { opacity: .6; } 100% { opacity: 1; } }
+@keyframes fx-paint { to { background-position: 300% 0; } }
+@keyframes fx-slash { 0% { left: -60%; opacity: 1; } 100% { left: 110%; opacity: 0; } }
+html[data-motion="off"] .tag-fx, html[data-motion="off"] .tag-fx::after { animation: none !important; transition: none; }
+@media (prefers-reduced-motion: reduce) { .tag-fx, .tag-fx::after { animation: none !important; transition: none; } }
