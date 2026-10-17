@@ -8,7 +8,7 @@ MODULES=('__init__.py','content_service.py','site_catalog.py','ssr.py','producti
 def git(*args):
  return subprocess.check_output(['git','-C',str(ROOT),*args])
 
-def release_bytes(ref='HEAD'):
+def release_bytes(ref='HEAD',only=None):
  revision=git('rev-parse',ref+'^{commit}').decode().strip()
  if not re.fullmatch('[a-f0-9]{40}',revision):raise ValueError('Invalid commit')
  files={'app/personal_site/index.html':git('show',revision+':index.html')}
@@ -21,7 +21,8 @@ def release_bytes(ref='HEAD'):
  manifest={'repository':REPOSITORY,'revision':revision,'files':{name:hashlib.sha256(body).hexdigest() for name,body in sorted(files.items())}}
  output=io.BytesIO()
  with tarfile.open(fileobj=output,mode='w') as archive:
-  for name,body in sorted({**files,'release.json':(json.dumps(manifest,indent=2)+'\n').encode()}.items()):
+  # The manifest always lists every file; `only` limits which bodies travel.
+  for name,body in sorted({**{k:v for k,v in files.items() if only is None or k in only},'release.json':(json.dumps(manifest,indent=2)+'\n').encode()}.items()):
    info=tarfile.TarInfo(name);info.size=len(body);info.mode=0o644;info.mtime=0;archive.addfile(info,io.BytesIO(body))
  return gzip.compress(output.getvalue(),mtime=0),manifest
 

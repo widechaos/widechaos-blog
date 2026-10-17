@@ -29,7 +29,6 @@ def main():
   # Only commits reachable from main, with successful source checks, can go live.
   subprocess.run(['git','-C',str(ROOT),'merge-base','--is-ancestor',manifest['revision'],'origin/main'],check=True)
   if a.apply and not ci_passed(manifest['revision']):raise SystemExit('The selected commit has no successful push CI run')
-  payload['archive']=base64.b64encode(archive).decode()
  script=(ROOT/'scripts/deploy_remote.py').read_text()
  import shlex
  remote_command='python3 -c '+shlex.quote(script)
@@ -39,9 +38,19 @@ def main():
   command=['ssh','-p',str(a.bridge_port),*options,a.bridge,'python3 -c '+shlex.quote(forward)]
  else:command=['ssh',*options,a.target,remote_command]
 
- try:
-  result=subprocess.run(command,input=json.dumps(payload),text=True,capture_output=True,timeout=a.timeout)
- except subprocess.TimeoutExpired:
-  raise SystemExit('Deployment transport timed out; verify the host deployment receipt before retrying. No connection settings are printed.')
+ def send(body):
+  try:
+   return subprocess.run(command,input=json.dumps(body),text=True,capture_output=True,timeout=a.timeout)
+  except subprocess.TimeoutExpired:
+   raise SystemExit('Deployment transport timed out; verify the host deployment receipt before retrying. No connection settings are printed.')
+ if not a.rollback:
+  # Ask which managed files differ, then send only those bodies over the slow management path.
+  answer=send({**payload,'operation':'inventory','names':list(manifest['files'])})
+  held=json.loads(answer.stdout.strip().splitlines()[-1]).get('files',{}) if answer.returncode==0 and answer.stdout.strip() else {}
+  changed={name for name,sha in manifest['files'].items() if held.get(name)!=sha}
+  archive,_=release_bytes(manifest['revision'],only=changed)
+  payload['archive']=base64.b64encode(archive).decode()
+  print(f'{len(changed)} of {len(manifest["files"])} files differ; sending {len(archive)//1024} KiB',file=sys.stderr)
+ result=send(payload)
  print(result.stdout);print(result.stderr[-1000:] if result.returncode else '');raise SystemExit(result.returncode)
 if __name__=='__main__':main()

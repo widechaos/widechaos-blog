@@ -39,6 +39,25 @@ class ReleaseSafety(unittest.TestCase):
    (root/'app/static/app.js').write_text('changed');(backup/'app/static/app.js').write_text('original');(root/'app/static/mark.svg').write_text('new');(root/'content/blog/post.md').write_text('live')
    restore(root,backup,['app/static/app.js','app/static/mark.svg'])
    self.assertEqual((root/'app/static/app.js').read_text(),'original');self.assertFalse((root/'app/static/mark.svg').exists());self.assertEqual((root/'content/blog/post.md').read_text(),'live')
+ def test_new_public_assets_are_allowed(self):
+  for name in ('app/static/og-card.jpg','app/static/fonts/poem-mashanzheng.woff2'):self.assertTrue(allowed(name),name)
+  for name in ('app/static/fonts/../main.py','app/static/fonts/private.js'):self.assertFalse(allowed(name),name)
+ def test_delta_release_reads_unchanged_files_from_host(self):
+  sys.path.insert(0,str(ROOT/'scripts'));from build_release import release_bytes
+  import gzip
+  with tempfile.TemporaryDirectory() as directory:
+   root=Path(directory);full,manifest=release_bytes('HEAD')
+   members=tarfile.open(fileobj=io.BytesIO(gzip.decompress(full)))
+   for item in members.getmembers():
+    if item.name=='release.json':continue
+    target=root/item.name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(members.extractfile(item).read())
+   changed='app/static/app.js';(root/changed).write_bytes(b'stale')
+   delta,_=release_bytes('HEAD',only={changed})
+   self.assertLess(len(delta),len(full)//10)
+   files,_=unpack(gzip.decompress(delta),root)
+   self.assertEqual(set(files),set(manifest['files']))
+   (root/'app/static/style.css').write_bytes(b'drifted')
+   with self.assertRaisesRegex(ValueError,'does not hold'):unpack(gzip.decompress(delta),root)
  def test_scanner_detects_keys_without_reporting_values(self):
   value=b'-----BEGIN '+b'PRIVATE KEY-----\nprivate'
   result=findings({'static/app.js':value,'operations/database.db':b'data'})

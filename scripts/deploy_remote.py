@@ -6,7 +6,7 @@ from urllib.error import HTTPError
 
 MODULES={'__init__.py','content_service.py','site_catalog.py','ssr.py','production_adapter.py'}
 
-PUBLIC_ROOT={'app.js','content-model.js','style.css','content-layout.css','hero-art.js','project-demos.js','project-demos.css','avatar.png','city-art.png','mark.svg','x-sword.svg'}
+PUBLIC_ROOT={'app.js','content-model.js','style.css','content-layout.css','hero-art.js','project-demos.js','project-demos.css','avatar.png','city-art.png','og-card.jpg','mark.svg','x-sword.svg'}
 
 def allowed(name):
  p=Path(name)
@@ -15,9 +15,10 @@ def allowed(name):
  if p.parent==Path('app/site_content'):return p.name in MODULES
  if p.parent==Path('app/static'):return p.name in PUBLIC_ROOT
  if p.parent==Path('app/static/vendor'):return p.name in {'three.module.js','three.core.js','LICENSE.three.txt'}
+ if p.parent==Path('app/static/fonts'):return bool(re.fullmatch(r'[a-z0-9-]+\.woff2',p.name))
  return p.parent==Path('app/static/assets/collection') and bool(re.fullmatch(r'[a-f0-9]{20}-light\.svg',p.name))
 
-def unpack(body):
+def unpack(body,root=None):
  files={}
  with tarfile.open(fileobj=io.BytesIO(body),mode='r:*') as archive:
   for item in archive.getmembers():
@@ -26,6 +27,11 @@ def unpack(body):
    files[item.name]=archive.extractfile(item).read()
  manifest=json.loads(files.pop('release.json'))
  if manifest['repository']!='https://github.com/widechaos/widechaos-blog' or not re.fullmatch('[a-f0-9]{40}',manifest['revision']):raise ValueError('Invalid source identity')
+ # A delta release omits files the host already holds byte for byte; read those back and hash them like the rest.
+ for name,sha in manifest['files'].items():
+  if name in files:continue
+  if root is None or not allowed(name) or digest(root/name)!=sha:raise ValueError('Release omits a file the host does not hold: '+name)
+  files[name]=(root/name).read_bytes()
  if {k:hashlib.sha256(v).hexdigest() for k,v in files.items()}!=manifest['files']:raise ValueError('Release hash mismatch')
  required={'app/personal_site/index.html','bin/site_catalog.py'}|{'app/site_content/'+name for name in MODULES}
  if not required.issubset(files):raise ValueError('Incomplete release')
@@ -112,7 +118,8 @@ def run(payload):
    if previous:atomic(state_path,json.dumps(previous,indent=2).encode())
    else:state_path.unlink(missing_ok=True)
    return {'ok':True,'operation':'rollback','revision':previous['revision'] if previous else 'pre-migration',**health}
-  body=base64.b64decode(payload['archive'],validate=True);files,manifest=unpack(body)
+  if payload['operation']=='inventory':return {'ok':True,'operation':'inventory','files':{name:digest(root/name) for name in payload['names'] if allowed(name)}}
+  body=base64.b64decode(payload['archive'],validate=True);files,manifest=unpack(body,root)
   changes=[name for name,value in files.items() if digest(root/name)!=hashlib.sha256(value).hexdigest()]
   if not payload['apply']:return {'operation':'plan','revision':manifest['revision'],'changes':changes,'liveContent':'preserved'}
   require_capacity()
