@@ -244,14 +244,18 @@
 .manifesto-tribute { position: absolute; right: var(--space); top: 50%; transform: translateY(-50%); display: flex; flex-direction: row-reverse; align-items: flex-start; gap: 14px; color: var(--tribute); }
 .manifesto-tribute[lang="zh-CN"] span, .manifesto-tribute[lang="zh-CN"] small { writing-mode: vertical-rl; }
 .manifesto-tribute span { font: clamp(17px, 1.5vw, 24px)/1.4 'Songti SC', 'STSong', 'Noto Serif SC', serif; letter-spacing: .32em; }
-.manifesto-tribute small { margin-top: 3.2em; padding: 6px 3px; border: 1px solid var(--tribute); font: 11px/1 'Songti SC', 'STSong', serif; letter-spacing: .3em; }
+.manifesto-tribute small { position: relative; margin-top: 3.2em; padding: 10px 4px; font: 11px/1 'Songti SC', 'STSong', serif; letter-spacing: .3em; }
+/* Half-bracket corners, like a colophon mark, instead of a closed stamp box. */
+.manifesto-tribute[lang="zh-CN"] small::before, .manifesto-tribute[lang="zh-CN"] small::after { content: ''; position: absolute; width: 9px; height: 9px; border: 0 solid var(--tribute); }
+.manifesto-tribute[lang="zh-CN"] small::before { top: 0; right: 0; border-width: 1px 1px 0 0; }
+.manifesto-tribute[lang="zh-CN"] small::after { bottom: 0; left: 0; border-width: 0 0 1px 1px; }
 .manifesto-tribute:not([lang]) { flex-direction: column; align-items: flex-end; gap: 8px; top: auto; bottom: 74px; transform: none; text-align: right; }
 .manifesto-tribute:not([lang]) span { font: italic clamp(15px, 1.3vw, 20px)/1.5 Georgia, serif; letter-spacing: 0; }
 .manifesto-tribute:not([lang]) small { margin: 0; padding: 0; border: 0; font: 11px/1.6 'SFMono-Regular', Consolas, monospace; letter-spacing: .04em; }
 @media (max-width: 760px) {
   .manifesto-tribute, .manifesto-tribute:not([lang]) { position: static; transform: none; flex-direction: row; align-items: baseline; flex-wrap: wrap; gap: 6px 12px; margin: -12px 0 26px; text-align: left; }
   .manifesto-tribute[lang="zh-CN"] span, .manifesto-tribute[lang="zh-CN"] small { writing-mode: horizontal-tb; }
-  .manifesto-tribute small { margin: 0; padding: 3px 6px; }
+  .manifesto-tribute small { margin: 0; padding: 4px 10px; }
 }
 
 /* Signature words: each one reacts in the spirit of its meaning. */
