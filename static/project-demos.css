@@ -398,7 +398,12 @@
   filter: grayscale(1);
   opacity: 0.55;
 }
+/* Each side is its own layer, so the plain note never shows through the styled one. */
+.demo-note-plain {
+  z-index: 0;
+}
 .demo-note-cinematic {
+  z-index: 1;
   clip-path: inset(0 calc(100% - var(--demo-reveal)) 0 0);
   background: #0b141e;
 }

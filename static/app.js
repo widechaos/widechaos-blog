@@ -85,6 +85,16 @@ const toolName = (tool) => lang === "zh" ? tool.titleZh || tool.title : tool.tit
 const toolLabel = (tool) => tool.availability === "web" ? t("打开工具", "Open tool") : tool.id === "navigator" ? t("安装脚本", "Install userscript") : t("安装说明", "Setup guide");
 const articleKey = (a) => a.translationKey || a.id;
 const JOURNAL_PAGE_SIZE = 12;
+// Public profiles, same set as the GitHub profile page.
+const PROFILES = [
+  ["GitHub", "widechaos", "https://github.com/widechaos"],
+  ["Hugging Face", "WideChaos", "https://huggingface.co/WideChaos"],
+  ["Kaggle", "xover2022", "https://www.kaggle.com/xover2022"],
+  ["LinkedIn", "renchao-wu-widechaos", "https://www.linkedin.com/in/renchao-wu-widechaos/"],
+  ["X", "@thewidechaos", "https://x.com/thewidechaos"],
+  ["Bluesky", "widechaos.bsky.social", "https://bsky.app/profile/widechaos.bsky.social"],
+  ["DEV", "widechaos", "https://dev.to/widechaos"],
+];
 const FEED = "https://widechaos.cn/blog/rss.xml";
 // Feed links open a short "how to subscribe" panel; the raw XML is only for readers.
 const rssLink = (label, cls = "") => `<a class="${cls}" href="${FEED}" data-rss>${label}</a>`;
@@ -129,7 +139,7 @@ function header() {
         "",
       )}</nav><div class="header-actions"><button id="search-open" class="search-icon" aria-label="${t("搜索", "Search")}"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="m15 15 6 6"/></svg></button><button id="language" aria-label="${t("Switch to English", "切换到中文")}">${t("English", "中文")}</button><button id="motion" class="motion" aria-pressed="${motion === "on"}" aria-label="${t("动态效果", "Motion effects")}"><i></i><span>${t("动态", "Motion")}</span></button></div>`;
   $("#footer").innerHTML =
-    `<div class="footer-top"><a class="footer-name" href="/">WIDECHAOS<span>↗</span></a><p>Per aspera ad astra.</p></div><div class="footer-links"><span>十方空烬 · Ember</span><div>${link("/projects", t("作品", "Work"))}${link("/blog", t("十方志", "Journal"))}${link("/tools", t("工具", "Tools"))}${link("/now", t("现在", "Now"))}${link("https://github.com/widechaos", "GitHub ↗")}${link("https://huggingface.co/WideChaos", "Hugging Face ↗")}${rssLink("RSS ↗")}</div><button data-top>${t("返回顶部 ↑", "Back to top ↑")}</button></div>`;
+    `<div class="footer-top"><a class="footer-name" href="/">WIDECHAOS<span>↗</span></a><p>Per aspera ad astra.</p></div><div class="footer-links"><span>十方空烬 · Ember</span><div>${link("/projects", t("作品", "Work"))}${link("/blog", t("十方志", "Journal"))}${link("/tools", t("工具", "Tools"))}${link("/now", t("现在", "Now"))}${rssLink("RSS ↗")}</div><div class="footer-profiles">${PROFILES.map(([name, , url]) => link(url, name)).join("")}</div><button data-top>${t("返回顶部 ↑", "Back to top ↑")}</button></div>`;
   $("#language").onclick = () => {
     lang = lang === "zh" ? "en" : "zh";
     localStorage.setItem("wc-site-lang", lang);
@@ -273,7 +283,7 @@ function journal() {
   const categories = (data.categories || []).filter((c) => all.some((a) => a.category === c.id));
   const series = [...new Set(all.map((a) => a.series).filter(Boolean))];
   const motto = categoryInfo(journalCategory)?.[lang === "zh" ? "motto" : "desc"];
-  return `<div class="page-wrap journal-page"><div class="journal-page-top">${pageHead("02", "十方志", "Journal", "thinking out loud, in the open.")}<div class="journal-subscribe"><span>${t("写下来的，继续生长。", "Writing, still in progress.")}</span>${rssLink(t("RSS 订阅更新", "Follow with RSS") + " " + arrow)}</div></div>${categories.length ? `<div class="filter-bar topic-filters" aria-label="${t("文章分区", "Sections")}">${[{ id: "all" }, ...categories].map(c => `<button data-category="${esc(c.id)}" aria-pressed="${!journalSeries && journalCategory === c.id}">${c.id === "all" ? t("全部", "All") : esc(categoryName(c.id))}<small>${c.id === "all" ? all.length : all.filter(a => a.category === c.id).length}</small></button>`).join("")}${series.map(name => `<button class="series-filter" data-series="${esc(name)}" aria-pressed="${journalSeries === name}">${t("系列", "Series")} · ${esc(name)}<small>${all.filter(a => a.series === name).length}</small></button>`).join("")}</div>` : ""}${motto && !journalSeries ? `<p class="category-motto">${esc(motto)}</p>` : ""}<div class="blog-search"><label for="blog-query">${t("查找文章", "Find an article")}</label><input id="blog-query" type="search" value="${esc(searchTerm)}" placeholder="${t("按标题或正文搜索", "Search titles or text")}"><span aria-live="polite">${list.length} ${t("篇", "ARTICLES")}</span></div><div id="article-list">${journalResults()}</div><div class="journal-end"><p>Build. Break. Rebuild.</p>${link("/projects", t("看看文字背后的作品", "Explore the work behind the writing") + " " + arrow)}</div></div>`;
+  return `<div class="page-wrap journal-page"><div class="journal-page-top"><div>${pageHead("02", "十方志", "Journal")}<p class="journal-intro">${t("一个人的公开笔记。谋、谈、形、动、生活、造物，如九畦花木，各生其姿。<br>读过的书、想过的事、练过的手艺，都在这里缓慢生长。", "A public notebook. Mind, voice, body, craft, life, works: nine plots, each growing its own way.<br>Books read, thoughts worked through, crafts practised, all growing here slowly.")}</p></div><div class="journal-subscribe">${rssLink(t("RSS 订阅更新", "Follow with RSS") + " " + arrow)}</div></div>${categories.length ? `<div class="filter-bar topic-filters" aria-label="${t("文章分区", "Sections")}">${[{ id: "all" }, ...categories].map(c => `<button data-category="${esc(c.id)}" aria-pressed="${!journalSeries && journalCategory === c.id}">${c.id === "all" ? t("全部", "All") : esc(categoryName(c.id))}<small>${c.id === "all" ? all.length : all.filter(a => a.category === c.id).length}</small></button>`).join("")}${series.map(name => `<button class="series-filter" data-series="${esc(name)}" aria-pressed="${journalSeries === name}">${t("系列", "Series")} · ${esc(name)}<small>${all.filter(a => a.series === name).length}</small></button>`).join("")}</div>` : ""}${motto && !journalSeries ? `<p class="category-motto">${esc(motto)}</p>` : ""}<div class="blog-search"><label for="blog-query">${t("查找文章", "Find an article")}</label><input id="blog-query" type="search" value="${esc(searchTerm)}" placeholder="${t("按标题或正文搜索", "Search titles or text")}"><span aria-live="polite">${list.length} ${t("篇", "ARTICLES")}</span></div><div id="article-list">${journalResults()}</div><div class="journal-end"><p>Build. Break. Rebuild.</p>${link("/projects", t("看看文字背后的作品", "Explore the work behind the writing") + " " + arrow)}</div></div>`;
 }
 function relatedContent(a) {
   const projects = data.projects.filter(p => articleKey(articleForProject(data.articles, p, lang) || {}) === articleKey(a));
@@ -352,7 +362,7 @@ function about() {
     .map((x, i) => `<span><small>0${i + 1}</small>${x}</span>`)
     .join(
       "",
-    )}</div><p class="identity-signature">Per aspera ad astra.</p></div></div><div class="about-poem"><span>智灯已灭余空烬</span><span>犹自光明照十方</span></div><blockquote class="tolkien">“From the ashes a fire shall be woken,<br>a light from the shadows shall spring.”<cite>— J.R.R. Tolkien</cite></blockquote><section class="about-manifesto" id="manifesto"><span class="eyebrow">MANIFESTO</span><h2>${t("短期促进生产，<br>长期促进革命。", "Short-term, fueling production.<br>Long-term, fueling the revolution.")}</h2></section><div class="about-follow">${link("/now", t("现在关注什么", "What I’m exploring now") + " " + arrow)}${data.contact?.email ? link("mailto:" + data.contact.email, t("给我写信", "Write to me") + " " + arrow) : ""}</div><section class="collection" id="collection">${sectionTitle("", "收藏与学习", "Collection")}<div class="filter-bar">${[
+    )}</div><p class="identity-signature">Per aspera ad astra.</p></div></div><div class="about-poem"><span>智灯已灭余空烬</span><span>犹自光明照十方</span></div><blockquote class="tolkien">“From the ashes a fire shall be woken,<br>a light from the shadows shall spring.”<cite>— J.R.R. Tolkien</cite></blockquote><section class="about-manifesto" id="manifesto"><span class="eyebrow">MANIFESTO</span><h2>${t("短期促进生产，<br>长期促进革命。", "Short-term, fueling production.<br>Long-term, fueling the revolution.")}</h2></section><div class="about-follow">${link("/now", t("现在关注什么", "What I’m exploring now") + " " + arrow)}${data.contact?.email ? link("mailto:" + data.contact.email, t("给我写信", "Write to me") + " " + arrow) : ""}</div><section class="profiles" id="elsewhere">${sectionTitle("", "在别处", "Elsewhere")}<div class="profile-list">${PROFILES.map(([name, handle, url]) => link(url, `<span>${name}</span><small>${esc(handle)}</small>${arrow}`)).join("")}</div></section><section class="collection" id="collection">${sectionTitle("", "收藏与学习", "Collection")}<div class="filter-bar">${[
     ["reading", "阅读", "Reading"],
     ["learning", "学习", "Learning"],
     ["community", "社区", "Community"],

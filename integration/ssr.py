@@ -18,7 +18,7 @@ def render(root,path,data,lang='zh'):
    main=f'<div class="article-page"><div class="article-top"><a href="/blog">十方志</a> · <time datetime="{article["publishedAt"]}">{article["publishedAt"]}</time></div><header class="article-heading"><h1>{E(title)}</h1></header><div class="article-layout"><article class="article-body" lang="{lang}">{article["body"]}</article></div></div>'
   else:status=404;main='<h1>文章不存在或已撤下</h1>'
  elif path in ('/','/blog'):
-  if path=='/blog':title='十方志 · 十方空烬';summary='十方空烬的公开写作：模型实验、系统设计、开源观察与随笔。'
+  if path=='/blog':title='十方志 · 十方空烬';summary='一个人的公开笔记。谋、谈、形、动、生活、造物，如九畦花木，各生其姿。'
   else:summary='十方空烬 · Ember 的个人站：作品、文字与持续的探索。Build. Break. Rebuild.'
   main=('<h1>十方空烬 · Ember</h1><p>Build. Break. Rebuild.</p>' if path=='/' else '<h1>十方志</h1>')+listing(data['articles'],'article')
   if path=='/':main+='<h2>作品</h2>'+listing(data['projects'],'project')
