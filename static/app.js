@@ -79,7 +79,7 @@ const categoryInfo = (id) => (data.categories || []).find((c) => c.id === id);
 const categoryName = (id) => (lang === "en" && categoryInfo(id)?.en) || id;
 const isRadar = (a) => /^oss-radar-/.test(a.id);
 // One shared label row: the section first, then the author's own tags.
-const entryLabels = (a, tagLimit = 3) => `${a.category ? `<span class="entry-category">${esc(categoryName(a.category))}</span>` : ""}${(a.tags || []).slice(0, tagLimit).map((tag) => `<span>#${esc(tag)}</span>`).join("")}`;
+const entryLabels = (a, tagLimit = 3) => `${a.category ? `<span class="entry-category">${esc(categoryName(a.category))}</span>` : ""}${(a.tags || []).slice(0, tagLimit).map((tag) => `<span>${esc(tag)}</span>`).join("")}`;
 const workKind = (id) => data.projectKinds?.[id]?.[lang] || id;
 const toolName = (tool) => lang === "zh" ? tool.titleZh || tool.title : tool.titleEn || tool.title;
 const toolLabel = (tool) => tool.availability === "web" ? t("打开工具", "Open tool") : tool.id === "navigator" ? t("安装脚本", "Install userscript") : t("安装说明", "Setup guide");
@@ -168,7 +168,7 @@ function homeJournal() {
 function home() {
   const featured = selectFeaturedProjects(data.projects, 3);
   const tools = availableTools(data).filter((tool) => !featured.some((p) => p.id === tool.projectId));
-  return `<section class="hero" id="intro"><div class="hero-art" id="hero-art"><img src="/static/city-art.jpg" alt="" fetchpriority="high"></div><div class="hero-shade"></div><div class="hero-copy"><p class="eyebrow"><span class="accent-dot"></span> EMBER / RENCHAO WU</p><h1 aria-label="十方空烬"><span>十方</span><span class="name-second">空烬<span class="name-star" aria-hidden="true"><img src="/static/x-sword.svg" alt="" width="96" height="112"></span></span></h1><p class="hero-slogan">BUILD. BREAK. REBUILD.</p><p class="identity-tags">${tags()
+  return `<section class="hero" id="intro"><div class="hero-art" id="hero-art"><img src="/static/city-art.png" alt="" fetchpriority="high"></div><div class="hero-shade"></div><div class="hero-copy"><p class="eyebrow"><span class="accent-dot"></span> EMBER / RENCHAO WU</p><h1 aria-label="十方空烬"><span>十方</span><span class="name-second">空烬<span class="name-star" aria-hidden="true"><img src="/static/x-sword.svg" alt="" width="96" height="112"></span></span></h1><p class="hero-slogan">BUILD. BREAK. REBUILD.</p><p class="identity-tags">${tags()
     .map((x) => `<span>${x}</span>`)
     .join(
       "",
@@ -388,7 +388,7 @@ function toolsPage() {
 function nowPage() {
   const latest = articleSet()[0];
   const rows = data.projects.map((p, i) => `<a class="project-row" href="/projects/${p.id}" data-activity-row><span class="row-number">${String(i + 1).padStart(2, "0")}</span><div><h3>${esc(p.title)}</h3><p>${esc(desc(p))}</p><small class="activity-line" data-activity="${esc(p.url)}"></small></div><span class="project-type">${esc(p.tag)}</span>${arrow}</a>`).join("");
-  return `<div class="page-wrap now-page">${pageHead("05", "现在", "Now")}<p class="now-updated">${t("更新于", "Updated")} <time id="now-date">${latest ? articlePublishedAt(latest) : ""}</time></p><p class="now-statement">AI scientist,<br>full stack<span>.</span></p><div class="now-direction"><span>AI engineering → AI research</span><span>Build intelligence. Test everything.</span></div>${sectionTitle("", "最近在动的", "Recently active")}<div class="project-list" id="now-projects">${rows}</div>${latest ? `${sectionTitle("", "最近写的", "Latest writing", link("/blog", t("全部文章", "All writing") + " " + arrow, "section-more"))}${articleSet().slice(0, 3).map((a, i) => articleRow(a, i)).join("")}` : ""}</div>`;
+  return `<div class="page-wrap now-page">${pageHead("05", "现在", "Now")}<p class="now-updated">${t("更新于", "Updated")} <time id="now-date">${latest ? articlePublishedAt(latest) : ""}</time></p><p class="now-statement">AI scientist,<br>full stack<span>.</span></p><div class="now-direction"><span>From research to product, end to end.</span><span>Build intelligence. Test everything.</span></div>${sectionTitle("", "最近在动的", "Recently active")}<div class="project-list" id="now-projects">${rows}</div>${latest ? `${sectionTitle("", "最近写的", "Latest writing", link("/blog", t("全部文章", "All writing") + " " + arrow, "section-more"))}${articleSet().slice(0, 3).map((a, i) => articleRow(a, i)).join("")}` : ""}</div>`;
 }
 // Order the work by real activity once the public repositories answer.
 async function settleNow() {
@@ -476,7 +476,7 @@ function render(scroll = true) {
     const host = $("#hero-art");
     import("./hero-art.js").then(({ mountHero }) => {
       if (!host.isConnected) return;
-      hero = mountHero(host, { image: "/static/city-art.jpg" });
+      hero = mountHero(host, { image: "/static/city-art.png" });
       hero.setMode(light);
     });
     $("#art-mode").onclick = () => {

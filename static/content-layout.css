@@ -159,8 +159,11 @@
 @keyframes content-enter { from { opacity: .65; } to { opacity: 1; } }
 
 /* Sections, series and the journal list. */
-.entry-topics .entry-category { color: var(--ink); border: 1px solid #4a5d6b; padding: 0 7px; }
-.entry-topics span:not(.entry-category) { color: var(--muted); }
+/* Same quiet mono line as the date row: section in accent, tags muted, slash-separated. */
+.entry-topics { align-items: baseline; gap: 0; font: 11px/1.7 'SFMono-Regular', Consolas, 'PingFang SC', monospace; letter-spacing: .04em; }
+.entry-topics span { color: var(--muted); }
+.entry-topics span + span::before { content: '/'; margin: 0 10px; color: #596c79; }
+.entry-topics .entry-category { color: var(--accent); }
 .topic-filters .series-filter { border-style: dashed; }
 .category-motto { max-width: 760px; margin: 4px 0 18px; color: var(--muted); font: italic 14px/1.9 Georgia, 'Songti SC', serif; }
 .series-note { display: inline-block; margin-top: 12px; color: var(--accent); font: 11px/1.6 'SFMono-Regular', Consolas, monospace; }

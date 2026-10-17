@@ -93,7 +93,8 @@ const fragmentShader = /* glsl */ `
       if (uEtch > .5) {
         refracted = drawing(bentUv);
       } else {
-        refracted = heroGrade(vec3(photo(bentUv + separation).r, photo(bentUv).g, photo(bentUv - separation).b));
+        // Inside the lens the photo keeps its own colour, so the red glass shows through.
+        refracted = vec3(photo(bentUv + separation).r, photo(bentUv).g, photo(bentUv - separation).b);
       }
       color = mix(color, refracted * 1.018, mask);
       float rim = (1.0 - smoothstep(.001, .0035, abs(squareDistance - .128))) * uLens * uMotion;
@@ -109,7 +110,7 @@ const fragmentShader = /* glsl */ `
 `;
 
 /** Mount a decorative image treatment while retaining an ordinary image fallback. */
-export function mountHero(host, { image = '/static/city-art.jpg' } = {}) {
+export function mountHero(host, { image = '/static/city-art.png' } = {}) {
   if (!(host instanceof HTMLElement)) return { dispose() {}, setMode() {} };
 
   let disposed = false;
