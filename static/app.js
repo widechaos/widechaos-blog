@@ -386,6 +386,11 @@ function about() {
     ...new Map(data.collection.map((x) => [x.image + "|" + x.url, x])).values(),
   ];
   const selected = unique.filter((x) => x.kind === collectionFilter);
+  const moreLabels = {
+    reading: ["展开更多阅读记录", "Show more reading milestones"],
+    learning: ["展开更多学习凭证", "Show more learning credentials"],
+    community: ["展开更多社区徽章", "Show more community badges"],
+  }[collectionFilter];
   return `<div class="page-wrap about-page">${pageHead("04", "关于我", "About me", "Build. Break. Rebuild.")}<div class="about-identity"><div class="portrait-wrap"><img src="/static/avatar.png" alt="十方空烬 · Ember" width="480" height="480"><div class="portrait-lines" aria-hidden="true"></div><span>RENCHAO WU / EMBER</span></div><div class="identity-block"><p class="eyebrow">十方空烬 · Ember</p><div class="large-tags">${tags()
     .map((x, i) => `<span><small>0${i + 1}</small>${tagFx(x, i)}</span>`)
     .join(
@@ -407,7 +412,7 @@ function about() {
     )
     .join("")}</div>${
     selected.length > 18
-      ? `<details class="more-badges"><summary>${t("展开更多阅读记录", "Show more reading milestones")} <span>+</span></summary><div class="badge-grid">${selected
+      ? `<details class="more-badges"><summary>${t(...moreLabels)} <span>+</span></summary><div class="badge-grid">${selected
           .slice(18)
           .map(
             (x) =>
