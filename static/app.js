@@ -11,6 +11,7 @@ import {
   availableTools,
   articlePublishedAt,
   topicLabel,
+  retryCollectionImage,
 } from "./content-model.js";
 // Server pages carry the content inline; the JSON request is only a fallback.
 const inlineData = document.getElementById("site-data")?.textContent;
@@ -492,6 +493,12 @@ function render(scroll = true) {
   document.title =
     (h?.textContent.replace("✳", "").trim() || "十方空烬") + " · Ember";
   updatePageMetadata(path, routeArticle);
+  const badgeImages = Array.from(document.querySelectorAll("#collection img"));
+  const retryBadge = (event) => retryCollectionImage(event.currentTarget);
+  badgeImages.forEach((image) => {
+    image.addEventListener("error", retryBadge);
+    if (image.complete && !image.naturalWidth) retryCollectionImage(image);
+  });
   const demoCleanup = mountDemos($("#main"));
   const observer = new IntersectionObserver(
     (entries) =>
@@ -507,6 +514,7 @@ function render(scroll = true) {
   cleanup = () => {
     if (typeof demoCleanup === "function") demoCleanup();
     observer.disconnect();
+    badgeImages.forEach((image) => image.removeEventListener("error", retryBadge));
   };
   if ($("#hero-art")) {
     // The 3D layer is heavy and only the homepage uses it; the image shows meanwhile.

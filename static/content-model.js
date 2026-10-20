@@ -89,3 +89,13 @@ export function isRouterArticle(article) {
 export function projectMonogram(project) {
   return Array.from(String(project?.title || '').trim())[0]?.toLocaleUpperCase() || '?';
 }
+
+// A failed lazy image may remain in the browser's image cache across renders.
+// Retry only this site's collection artwork, once; leave a second failure visible.
+export function retryCollectionImage(image) {
+  const source = image.getAttribute('src') || '';
+  if (image.dataset.retried || !/^\/static\/assets\/collection\/[a-f0-9]{20}-light\.svg$/.test(source)) return false;
+  image.dataset.retried = 'true';
+  image.src = source + '?retry=1';
+  return true;
+}

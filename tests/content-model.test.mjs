@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 import {
   filterPublishedContent, selectArticlesForLanguage, findArticleTranslation,
   selectFeaturedProjects, availableTools, articleForProject, articlePublishedAt,
-  articleTopics, topicLabel,
+  articleTopics, topicLabel, retryCollectionImage,
 } from '../static/content-model.js';
 
 const source = JSON.parse(await readFile(new URL('../examples/public-content.json', import.meta.url), 'utf8'));
@@ -67,4 +67,19 @@ test('topics come from actual articles and labels come from content metadata', (
   assert.deepEqual(articleTopics(source.articles), ['model-evaluation', 'systems', 'retrieval']);
   assert.equal(topicLabel('systems', 'en', source.topics), 'Systems');
   assert.equal(topicLabel('new-topic', 'en', source.topics), 'new-topic');
+});
+
+
+test('failed collection artwork retries once without changing its original image or looping', () => {
+  const original = '/static/assets/collection/eae71bb2386bd05ca28e-light.svg';
+  const image = { dataset: {}, src: original, getAttribute() { return this.src; } };
+  assert.equal(retryCollectionImage(image), true);
+  assert.equal(image.src, original + '?retry=1');
+  assert.equal(retryCollectionImage(image), false);
+  assert.equal(image.src, original + '?retry=1');
+  for (const source of ['https://other.example/a.svg', '/static/avatar.png', '/static/assets/collection/../private.svg']) {
+    const other = { dataset: {}, src: source, getAttribute() { return this.src; } };
+    assert.equal(retryCollectionImage(other), false);
+    assert.equal(other.src, source);
+  }
 });
