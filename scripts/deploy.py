@@ -8,6 +8,16 @@ def ci_passed(revision):
  runs=json.loads(response)['workflow_runs']
  return any(run['head_sha']==revision and run['status']=='completed' and run['conclusion']=='success' for run in runs)
 
+def inventory_files(answer):
+ if answer.returncode:
+  raise SystemExit('Cannot read deployment inventory through the management connection; no release was sent.')
+ try:
+  held=json.loads(answer.stdout.strip().splitlines()[-1])['files']
+  if not isinstance(held,dict) or not all(isinstance(k,str) and isinstance(v,str) for k,v in held.items()):raise ValueError('Invalid inventory')
+ except (ValueError,KeyError,IndexError,TypeError):
+  raise SystemExit('Invalid deployment inventory response; no release was sent.')
+ return held
+
 def main():
  p=argparse.ArgumentParser();p.add_argument('--config',type=Path,required=True,help='Private local deployment settings, outside the repository');p.add_argument('--ref',default='origin/main');p.add_argument('--target',help='Existing SSH alias for the content host')
  p.add_argument('--bridge',help='Existing SSH host/alias for the management machine');p.add_argument('--bridge-port',type=int,default=22)
@@ -46,7 +56,7 @@ def main():
  if not a.rollback:
   # Ask which managed files differ, then send only those bodies over the slow management path.
   answer=send({**payload,'operation':'inventory','names':list(manifest['files'])})
-  held=json.loads(answer.stdout.strip().splitlines()[-1]).get('files',{}) if answer.returncode==0 and answer.stdout.strip() else {}
+  held=inventory_files(answer)
   changed={name for name,sha in manifest['files'].items() if held.get(name)!=sha}
   archive,_=release_bytes(manifest['revision'],only=changed)
   payload['archive']=base64.b64encode(archive).decode()

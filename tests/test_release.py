@@ -4,7 +4,16 @@ ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT/'scripts'))
 from deploy_remote import allowed,unpack,restore,require_capacity,preflight
 from unittest.mock import patch
 from check_source import findings
+from deploy import inventory_files
+from subprocess import CompletedProcess
 class ReleaseSafety(unittest.TestCase):
+ def test_unavailable_inventory_stops_before_delta_release(self):
+  for code,output in [(255,''),(0,''),(0,'not json'),(0,'{}'),(0,'{"files":[]}')]:
+   with self.subTest(code=code,output=output):
+    with self.assertRaisesRegex(SystemExit,'no release was sent'):
+     inventory_files(CompletedProcess([],code,stdout=output,stderr=''))
+  self.assertEqual(inventory_files(CompletedProcess([],0,stdout='{"files":{}}')), {})
+  self.assertEqual(inventory_files(CompletedProcess([],0,stdout='{"files":{"app/static/app.js":"abc"}}')), {'app/static/app.js':'abc'})
  def test_capacity_gate_rejects_low_memory_and_stalled_host(self):
   with tempfile.TemporaryDirectory() as directory:
    proc=Path(directory);(proc/'pressure').mkdir()
