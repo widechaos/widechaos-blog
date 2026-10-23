@@ -2,6 +2,7 @@
 import base64,fcntl,hashlib,io,json,os,re,shutil,subprocess,sys,tarfile,tempfile,time
 from pathlib import Path
 from urllib.request import Request,urlopen
+from urllib.parse import urlsplit
 from urllib.error import HTTPError
 
 MODULES={'__init__.py','content_service.py','site_catalog.py','ssr.py','production_adapter.py'}
@@ -86,7 +87,7 @@ def verify(probes):
    if not isinstance(data.get('articles'),list) or not isinstance(data.get('projects'),list):raise ValueError('Content contract failed')
    for path in ('/','/blog','/radar','/projects','/tools','/about','/now','/blog/rss.xml'):
     with urlopen(Request('http://127.0.0.1:8000'+path,headers={'Host':'widechaos.cn'}),timeout=5) as response:
-     if response.status!=200:raise ValueError('Public route failed')
+     if response.status!=200 or urlsplit(response.geturl()).path!=path:raise ValueError('Public route failed or redirected: '+path)
    for probe in probes:
     host,path,status=probe['host'],probe['path'],probe['status']
     try:urlopen(Request('http://127.0.0.1:8000'+path,headers={'Host':host}),timeout=3)

@@ -62,6 +62,31 @@ class IntegrationTests(unittest.TestCase):
   self.write('oss-radar-2026-10-22-zh',body='New published issue')
   self.assertIn('/blog/oss-radar-2026-10-22-zh',main(c.get('/radar')))
 
+ def test_radar_registration_preserves_private_scopes(self):
+  import sys,types
+  from unittest.mock import patch
+  from fastapi.responses import RedirectResponse
+  host_auth=types.ModuleType('app.services.auth')
+  host_auth.SITE_SCOPES={'www':['/blog','/about'],'task':['/lifehub'],'quant':['/api/quant']}
+  original=copy.deepcopy(host_auth.SITE_SCOPES)
+  app=FastAPI()
+  @app.middleware('http')
+  async def scope(request,call_next):
+   path=request.url.path
+   if path!='/' and not any(path==prefix or path.startswith(prefix+'/') for prefix in host_auth.SITE_SCOPES['www']):return RedirectResponse('/')
+   return await call_next(request)
+  with patch.dict(sys.modules,{'app.services.auth':host_auth}):
+   install(app,root=ROOT,catalog_path=self.cat,blog_dir=self.blog)
+   install(app,root=ROOT,catalog_path=self.cat,blog_dir=self.blog)
+  c=TestClient(app,follow_redirects=False)
+  response=c.get('/radar');self.assertEqual(response.status_code,200)
+  self.assertNotIn('location',response.headers)
+  self.assertEqual(host_auth.SITE_SCOPES['www'],original['www']+['/radar'])
+  self.assertEqual(host_auth.SITE_SCOPES['task'],original['task'])
+  self.assertEqual(host_auth.SITE_SCOPES['quant'],original['quant'])
+  self.assertEqual(c.get('/lifehub').status_code,307)
+  self.assertEqual(c.get('/api/quant').status_code,307)
+
  def test_ssr_route_order_auth_and_legacy(self):
   self.write();self.write('fixture-zh',body='中文正文')
   app=FastAPI()

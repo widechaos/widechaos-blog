@@ -16,6 +16,11 @@ def engine_tag_labels(path):
  except Exception:return None
 
 def install(app, *, root, catalog_path, blog_dir, native_renderer=None):
+ # Register this public page with the host's existing site partition.
+ # Private scopes and credential checks remain owned by the host.
+ scopes=getattr(sys.modules.get('app.services.auth'),'SITE_SCOPES',None)
+ if isinstance(scopes,dict) and 'www' in scopes and '/radar' not in scopes['www']:
+  scopes['www']=[*scopes['www'],'/radar']
  # The host blog module owns the section labels; reuse them instead of copying.
  host=sys.modules.get(getattr(native_renderer,'__module__',''),None)
  # English tag names live with the tag vocabulary in the content engine.
