@@ -41,6 +41,27 @@ class IntegrationTests(unittest.TestCase):
   for value in ('',None,'  '):
    with self.assertRaises(ValueError):merge_catalog(self.catalog,{'projects':[{'id':'router','status':'published','en':value}]})
 
+ def test_radar_published_archive_translation_and_direct_routes(self):
+  self.write('oss-radar-2026-10-21-zh',body='Radar 中文')
+  self.write('oss-radar-2026-10-21-en',body='Radar English')
+  self.write('oss-radar-2026-10-22-zh',status='draft',body='Unapproved')
+  self.write('ordinary-zh',body='An ordinary essay')
+  app=FastAPI();install(app,root=ROOT,catalog_path=self.cat,blog_dir=self.blog)
+  c=TestClient(app)
+  def main(response):return response.text.split('<main id="main" tabindex="-1">')[1].split('</main>')[0]
+  response=c.get('/radar');self.assertEqual(response.status_code,200)
+  archive=main(response)
+  self.assertIn('/blog/oss-radar-2026-10-21-zh',archive)
+  self.assertNotIn('oss-radar-2026-10-21-en',archive)
+  self.assertNotIn('oss-radar-2026-10-22-zh',response.text)
+  self.assertNotIn('ordinary-zh',archive)
+  self.assertIn('/blog/oss-radar-2026-10-21-en',main(c.get('/radar?lang=en')))
+  self.assertNotIn('oss-radar-',main(c.get('/blog')))
+  self.assertIn('/blog/ordinary-zh',main(c.get('/blog')))
+  self.assertIn('href="/radar"',main(c.get('/blog/oss-radar-2026-10-21-zh')))
+  self.write('oss-radar-2026-10-22-zh',body='New published issue')
+  self.assertIn('/blog/oss-radar-2026-10-22-zh',main(c.get('/radar')))
+
  def test_ssr_route_order_auth_and_legacy(self):
   self.write();self.write('fixture-zh',body='中文正文')
   app=FastAPI()

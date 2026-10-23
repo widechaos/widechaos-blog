@@ -1,5 +1,8 @@
+import { mountPointer } from "./pointer.js";
+import { collectionCard, mountCollection } from "./collection.js";
 import { demoMarkup, mountDemos } from "./project-demos.js";
 import {
+  isRadarArticle as isRadar,
   findArticleTranslation,
   selectArticlesForLanguage,
   articleForProject,
@@ -44,6 +47,7 @@ const reduced = matchMedia("(prefers-reduced-motion: reduce)");
 let motion =
   localStorage.getItem("wc-site-motion") || (reduced.matches ? "off" : "on");
 document.documentElement.dataset.motion = motion;
+mountPointer();
 const t = (zh, en) => (lang === "zh" ? zh : en);
 const tags = () =>
   t(
@@ -93,7 +97,6 @@ const CATEGORY_ICONS = {
 const categoryIcon = (id) => CATEGORY_ICONS[id] ? `<svg class="category-icon" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">${CATEGORY_ICONS[id]}</svg>` : "";
 const categoryInfo = (id) => (data.categories || []).find((c) => c.id === id);
 const categoryName = (id) => (lang === "en" && categoryInfo(id)?.en) || id;
-const isRadar = (a) => /^oss-radar-/.test(a.id);
 // One shared label row: the section first, then the author's own tags.
 const entryLabels = (a, tagLimit = 3) => `${a.category ? `<span class="entry-category">${categoryIcon(a.category)}${esc(categoryName(a.category))}</span>` : ""}${(a.tags || []).slice(0, tagLimit).map((tag) => `<span>${esc(tagName(tag))}</span>`).join("")}`;
 const tagName = (tag) => (lang === "en" && data.tagLabels?.[tag]) || tag;
@@ -151,23 +154,25 @@ function toolCard(tool, compact = false) {
 
 function header() {
   const path = location.pathname;
+  const inRadar = path === "/radar" || data.articles.some(a => isRadar(a) && path === "/blog/" + a.id);
   $("#header").innerHTML =
     `<a class="brand" href="/" aria-label="十方空烬 · Ember 首页"><span class="brand-mark" aria-hidden="true"><img src="/static/x-sword.svg" alt="" width="42" height="49"></span><span>WIDECHAOS<small>${t("十方空烬 · Ember", "Ember · 十方空烬")}</small></span></a><nav aria-label="${t("主导航", "Main navigation")}">${[
       ["/", "首页", "Home"],
       ["/projects", "作品", "Work"],
       ["/blog", "十方志", "Journal"],
+      ["/radar", "开源雷达", "Radar"],
       ["/tools", "工具", "Tools"],
       ["/about", "关于", "About"],
     ]
       .map(
         ([p, z, e]) =>
-          `<a href="${p}" ${path === p || (p !== "/" && path.startsWith(p + "/")) ? 'aria-current="page"' : ""}>${t(z, e)}</a>`,
+          `<a href="${p}" ${(p === "/radar" ? inRadar : (p === "/blog" && inRadar) ? false : path === p || (p !== "/" && path.startsWith(p + "/"))) ? 'aria-current="page"' : ""}>${t(z, e)}</a>`,
       )
       .join(
         "",
       )}</nav><div class="header-actions"><button id="search-open" class="search-icon" aria-label="${t("搜索", "Search")}"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="m15 15 6 6"/></svg></button><button id="language" aria-label="${t("Switch to English", "切换到中文")}">${t("English", "中文")}</button><button id="motion" class="motion" aria-pressed="${motion === "on"}" aria-label="${t("动态效果", "Motion effects")}"><i></i><span>${t("动态", "Motion")}</span></button></div>`;
   $("#footer").innerHTML =
-    `<div class="footer-top"><a class="footer-name" href="/">WIDECHAOS<span>↗</span></a><p>Per aspera ad astra.</p></div><div class="footer-links"><span>十方空烬 · Ember</span><div>${link("/projects", t("作品", "Work"))}${link("/blog", t("十方志", "Journal"))}${link("/tools", t("工具", "Tools"))}${link("/now", t("现在", "Now"))}${rssLink("RSS ↗")}</div><div class="footer-profiles">${PROFILES.map(([name, , url]) => `<a href="${esc(url)}" target="_blank" rel="noopener" aria-label="${name}" title="${name}">${profileIcon(name)}</a>`).join("")}</div><button data-top>${t("返回顶部 ↑", "Back to top ↑")}</button></div>`;
+    `<div class="footer-top"><a class="footer-name" href="/">WIDECHAOS<span>↗</span></a><p>Per aspera ad astra.</p></div><div class="footer-links"><span>十方空烬 · Ember</span><div>${link("/projects", t("作品", "Work"))}${link("/blog", t("十方志", "Journal"))}${link("/radar", t("开源雷达", "Radar"))}${link("/tools", t("工具", "Tools"))}${link("/now", t("现在", "Now"))}${rssLink("RSS ↗")}</div><div class="footer-profiles">${PROFILES.map(([name, , url]) => `<a href="${esc(url)}" target="_blank" rel="noopener" aria-label="${name}" title="${name}">${profileIcon(name)}</a>`).join("")}</div><button data-top>${t("返回顶部 ↑", "Back to top ↑")}</button></div>`;
   $("#language").onclick = () => {
     lang = lang === "zh" ? "en" : "zh";
     localStorage.setItem("wc-site-lang", lang);
@@ -279,7 +284,7 @@ function fillActivity() {
 }
 function filteredArticles() {
   const query = searchTerm.trim().toLowerCase();
-  return articleSet().filter(a => (journalCategory === "all" || a.category === journalCategory) && (!journalSeries || a.series === journalSeries) && (a.title + " " + summary(a) + " " + plainText(a.body)).toLowerCase().includes(query));
+  return articleSet().filter(a => (!isRadar(a) || !!journalSeries) && (journalCategory === "all" || a.category === journalCategory) && (!journalSeries || a.series === journalSeries) && (a.title + " " + summary(a) + " " + plainText(a.body)).toLowerCase().includes(query));
 }
 // A daily series would bury everything else, so the default list shows only its newest issue.
 function collapseSeries(list) {
@@ -307,18 +312,58 @@ function journalResults() {
 }
 function journal() {
   const list = filteredArticles();
-  const all = articleSet();
+  const all = articleSet().filter(a => !isRadar(a));
   const categories = (data.categories || []).filter((c) => all.some((a) => a.category === c.id));
   const series = [...new Set(all.map((a) => a.series).filter(Boolean))];
   const motto = categoryInfo(journalCategory)?.[lang === "zh" ? "motto" : "desc"];
-  return `<div class="page-wrap journal-page"><div class="journal-page-top"><div>${pageHead("02", "十方志", "Journal")}<p class="journal-intro">${t("一个人的公开笔记。谋、谈、形、动、生活、造物，如九畦花木，各生其姿。<br>读过的书、想过的事、练过的手艺，都在这里缓慢生长。", "A public notebook. Mind, voice, body, craft, life, works: nine plots, each growing its own way.<br>Books read, thoughts worked through, crafts practised, all growing here slowly.")}</p></div><div class="journal-subscribe">${rssLink(t("RSS 订阅更新", "Follow with RSS") + " " + arrow)}</div></div>${categories.length ? `<div class="filter-bar topic-filters" aria-label="${t("文章分区", "Sections")}">${[{ id: "all" }, ...categories].map(c => `<button data-category="${esc(c.id)}" aria-pressed="${!journalSeries && journalCategory === c.id}">${c.id === "all" ? t("全部", "All") : categoryIcon(c.id) + esc(categoryName(c.id))}<small>${c.id === "all" ? all.length : all.filter(a => a.category === c.id).length}</small></button>`).join("")}${series.map(name => `<button class="series-filter" data-series="${esc(name)}" aria-pressed="${journalSeries === name}">${t("系列", "Series")} · ${esc(name)}<small>${all.filter(a => a.series === name).length}</small></button>`).join("")}</div>` : ""}${motto && !journalSeries ? `<p class="category-motto">${esc(motto)}</p>` : ""}<div class="blog-search"><label for="blog-query">${t("查找文章", "Find an article")}</label><input id="blog-query" type="search" value="${esc(searchTerm)}" placeholder="${t("按标题或正文搜索", "Search titles or text")}"><span aria-live="polite">${list.length} ${t("篇", "ARTICLES")}</span></div><div id="article-list">${journalResults()}</div><div class="journal-end"><p>Build. Break. Rebuild.</p>${link("/projects", t("看看文字背后的作品", "Explore the work behind the writing") + " " + arrow)}</div></div>`;
+  return `<div class="page-wrap journal-page"><div class="journal-page-top"><div>${pageHead("02", "十方志", "Journal")}<p class="journal-intro">${t("一个人的公开笔记。谋、谈、形、动、生活、造物，如九畦花木，各生其姿。<br>读过的书、想过的事、练过的手艺，都在这里缓慢生长。", "A public notebook. Mind, voice, body, craft, life, works: nine plots, each growing its own way.<br>Books read, thoughts worked through, crafts practised, all growing here slowly.")}</p></div><div class="journal-subscribe">${rssLink(t("RSS 订阅更新", "Follow with RSS") + " " + arrow)}</div></div>${writingNav("/blog")}${categories.length ? `<div class="filter-bar topic-filters" aria-label="${t("文章分区", "Sections")}">${[{ id: "all" }, ...categories].map(c => `<button data-category="${esc(c.id)}" aria-pressed="${!journalSeries && journalCategory === c.id}">${c.id === "all" ? t("全部", "All") : categoryIcon(c.id) + esc(categoryName(c.id))}<small>${c.id === "all" ? all.length : all.filter(a => a.category === c.id).length}</small></button>`).join("")}${series.map(name => `<button class="series-filter" data-series="${esc(name)}" aria-pressed="${journalSeries === name}">${t("系列", "Series")} · ${esc(name)}<small>${all.filter(a => a.series === name).length}</small></button>`).join("")}</div>` : ""}${motto && !journalSeries ? `<p class="category-motto">${esc(motto)}</p>` : ""}<div class="blog-search"><label for="blog-query">${t("查找文章", "Find an article")}</label><input id="blog-query" type="search" value="${esc(searchTerm)}" placeholder="${t("按标题或正文搜索", "Search titles or text")}"><span aria-live="polite">${list.length} ${t("篇", "ARTICLES")}</span></div><div id="article-list">${journalResults()}</div><div class="journal-end"><p>Build. Break. Rebuild.</p>${link("/projects", t("看看文字背后的作品", "Explore the work behind the writing") + " " + arrow)}</div></div>`;
+}
+function writingNav(active) {
+  return `<nav class="writing-nav" aria-label="${t("阅读栏目", "Reading sections")}"><a href="/blog" ${active === "/blog" ? 'aria-current="page"' : ""}>${t("十方志", "Journal")} <span>${t("文章与思考", "Essays & notes")}</span></a><a href="/radar" ${active === "/radar" ? 'aria-current="page"' : ""}>${t("开源雷达", "Open-source radar")} <span>${t("每日项目精选", "Daily project picks")}</span></a></nav>`;
+}
+function radarPicks(a) {
+  const box = document.createElement("div");
+  box.innerHTML = a.body;
+  return [...box.querySelectorAll("h3")].map(h => {
+    const match = h.textContent.match(/^\d+\.\s+(\S+)\s+⭐/);
+    if (!match) return null;
+    let next = h.nextElementSibling, note = "";
+    while (next && next.tagName !== "H3") {
+      if (/^(一句话|One[- ]line|In one line|In brief)/i.test(next.textContent)) { note = next.textContent.replace(/^[^：:]+[：:]\s*/, ""); break; }
+      next = next.nextElementSibling;
+    }
+    return {repo: match[1], anchor: h.id, note};
+  }).filter(Boolean);
+}
+function radarTitle(a) { return a.title.replace(/^.*?\d{4}-\d{2}-\d{2}\s*[：:]\s*/, ""); }
+function radarPage() {
+  const issues = articleSet().filter(isRadar);
+  const latest = issues[0];
+  const params = new URLSearchParams(location.search);
+  const q = params.get("q") || "", month = params.get("month") || "";
+  const matches = issues.filter(a => (!month || articlePublishedAt(a).startsWith(month)) && (a.title + " " + plainText(a.body)).toLowerCase().includes(q.trim().toLowerCase()));
+  const months = [...new Set(issues.map(a => articlePublishedAt(a).slice(0,7)))];
+  const page = Math.max(1, Math.min(Math.ceil(matches.length / 12) || 1, parseInt(params.get("page"),10) || 1));
+  const picks = latest ? radarPicks(latest) : [];
+  const url = (n) => { const u = new URLSearchParams(params); u.set("page", n); return "/radar?" + u; };
+  return `<div class="page-wrap radar-page"><header class="radar-heading"><div><p class="eyebrow">GITHUB / ${t("每日精选", "DAILY PICKS")}</p><h1>${t("开源雷达", "Open-source radar")}<span aria-hidden="true">↗</span></h1><p>${t("读项目，也看它正在往哪里走。", "Projects worth reading. Directions worth following.")}</p></div><div class="radar-total"><strong>${issues.length.toString().padStart(2,"0")}</strong><span>${t("期已发布", "PUBLISHED ISSUES")}</span></div></header>${writingNav("/radar")}${latest ? `<section class="radar-feature" aria-labelledby="radar-latest"><div class="radar-cover"><div class="radar-edition"><span>${t("最新一期", "LATEST ISSUE")}</span><time datetime="${esc(articlePublishedAt(latest))}">${esc(articlePublishedAt(latest).slice(0,7).replace("-"," / "))}</time></div><div class="radar-day" aria-hidden="true">${esc(articlePublishedAt(latest).slice(8,10))}<span>↗</span></div><h2 id="radar-latest"><a href="/blog/${esc(latest.id)}">${esc(radarTitle(latest))}</a></h2>${fallbackLanguage(latest) ? `<small class="language-note">${fallbackLanguage(latest)}</small>` : ""}<a class="radar-read" href="/blog/${esc(latest.id)}">${t("阅读这一期", "Read this issue")} <span>↗</span></a><div class="radar-coordinates" aria-hidden="true">${esc(articlePublishedAt(latest))} / OPEN SOURCE</div></div><div class="radar-picks"><div class="radar-picks-heading"><span>${t("本期项目", "IN THIS ISSUE")}</span><span>${picks.length.toString().padStart(2,"0")}</span></div>${picks.map((pick,i) => `<a class="radar-pick" href="/blog/${esc(latest.id)}#${esc(pick.anchor)}"><span class="radar-pick-no">${String(i+1).padStart(2,"0")}</span><div><h3>${esc(pick.repo)}</h3>${pick.note ? `<p>${esc(pick.note)}</p>` : ""}</div><span aria-hidden="true">↗</span></a>`).join("") || `<p>${esc(summary(latest))}</p>`}</div></section>` : `<p>${t("第一期发布后会出现在这里。", "The first published issue will appear here.")}</p>`}<section class="radar-archive" aria-labelledby="radar-archive-title"><div class="radar-archive-top"><h2 id="radar-archive-title">${t("往期", "Archive")}<span>${matches.length}</span></h2><form id="radar-search" role="search"><label class="sr-only" for="radar-query">${t("搜索项目或往期", "Search projects or issues")}</label><input id="radar-query" name="q" type="search" value="${esc(q)}" placeholder="${t("搜索项目或往期", "Search projects or issues")}"><label class="sr-only" for="radar-month">${t("月份", "Month")}</label><select id="radar-month" name="month"><option value="">${t("全部月份", "All months")}</option>${months.map(m => `<option ${m === month ? "selected" : ""} value="${m}">${m}</option>`).join("")}</select><button type="submit">${t("查找", "Search")} ↗</button></form></div><div class="radar-archive-list">${matches.slice((page-1)*12,page*12).map(a => `<a class="radar-archive-row" href="/blog/${esc(a.id)}"><time datetime="${esc(articlePublishedAt(a))}">${esc(articlePublishedAt(a).replaceAll("-","."))}</time><div><h3>${esc(radarTitle(a))}</h3><p>${radarPicks(a).map(p => esc(p.repo)).join(" · ")}</p></div><span class="radar-row-arrow" aria-hidden="true">↗</span></a>`).join("") || `<p class="empty-state">${t("没有匹配的内容。", "No matching issues.")} <a href="/radar">${t("清除筛选", "Clear filters")}</a></p>`}</div>${matches.length > 12 ? `<nav class="pagination" aria-label="${t("往期分页", "Archive pages")}">${page > 1 ? link(url(page-1),"← " + t("上一页","Previous")) : "<span></span>"}<span>${page} / ${Math.ceil(matches.length/12)}</span>${page*12 < matches.length ? link(url(page+1),t("下一页","Next")+" →") : "<span></span>"}</nav>` : ""}</section></div>`;
+}
+function bindRadar() {
+  const form = $("#radar-search");
+  if (!form) return;
+  form.onsubmit = e => {
+    e.preventDefault();
+    const query = new URLSearchParams(new FormData(form));
+    for (const [key,value] of [...query]) if (!value.trim()) query.delete(key);
+    navigate("/radar" + (query.size ? "?" + query : "") + "#radar-archive-title");
+  };
 }
 function relatedContent(a) {
   const projects = data.projects.filter(p => articleKey(articleForProject(data.articles, p, lang) || {}) === articleKey(a));
-  const others = articleSet().filter(item => articleKey(item) !== articleKey(a));
+  const others = articleSet().filter(item => articleKey(item) !== articleKey(a) && isRadar(item) === isRadar(a));
   const overlap = item => (item.category === a.category ? 2 : 0) + (item.tags || []).filter(tag => a.tags?.includes(tag)).length - (item.series && item.series === a.series ? 3 : 0);
   others.sort((x, y) => overlap(y) - overlap(x));
-  return `${projects.length ? `<section class="article-linked-work"><p class="eyebrow">${t("文中作品", "WORK IN THIS ARTICLE")}</p>${projects.map(projectMini).join("")}</section>` : ""}${others.length ? `<section class="continue-reading"><div class="section-title"><h2>${t("接着读", "Keep reading")}</h2>${link("/blog", t("全部文章", "All writing") + " " + arrow)}</div>${others.slice(0, 2).map((item, i) => articleRow(item, i)).join("")}</section>` : ""}`;
+  return `${projects.length ? `<section class="article-linked-work"><p class="eyebrow">${t("文中作品", "WORK IN THIS ARTICLE")}</p>${projects.map(projectMini).join("")}</section>` : ""}${others.length ? `<section class="continue-reading"><div class="section-title"><h2>${t("接着读", "Keep reading")}</h2>${link(isRadar(a) ? "/radar" : "/blog", isRadar(a) ? t("全部往期", "All issues") : t("全部文章", "All writing") + " " + arrow)}</div>${others.slice(0, 2).map((item, i) => articleRow(item, i)).join("")}</section>` : ""}`;
 }
 function articleResponse(a) {
   const email = data.contact?.email;
@@ -347,10 +392,10 @@ function articleDetail(id) {
   const found = [...box.querySelectorAll("h2,h3,h4")];
   const top = Math.min(...found.map((h) => +h.tagName[1]));
   const headings = found.filter((h) => +h.tagName[1] <= top + 1).map((h, i) => {
-    h.id = "section-" + i;
+    h.id ||= "section-" + i;
     return { id: h.id, text: h.dataset.toc || h.textContent.trim(), depth: +h.tagName[1] - top };
   });
-  return `<div class="article-page"><div class="article-top"><a class="back-link" href="/blog">← ${t("十方志", "Journal")}</a><span>${articleDate(a)} · ${readingTime(a)}${a.updatedAt && a.updatedAt !== a.publishedAt ? ` · ${t("修订", "Updated")} ${esc(a.updatedAt)}` : ""}</span></div><header class="article-heading"><p class="eyebrow">${routerArticle ? "MLX / LoRA / EXPERIMENT" : [a.category && categoryName(a.category), a.series].filter(Boolean).map(esc).join(" / ") || "JOURNAL"}</p><h1>${esc(a.title)}</h1><div class="article-byline"><img src="/static/avatar.png" width="38" height="38" alt=""><span>Renchao Wu · 十方空烬</span>${fallbackLanguage(a) ? `<span class="language-note">${fallbackLanguage(a)}</span>` : ""}</div></header>${routerArticle ? `<div class="article-data-strip"><span><small>${t("严格全字段通过率", "STRICT ALL-FIELD")}</small>7.6% <i>→</i> 47.2%</span><span><small>${t("JSON 合法率", "VALID JSON")}</small>98.6% <b>→</b> 95.5%</span><em>${t("576 条留出合成测试", "576 held-out synthetic tests")}</em></div>` : ""}<div class="article-layout"><article class="article-body" lang="${a.lang}">${box.innerHTML}</article><aside class="article-toc"><p class="eyebrow">${t("本文目录", "ON THIS PAGE")}</p>${headings.map((h) => `<a class="toc-depth-${h.depth}" href="#${h.id}">${esc(h.text)}</a>`).join("")}<div class="toc-bottom">${link(a.url, t("公开原文", "Published original") + " " + arrow)}<button data-top>${t("回到开头 ↑", "Back to top ↑")}</button></div></aside></div>${articleResponse(a)}${relatedContent(a)}</div>`;
+  return `<div class="article-page"><div class="article-top"><a class="back-link" href="${isRadar(a) ? "/radar" : "/blog"}">← ${isRadar(a) ? t("开源雷达", "Radar") : t("十方志", "Journal")}</a><span>${articleDate(a)} · ${readingTime(a)}${a.updatedAt && a.updatedAt !== a.publishedAt ? ` · ${t("修订", "Updated")} ${esc(a.updatedAt)}` : ""}</span></div><header class="article-heading"><p class="eyebrow">${routerArticle ? "MLX / LoRA / EXPERIMENT" : [a.category && categoryName(a.category), a.series].filter(Boolean).map(esc).join(" / ") || "JOURNAL"}</p><h1>${esc(a.title)}</h1><div class="article-byline"><img src="/static/avatar.png" width="38" height="38" alt=""><span>Renchao Wu · 十方空烬</span>${fallbackLanguage(a) ? `<span class="language-note">${fallbackLanguage(a)}</span>` : ""}</div></header>${routerArticle ? `<div class="article-data-strip"><span><small>${t("严格全字段通过率", "STRICT ALL-FIELD")}</small>7.6% <i>→</i> 47.2%</span><span><small>${t("JSON 合法率", "VALID JSON")}</small>98.6% <b>→</b> 95.5%</span><em>${t("576 条留出合成测试", "576 held-out synthetic tests")}</em></div>` : ""}<div class="article-layout"><article class="article-body" lang="${a.lang}">${box.innerHTML}</article><aside class="article-toc"><p class="eyebrow">${t("本文目录", "ON THIS PAGE")}</p>${headings.map((h) => `<a class="toc-depth-${h.depth}" href="#${h.id}">${esc(h.text)}</a>`).join("")}<div class="toc-bottom">${link(a.url, t("公开原文", "Published original") + " " + arrow)}<button data-top>${t("回到开头 ↑", "Back to top ↑")}</button></div></aside></div>${articleResponse(a)}${relatedContent(a)}</div>`;
 }
 // Radar issues follow a fixed shape: "N. owner/repo ⭐ stars · language", then a GitHub line.
 function radarLayout(box) {
@@ -386,6 +431,7 @@ function about() {
     ...new Map(data.collection.map((x) => [x.image + "|" + x.url, x])).values(),
   ];
   const selected = unique.filter((x) => x.kind === collectionFilter);
+  const visibleCount = collectionFilter === "reading" ? 18 : selected.length;
   const moreLabels = {
     reading: ["展开更多阅读记录", "Show more reading milestones"],
     learning: ["展开更多学习凭证", "Show more learning credentials"],
@@ -404,19 +450,19 @@ function about() {
       ([id, z, e]) =>
         `<button data-collection="${id}" aria-pressed="${collectionFilter === id}">${t(z, e)}</button>`,
     )
-    .join("")}</div><div class="badge-grid">${selected
-    .slice(0, 18)
+    .join("")}</div><div class="badge-grid" data-kind="${collectionFilter}">${selected
+    .slice(0, visibleCount)
     .map(
       (x) =>
-        `<a href="${esc(x.url)}" target="_blank" rel="noopener"><img src="${esc(x.image)}" alt="${esc(x.title)}" loading="lazy"><span>${esc(x.title)}</span></a>`,
+        collectionCard(x, lang),
     )
     .join("")}</div>${
-    selected.length > 18
-      ? `<details class="more-badges"><summary>${t(...moreLabels)} <span>+</span></summary><div class="badge-grid">${selected
-          .slice(18)
+    selected.length > visibleCount
+      ? `<details class="more-badges"><summary>${t(...moreLabels)} <span>+</span></summary><div class="badge-grid" data-kind="${collectionFilter}">${selected
+          .slice(visibleCount)
           .map(
             (x) =>
-              `<a href="${esc(x.url)}" target="_blank" rel="noopener"><img src="${esc(x.image)}" alt="${esc(x.title)}" loading="lazy"><span>${esc(x.title)}</span></a>`,
+              collectionCard(x, lang),
           )
           .join("")}</div></details>`
       : ""
@@ -482,6 +528,8 @@ function render(scroll = true) {
         ? projects()
         : path.startsWith("/projects/")
           ? projectDetail(path.split("/")[2])
+          : path === "/radar"
+            ? radarPage()
           : path === "/blog"
             ? journal()
             : path.startsWith("/blog/")
@@ -494,7 +542,9 @@ function render(scroll = true) {
                     ? nowPage()
                     : notFound();
   $("#main").innerHTML = html;
-  const h = $("#main h1");
+  bindRadar();
+  const h = $("#main h1")?.cloneNode(true);
+  h?.querySelectorAll('[aria-hidden="true"]').forEach(node => node.remove());
   document.title =
     (h?.textContent.replace("✳", "").trim() || "十方空烬") + " · Ember";
   updatePageMetadata(path, routeArticle);
@@ -504,6 +554,7 @@ function render(scroll = true) {
     image.addEventListener("error", retryBadge);
     if (image.complete && !image.naturalWidth) retryCollectionImage(image);
   });
+  const collectionCleanup = mountCollection($("#main"), lang);
   const demoCleanup = mountDemos($("#main"));
   const observer = new IntersectionObserver(
     (entries) =>
@@ -517,6 +568,7 @@ function render(scroll = true) {
   );
   document.querySelectorAll(".reveal").forEach((e) => observer.observe(e));
   cleanup = () => {
+    collectionCleanup();
     if (typeof demoCleanup === "function") demoCleanup();
     observer.disconnect();
     badgeImages.forEach((image) => image.removeEventListener("error", retryBadge));
@@ -652,13 +704,24 @@ function bindGlobal() {
           })),
     );
 }
+let pageTransition;
+function transitionPage(update) {
+  pageTransition?.skipTransition();
+  if (motion === "off" || reduced.matches) { update(); return; }
+  if (document.startViewTransition) {
+    pageTransition = document.startViewTransition(update);
+    pageTransition.finished.catch(() => {});
+  } else {
+    update();
+    $("#main").animate([{opacity: 0, transform: "translateY(16px)"}, {opacity: 1, transform: "none"}], {duration: 320, easing: "cubic-bezier(.2,.7,.2,1)"});
+  }
+}
 function navigate(url, replace = false) {
-  const run = () => {
+  transitionPage(() => {
     history[replace ? "replaceState" : "pushState"]({}, "", url);
     render();
     $("#main").focus({ preventScroll: true });
-  };
-  run();
+  });
 }
 function openFeed() {
   $("#rss-content").innerHTML = `<h2 id="rss-title">${t("用 RSS 订阅十方志", "Follow the journal with RSS")}</h2><p>${t("把下面的地址加进任意 RSS 阅读器（Folo、Feedly、Inoreader、NetNewsWire 等），新文章会自动送到那里。", "Add this address to any feed reader (Folo, Feedly, Inoreader, NetNewsWire…) and new writing arrives there.")}</p><div class="feed-copy"><input value="${FEED}" readonly aria-label="${t("订阅地址", "Feed address")}"><button type="button" data-copy-url="${FEED}">${t("复制地址", "Copy")}</button><span class="copy-status" role="status"></span><input class="copy-fallback" value="${FEED}" readonly hidden></div><a class="feed-raw" href="${FEED}" target="_blank" rel="noopener">${t("查看原始订阅文件", "View the raw feed")} ${arrow}</a>`;
@@ -666,6 +729,7 @@ function openFeed() {
   $("#rss-dialog").showModal();
 }
 document.addEventListener("click", (e) => {
+  if (e.defaultPrevented) return;
   const feed = e.target.closest("a[data-rss]");
   if (feed && !e.metaKey && !e.ctrlKey && !e.shiftKey && e.button === 0) {
     e.preventDefault();
@@ -689,7 +753,7 @@ document.addEventListener("click", (e) => {
   e.preventDefault();
   navigate(u.pathname + u.search + u.hash);
 });
-window.addEventListener("popstate", () => render());
+window.addEventListener("popstate", () => transitionPage(() => render()));
 window.addEventListener(
   "scroll",
   () => {

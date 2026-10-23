@@ -52,7 +52,7 @@ class ReleaseSafety(unittest.TestCase):
    restore(root,backup,['app/static/app.js','app/static/mark.svg'])
    self.assertEqual((root/'app/static/app.js').read_text(),'original');self.assertFalse((root/'app/static/mark.svg').exists());self.assertEqual((root/'content/blog/post.md').read_text(),'live')
  def test_new_public_assets_are_allowed(self):
-  for name in ('app/static/og-card.jpg','app/static/fonts/poem-mashanzheng.woff2'):self.assertTrue(allowed(name),name)
+  for name in ('app/static/og-card.jpg','app/static/fonts/poem-mashanzheng.woff2','app/static/collection.js','app/static/collection.css','app/static/pointer.js','app/static/pointer.css','app/static/pointer-sword.svg','app/static/pointer-sword-active.svg','app/static/radar.css'):self.assertTrue(allowed(name),name)
   for name in ('app/static/fonts/../main.py','app/static/fonts/private.js'):self.assertFalse(allowed(name),name)
  def test_delta_release_reads_unchanged_files_from_host(self):
   sys.path.insert(0,str(ROOT/'scripts'));from build_release import release_bytes

@@ -17,6 +17,7 @@ class PreviewContract(unittest.TestCase):
    def get(path):
     with urllib.request.urlopen(origin+path) as response:return response.read(),response.headers
    try:
+    self.assertIn('开源雷达'.encode(),get('/radar')[0])
     initial,headers=get('/static/content.json');self.assertEqual(json.loads(initial)['articles'],[])
     for language in ('zh','en'):
      (blog/f'contract-{language}.md').write_text(f'---\ntitle: Contract {language}\ndate: 2026-10-15\nstatus: published\n---\nPublished {language} body')

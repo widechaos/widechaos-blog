@@ -6,7 +6,7 @@ E=lambda x:html.escape(str(x),quote=True)
 
 def render(root,path,data,lang='zh'):
  page=Path(root,'index.html').read_text();title='十方空烬 · Ember';summary='Build. Break. Rebuild.';canonical='https://widechaos.cn'+path;alternates='';status=200
- nav='<nav aria-label="主导航">'+''.join(f'<a href="{u}">{t}</a> ' for u,t in [('/','十方空烬'),('/projects','作品'),('/blog','十方志'),('/tools','工具'),('/about','关于')])+'</nav>'
+ nav='<nav aria-label="主导航">'+''.join(f'<a href="{u}">{t}</a> ' for u,t in [('/','十方空烬'),('/projects','作品'),('/blog','十方志'),('/radar','开源雷达'),('/tools','工具'),('/about','关于')])+'</nav>'
  def listing(items,kind):
   return ''.join(f'<section><h2><a href="{E("/blog/"+i["id"] if kind=="article" else "/projects/"+i["id"])}">{E(i["title"])}</a></h2><p>{E(i.get("summary") or i.get(lang) or "")}</p></section>' for i in items)
  if path.startswith('/blog/'):
@@ -15,12 +15,23 @@ def render(root,path,data,lang='zh'):
    lang=article['lang'];title=article['title'];summary=article['summary'];canonical=article['url']
    paired=[a for a in data['articles'] if a['translationKey']==article['translationKey']]
    alternates=''.join(f'<link rel="alternate" hreflang="{a["lang"]}" href="{E(a["url"])}">' for a in paired)
-   main=f'<div class="article-page"><div class="article-top"><a href="/blog">十方志</a> · <time datetime="{article["publishedAt"]}">{article["publishedAt"]}</time></div><header class="article-heading"><h1>{E(title)}</h1></header><div class="article-layout"><article class="article-body" lang="{lang}">{article["body"]}</article></div></div>'
+   back='/radar' if article['id'].startswith('oss-radar-') else '/blog'
+   back_title='开源雷达' if back=='/radar' else '十方志'
+   main=f'<div class="article-page"><div class="article-top"><a href="{back}">{back_title}</a> · <time datetime="{article["publishedAt"]}">{article["publishedAt"]}</time></div><header class="article-heading"><h1>{E(title)}</h1></header><div class="article-layout"><article class="article-body" lang="{lang}">{article["body"]}</article></div></div>'
   else:status=404;main='<h1>文章不存在或已撤下</h1>'
+ elif path=='/radar':
+  title='开源雷达 · 十方空烬' if lang=='zh' else 'Open-source radar · Ember';summary='每日开源项目精选与往期归档。' if lang=='zh' else 'Daily open-source project picks and past issues.'
+  groups={}
+  for a in data['articles']:
+   if a['id'].startswith('oss-radar-'):
+    key=a.get('translationKey') or a['id'];current=groups.get(key)
+    if current is None or (current['lang']!=lang and a['lang']==lang):groups[key]=a
+  issues=sorted(groups.values(),key=lambda a:a['publishedAt'],reverse=True)
+  main='<h1>'+('开源雷达' if lang=='zh' else 'Open-source radar')+'</h1><p>'+summary+'</p>'+listing(issues,'article')
  elif path in ('/','/blog'):
   if path=='/blog':title='十方志 · 十方空烬';summary='一个人的公开笔记。谋、谈、形、动、生活、造物，如九畦花木，各生其姿。'
   else:summary='十方空烬 · Ember 的个人站：作品、文字与持续的探索。Build. Break. Rebuild.'
-  main=('<h1>十方空烬 · Ember</h1><p>Build. Break. Rebuild.</p>' if path=='/' else '<h1>十方志</h1>')+listing(data['articles'],'article')
+  main=('<h1>十方空烬 · Ember</h1><p>Build. Break. Rebuild.</p>' if path=='/' else '<h1>十方志</h1>')+listing([a for a in data['articles'] if path=='/' or not a['id'].startswith('oss-radar-')],'article')
   if path=='/':main+='<h2>作品</h2>'+listing(data['projects'],'project')
  elif path=='/projects':title='作品 · 十方空烬';summary='实验、工具与设计中的作品：模型实验、桌面工具和个人系统。';main='<h1>作品</h1>'+listing(data['projects'],'project')
  elif path.startswith('/projects/'):

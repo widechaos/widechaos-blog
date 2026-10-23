@@ -36,7 +36,7 @@ def install(app, *, root, catalog_path, blog_dir, native_renderer=None):
  # Exact JSON path must precede the existing /static mount. It is already public
  # in the existing www scope; do not add a broad /api authentication exception.
  app.router.routes.insert(0,APIRoute('/static/content.json',content,methods=['GET','HEAD']))
- replacements={'/','/blog','/blog/{slug}','/projects','/projects/{slug}','/tools','/about','/now'}
+ replacements={'/','/blog','/radar','/blog/{slug}','/projects','/projects/{slug}','/tools','/about','/now'}
  app.router.routes[:]=[r for r in app.router.routes if getattr(r,'path',None) not in replacements]
  # Keep legacy RSS/category/tag routes and their handlers in their original order.
  # These precede the generic article route, and authentication remains untouched.

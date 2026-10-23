@@ -6,7 +6,7 @@ from urllib.error import HTTPError
 
 MODULES={'__init__.py','content_service.py','site_catalog.py','ssr.py','production_adapter.py'}
 
-PUBLIC_ROOT={'app.js','content-model.js','style.css','content-layout.css','hero-art.js','project-demos.js','project-demos.css','avatar.png','city-art.png','og-card.jpg','mark.svg','x-sword.svg'}
+PUBLIC_ROOT={'app.js','content-model.js','style.css','content-layout.css','hero-art.js','project-demos.js','project-demos.css','avatar.png','city-art.png','og-card.jpg','mark.svg','x-sword.svg','collection.js','collection.css','pointer.js','pointer.css','pointer-sword.svg','pointer-sword-active.svg','radar.css'}
 
 def allowed(name):
  p=Path(name)
@@ -84,7 +84,7 @@ def verify(probes):
    with urlopen(Request('http://127.0.0.1:8000/static/content.json',headers={'Host':'widechaos.cn'}),timeout=3) as response:
     data=json.load(response)
    if not isinstance(data.get('articles'),list) or not isinstance(data.get('projects'),list):raise ValueError('Content contract failed')
-   for path in ('/','/blog','/projects','/tools','/about','/now','/blog/rss.xml'):
+   for path in ('/','/blog','/radar','/projects','/tools','/about','/now','/blog/rss.xml'):
     with urlopen(Request('http://127.0.0.1:8000'+path,headers={'Host':'widechaos.cn'}),timeout=5) as response:
      if response.status!=200:raise ValueError('Public route failed')
    for probe in probes:

@@ -23,7 +23,7 @@ def handler(root,service):
      target=(root/path.lstrip('/')).resolve();base=(root/path.split('/')[1]).resolve()
      if not target.is_relative_to(base) or not target.is_file() or target.name.startswith('.') or target.suffix not in {'.js','.css','.svg','.png','.jpg','.jpeg','.webp','.gif','.woff','.woff2','.ico','.json'}:return self.reply(b'Not found','text/plain',404)
      return self.reply(target.read_bytes(),mimetypes.guess_type(target)[0] or 'application/octet-stream')
-    if path=='/' or path in ('/blog','/projects','/tools','/about','/now') or path.startswith(('/blog/','/projects/')):
+    if path=='/' or path in ('/blog','/radar','/projects','/tools','/about','/now') or path.startswith(('/blog/','/projects/')):
      page,status=render(root,path,service.bundle(),parse_qs(parsed.query).get('lang',['zh'])[0]);return self.reply(page.encode(),'text/html; charset=utf-8',status,{'Cache-Control':'no-cache'})
     return self.reply(b'Not found','text/plain',404)
    except Exception as e:

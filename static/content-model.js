@@ -99,3 +99,8 @@ export function retryCollectionImage(image) {
   image.src = source + '?retry=1';
   return true;
 }
+
+// The publication pipeline owns these stable IDs in both languages.
+export function isRadarArticle(article) {
+  return /^oss-radar-/.test(article?.id || "");
+}
