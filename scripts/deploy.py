@@ -13,7 +13,7 @@ def inventory_files(answer):
   raise SystemExit('Cannot read deployment inventory through the management connection; no release was sent.')
  try:
   held=json.loads(answer.stdout.strip().splitlines()[-1])['files']
-  if not isinstance(held,dict) or not all(isinstance(k,str) and isinstance(v,str) for k,v in held.items()):raise ValueError('Invalid inventory')
+  if not isinstance(held,dict) or not all(isinstance(k,str) and (v is None or isinstance(v,str)) for k,v in held.items()):raise ValueError('Invalid inventory')
  except (ValueError,KeyError,IndexError,TypeError):
   raise SystemExit('Invalid deployment inventory response; no release was sent.')
  return held

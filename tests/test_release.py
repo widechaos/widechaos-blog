@@ -14,6 +14,7 @@ class ReleaseSafety(unittest.TestCase):
      inventory_files(CompletedProcess([],code,stdout=output,stderr=''))
   self.assertEqual(inventory_files(CompletedProcess([],0,stdout='{"files":{}}')), {})
   self.assertEqual(inventory_files(CompletedProcess([],0,stdout='{"files":{"app/static/app.js":"abc"}}')), {'app/static/app.js':'abc'})
+  self.assertEqual(inventory_files(CompletedProcess([],0,stdout='{"files":{"app/static/new.svg":null}}')), {'app/static/new.svg':None})
  def test_capacity_gate_rejects_low_memory_and_stalled_host(self):
   with tempfile.TemporaryDirectory() as directory:
    proc=Path(directory);(proc/'pressure').mkdir()
