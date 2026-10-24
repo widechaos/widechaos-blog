@@ -41,6 +41,13 @@ class IntegrationTests(unittest.TestCase):
   for value in ('',None,'  '):
    with self.assertRaises(ValueError):merge_catalog(self.catalog,{'projects':[{'id':'router','status':'published','en':value}]})
 
+ def test_about_approved_copy_matches_public_module(self):
+  from integration.ssr import render
+  for language,phrase in [('zh','我对“向来如此”四字'),('en','I don’t nod along')]:
+   page,status=render(ROOT,'/about',self.s.bundle(),language)
+   self.assertEqual(status,200);self.assertIn(phrase,page)
+   self.assertNotIn('class="about-poem"',page)
+
  def test_radar_published_archive_translation_and_direct_routes(self):
   self.write('oss-radar-2026-10-21-zh',body='Radar 中文')
   self.write('oss-radar-2026-10-21-en',body='Radar English')
@@ -57,6 +64,10 @@ class IntegrationTests(unittest.TestCase):
   self.assertNotIn('ordinary-zh',archive)
   self.assertIn('/blog/oss-radar-2026-10-21-en',main(c.get('/radar?lang=en')))
   self.assertNotIn('oss-radar-',main(c.get('/blog')))
+  home=main(c.get('/'))
+  self.assertNotIn('oss-radar-',home.split('<aside')[0])
+  self.assertIn('/blog/ordinary-zh',home.split('<aside')[0])
+  self.assertIn('href="/radar"',home.split('<aside')[1])
   self.assertIn('/blog/ordinary-zh',main(c.get('/blog')))
   self.assertIn('href="/radar"',main(c.get('/blog/oss-radar-2026-10-21-zh')))
   self.write('oss-radar-2026-10-22-zh',body='New published issue')

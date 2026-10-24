@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import {
-  filterPublishedContent, selectArticlesForLanguage, findArticleTranslation,
+  selectHomeContent, filterPublishedContent, selectArticlesForLanguage, findArticleTranslation,
   selectFeaturedProjects, availableTools, articleForProject, articlePublishedAt,
   articleTopics, topicLabel, retryCollectionImage,
 } from '../static/content-model.js';
@@ -82,4 +82,17 @@ test('failed collection artwork retries once without changing its original image
     assert.equal(retryCollectionImage(other), false);
     assert.equal(other.src, source);
   }
+});
+
+test('daily radar never crowds essays out of the homepage, in either language', () => {
+  const essays = [1,2,3,4].flatMap(day => ['zh','en'].map(lang => article(`essay-${day}-${lang}`,lang,`2026-10-0${day}`,{translationKey:`essay-${day}`})));
+  const radar = [11,12,13,14,15].flatMap(day => ['zh','en'].map(lang => article(`oss-radar-${day}-${lang}`,lang,`2026-10-${day}`,{translationKey:`oss-radar-${day}`})));
+  const draft = article('oss-radar-draft-zh','zh','2026-10-20',{status:'draft'});
+  for (const language of ['zh','en']) {
+    const home = selectHomeContent([...radar,...essays,draft],language);
+    assert.deepEqual(home.writing.map(a => a.id),[4,3,2].map(n => `essay-${n}-${language}`));
+    assert.equal(home.radar.id,`oss-radar-15-${language}`);
+  }
+  assert.deepEqual(selectHomeContent(radar,'zh').writing,[]);
+  assert.equal(selectHomeContent(essays,'zh').radar,null);
 });

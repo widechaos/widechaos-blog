@@ -104,3 +104,11 @@ export function retryCollectionImage(image) {
 export function isRadarArticle(article) {
   return /^oss-radar-/.test(article?.id || "");
 }
+
+export function selectHomeContent(articles, language) {
+  const entries = selectArticlesForLanguage(articles, language);
+  return {
+    writing: entries.filter(a => !isRadarArticle(a)).slice(0, 3),
+    radar: entries.find(isRadarArticle) || null,
+  };
+}
