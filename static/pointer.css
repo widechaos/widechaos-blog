@@ -1,23 +1,32 @@
 @media(hover:hover) and (pointer:fine) {
- html.sword-pointer,html.sword-pointer body {cursor:url('/static/pointer-sword.svg?v=2') 3 3,auto;}
- html.sword-pointer :is(p,blockquote,pre,code,.article-body li,figcaption,[data-cursor="text"]) {cursor:text;}
- html.sword-pointer :is(a[href],button,summary,[role="button"],input[type="button"],input[type="submit"],input[type="checkbox"],input[type="radio"],select,[data-cursor="action"]) {cursor:url('/static/pointer-sword-active.svg?v=2') 3 3,pointer;}
- html.sword-pointer :is(textarea,input:not([type]),input:is([type="text"],[type="search"],[type="email"],[type="url"],[type="tel"],[type="password"],[type="number"]),[contenteditable]:not([contenteditable="false"])) {cursor:text;}
- html.sword-pointer :is(:disabled,[aria-disabled="true"]) {cursor:not-allowed;}
+ html.sword-pointer,html.sword-pointer * {cursor:none!important;}
+ html.sword-pointer :is(p,blockquote,pre,code,.article-body li,figcaption,[data-cursor="text"]), html.sword-pointer :is(p,blockquote,pre,code,.article-body li,figcaption,[data-cursor="text"]) * {cursor:text!important;}
+ html.sword-pointer :is(a[href],button,summary,[role="button"],input[type="button"],input[type="submit"],input[type="checkbox"],input[type="radio"],select,[data-cursor="action"]), html.sword-pointer :is(a[href],button,summary,[role="button"],input[type="button"],input[type="submit"],input[type="checkbox"],input[type="radio"],select,[data-cursor="action"]) * {cursor:none!important;}
+ html.sword-pointer :is(textarea,input:not([type]),input:is([type="text"],[type="search"],[type="email"],[type="url"],[type="tel"],[type="password"],[type="number"]),[contenteditable]:not([contenteditable="false"])), html.sword-pointer :is(textarea,input:not([type]),input:is([type="text"],[type="search"],[type="email"],[type="url"],[type="tel"],[type="password"],[type="number"]),[contenteditable]:not([contenteditable="false"])) * {cursor:text!important;}
+ html.sword-pointer :is(:disabled,[aria-disabled="true"]), html.sword-pointer :is(:disabled,[aria-disabled="true"]) * {cursor:not-allowed!important;}
+ html.sword-pointer :is(input[type="range"],input[type="file"],input[type="color"]), html.sword-pointer :is(input[type="range"],input[type="file"],input[type="color"]) * {cursor:auto!important;}
 }
-@media(hover:hover) and (pointer:fine) {html.sword-pointer :is(input[type="range"],input[type="file"],input[type="color"]) {cursor:auto;}}
-.sword-reticle {position:fixed; inset:0 auto auto 0; width:0; height:0; margin:0; padding:0; overflow:visible; border:0; background:none; color:#a9d3e7; pointer-events:none!important; z-index:2147483647; opacity:0; transition:opacity .15s; contain:layout style;}
-.sword-reticle.is-visible {opacity:.6;}
-.sword-reticle-frame {position:absolute; left:0;top:0; width:24px;height:24px; transform:translate(-50%,-50%) rotate(-12deg); transition:width .2s,height .2s,transform .2s,color .2s;filter:drop-shadow(0 0 3px #84b9d640);}
+.sword-reticle {position:fixed; inset:0 auto auto 0; width:0; height:0; margin:0; padding:0; overflow:visible; border:0; background:none; color:#a9d3e7; pointer-events:none!important; z-index:2147483647; opacity:0; contain:layout style;}
+.sword-reticle.is-visible {opacity:1;}
+.sword-reticle-frame {opacity:.6;position:absolute; left:0;top:0; width:24px;height:24px; transform:translate(-50%,-50%) rotate(-12deg); transition:width .2s,height .2s,transform .2s,color .2s;filter:drop-shadow(0 0 3px #84b9d640);}
 .sword-reticle-frame i {position:absolute; width:5px;height:5px; border:0 solid currentColor;}
 .sword-reticle-frame i:nth-child(1) {left:0;top:0;border-width:1px 0 0 1px;}
 .sword-reticle-frame i:nth-child(2) {right:0;top:0;border-width:1px 1px 0 0;}
 .sword-reticle-frame i:nth-child(3) {right:0;bottom:0;border-width:0 1px 1px 0;}
 .sword-reticle-frame i:nth-child(4) {left:0;bottom:0;border-width:0 0 1px 1px;}
-.sword-reticle.is-visible[data-state="action"] {color:#d2ecf7;opacity:.95;}
+.sword-reticle.is-visible[data-state="action"] {color:#d2ecf7;}
+.sword-reticle[data-state="action"] .sword-reticle-frame {opacity:.95;}
 .sword-reticle[data-state="action"] .sword-reticle-frame {width:38px;height:38px;transform:translate(-50%,-50%) rotate(0deg);}
 .sword-reticle.is-down .sword-reticle-frame {width:18px;height:18px;transform:translate(-50%,-50%) rotate(45deg);}
 .sword-reticle-pulse {position:absolute;left:0;top:0;width:26px;height:26px;border:1px solid #c0dfed;opacity:0;pointer-events:none;}
-@media(prefers-reduced-motion:reduce),(forced-colors:active),(hover:none),(pointer:coarse) {.sword-reticle {display:none!important;}}
-html[data-motion="off"] .sword-reticle {display:none;}
-@media(forced-colors:active) {html.sword-pointer,html.sword-pointer body {cursor:auto;}}
+.sword-tip {position:absolute;left:0;top:0;width:32px;height:36px;pointer-events:none!important;transition:none!important;animation:none!important;}
+.sword-tip img {position:absolute;inset:0;display:block;width:32px;height:36px;max-width:none;pointer-events:none!important;user-select:none;}
+.sword-tip-action {opacity:0;}
+.sword-reticle.has-active-image[data-state="action"] .sword-tip-action {opacity:1;}
+.sword-reticle.has-active-image[data-state="action"] .sword-tip-idle {opacity:0;}
+.sword-reticle-position {position:absolute;left:0;top:0;width:0;height:0;pointer-events:none!important;}
+.sword-reticle:not(.has-reticle) .sword-reticle-position {display:none;}
+@media(prefers-reduced-motion:reduce) {.sword-reticle-position {display:none!important;}}
+html[data-motion="off"] .sword-reticle-position {display:none;}
+@media(forced-colors:active),(hover:none),(pointer:coarse) {.sword-reticle {display:none!important;}}
+@media(forced-colors:active) {html.sword-pointer,html.sword-pointer * {cursor:auto!important;}}

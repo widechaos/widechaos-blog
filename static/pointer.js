@@ -1,4 +1,4 @@
-// The native pointer remains independent of the decorative, eased reticle.
+// The sword uses exact event coordinates; only its surrounding reticle is eased.
 const ACTION = 'a[href],button,summary,[role="button"],input[type="button"],input[type="submit"],input[type="checkbox"],input[type="radio"],select,[data-cursor="action"]';
 const EDITOR = 'textarea,input:not([type]),input:is([type="text"],[type="search"],[type="email"],[type="url"],[type="tel"],[type="password"],[type="number"]),[contenteditable]:not([contenteditable="false"])';
 
@@ -22,16 +22,26 @@ export function mountPointer() {
   const follower = document.createElement('div');
   follower.className = 'sword-reticle';
   follower.setAttribute('aria-hidden','true');
-  follower.innerHTML = '<div class="sword-reticle-frame"><i></i><i></i><i></i><i></i></div><div class="sword-reticle-pulse"></div>';
+  follower.innerHTML = '<div class="sword-tip"><img class="sword-tip-idle" src="/static/pointer-sword.svg?v=2" width="32" height="36" alt="" draggable="false"><img class="sword-tip-action" src="/static/pointer-sword-active.svg?v=2" width="32" height="36" alt="" draggable="false"></div><div class="sword-reticle-position"><div class="sword-reticle-frame"><i></i><i></i><i></i><i></i></div><div class="sword-reticle-pulse"></div></div>';
   if (typeof follower.showPopover === 'function') follower.setAttribute('popover','manual');
   document.body.append(follower);
+  const tip = follower.querySelector('.sword-tip');
+  const idleImage = follower.querySelector('.sword-tip-idle');
+  const activeImage = follower.querySelector('.sword-tip-action');
+  const reticle = follower.querySelector('.sword-reticle-position');
   let x = 0, y = 0, px = 0, py = 0, raf = 0, inside = false, selecting = false, pulse;
-  const moving = () => fine.matches && !reduce.matches && !contrast.matches && root.dataset.motion !== 'off';
-  const hide = () => {follower.classList.remove('is-visible','is-down'); cancelAnimationFrame(raf); raf = 0;};
+  let ready = idleImage.complete && idleImage.naturalWidth > 0;
+  const available = () => ready && fine.matches && !contrast.matches && !document.hidden;
+  const moving = () => available() && !reduce.matches && root.dataset.motion !== 'off';
+  const hide = () => {
+    follower.classList.remove('is-visible','is-down');
+    root.classList.remove('sword-pointer');
+    cancelAnimationFrame(raf); raf = 0;
+  };
   const topLayer = () => {
     if (typeof follower.showPopover === 'function') {
       if (follower.matches(':popover-open')) follower.hidePopover();
-      if (moving() && inside) follower.showPopover();
+      if (available() && inside) follower.showPopover();
     } else {
       const dialogs = [...document.querySelectorAll('dialog[open]')];
       (dialogs.at(-1) || document.body).append(follower);
@@ -39,39 +49,67 @@ export function mountPointer() {
   };
   const frame = () => {
     px += (x-px)*0.3; py += (y-py)*0.3;
-    follower.style.transform = `translate3d(${px}px,${py}px,0)`;
+    reticle.style.transform = `translate3d(${px}px,${py}px,0)`;
     if (Math.abs(x-px)+Math.abs(y-py) > 0.1 && moving() && inside) raf = requestAnimationFrame(frame);
     else raf = 0;
   };
   const mode = (target) => {
     const state = pointerMode(target);
     follower.dataset.state = state;
-    const visible = moving() && inside && !selecting && !['text','disabled','native'].includes(state);
+    const enabled = available() && inside && !selecting;
+    const visible = enabled && !['text','disabled','native'].includes(state);
+    // Exceptions in the stylesheet restore native editing/selection cursors.
+    root.classList.toggle('sword-pointer',enabled);
     follower.classList.toggle('is-visible',visible);
-    if (!visible) {hide(); px=x; py=y;}
+    follower.classList.toggle('has-reticle',moving());
+    if (!visible || !moving()) {
+      follower.classList.remove('is-down');
+      cancelAnimationFrame(raf); raf = 0; px=x; py=y;
+      reticle.style.transform = `translate3d(${x}px,${y}px,0)`;
+    }
     return visible;
   };
-  const sync = () => {
-    root.classList.toggle('sword-pointer',fine.matches && !contrast.matches);
-    if (!moving()) hide();
-    else if (inside) mode(document.elementFromPoint(x,y));
-  };
-  document.addEventListener('pointermove',(event) => {
-    if (event.pointerType !== 'mouse' || !fine.matches) {hide(); return;}
+  const point = (event) => {
     x = event.clientX; y = event.clientY;
-    if (typeof follower.showPopover !== "function") {
-      const host = event.target.closest?.("dialog[open]") || document.body;
+    // Preserve the original 3px/3px tip hotspot, without interpolation or a frame queue.
+    tip.style.transform = `translate3d(${x-3}px,${y-3}px,0)`;
+    if (typeof follower.showPopover !== 'function') {
+      const host = event.target.closest?.('dialog[open]') || document.body;
       if (follower.parentElement !== host) host.append(follower);
     }
-    if (!inside) {inside = true; px=x; py=y; topLayer();}
-    if (mode(event.target) && !raf) raf = requestAnimationFrame(frame);
+    if (!inside) {
+      inside=true; px=x; py=y;
+      reticle.style.transform = `translate3d(${x}px,${y}px,0)`;
+      topLayer();
+    }
+  };
+  const sync = () => {
+    if (!available() || !inside) {hide(); return;}
+    topLayer(); mode(document.elementFromPoint(x,y));
+  };
+  const imageReady = () => {
+    ready = idleImage.naturalWidth > 0;
+    sync();
+  };
+  idleImage.addEventListener('load',imageReady,{signal});
+  idleImage.addEventListener('error',() => {ready=false; hide();},{signal});
+  const activeReady = () => follower.classList.toggle('has-active-image',activeImage.naturalWidth > 0);
+  activeImage.addEventListener('load',activeReady,{signal});
+  activeReady();
+  document.addEventListener('pointermove',(event) => {
+    if (event.pointerType !== 'mouse' || !fine.matches) {inside=false; hide(); return;}
+    point(event);
+    if (mode(event.target) && moving() && !raf) raf = requestAnimationFrame(frame);
   },{signal,passive:true});
-  document.addEventListener('pointerover',(event) => {if(event.pointerType === 'mouse') mode(event.target);},{signal,passive:true});
+  document.addEventListener('pointerover',(event) => {
+    if (event.pointerType !== 'mouse' || !fine.matches) return;
+    point(event); mode(event.target);
+  },{signal,passive:true});
   document.addEventListener('pointerdown',(event) => {
     if (event.pointerType !== 'mouse' || event.button !== 0) return;
-    x=event.clientX; y=event.clientY; inside=true; px=x; py=y; topLayer();
-    follower.style.transform = `translate3d(${x}px,${y}px,0)`;
-    if (!mode(event.target)) return;
+    point(event); px=x; py=y; topLayer();
+    reticle.style.transform = `translate3d(${x}px,${y}px,0)`;
+    if (!mode(event.target) || !moving()) return;
     follower.classList.add('is-down');
     pulse?.cancel();
     pulse = follower.querySelector('.sword-reticle-pulse').animate([
@@ -87,8 +125,9 @@ export function mountPointer() {
   document.addEventListener('selectionchange',() => {
     selecting = !window.getSelection()?.isCollapsed;
     if (selecting) hide();
+    else if (inside) mode(document.elementFromPoint(x,y));
   },{signal});
-  document.addEventListener('keydown',(event) => {if(event.key === 'Tab') hide();},{signal});
+  document.addEventListener('keydown',(event) => {if(event.key === 'Tab') leave();},{signal});
   document.addEventListener('scroll',() => {if(inside) mode(document.elementFromPoint(x,y));},{signal,passive:true,capture:true});
   document.addEventListener('toggle',(event) => {
     if (event.target?.tagName === 'DIALOG') topLayer();
@@ -99,5 +138,5 @@ export function mountPointer() {
   reduce.addEventListener('change',sync,{signal});
   contrast.addEventListener('change',sync,{signal});
   sync();
-  return () => {abort.abort(); observer.disconnect(); hide(); pulse?.cancel(); follower.remove(); root.classList.remove('sword-pointer');};
+  return () => {abort.abort(); observer.disconnect(); hide(); pulse?.cancel(); follower.remove();};
 }
