@@ -8,7 +8,7 @@ export function pointerMode(target) {
   if (target.closest(EDITOR)) return 'text';
   if (target.closest('input[type="range"],input[type="file"],input[type="color"]')) return 'native';
   if (target.closest(ACTION)) return 'action';
-  if (target.closest('p,blockquote,pre,code,.article-body li,figcaption,[data-cursor="text"]')) return 'text';
+  if (target.closest('[data-cursor="text"]')) return 'text';
   return 'idle';
 }
 

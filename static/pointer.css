@@ -1,6 +1,6 @@
 @media(hover:hover) and (pointer:fine) {
  html.sword-pointer,html.sword-pointer * {cursor:none!important;}
- html.sword-pointer :is(p,blockquote,pre,code,.article-body li,figcaption,[data-cursor="text"]), html.sword-pointer :is(p,blockquote,pre,code,.article-body li,figcaption,[data-cursor="text"]) * {cursor:text!important;}
+ html.sword-pointer :is([data-cursor="text"]), html.sword-pointer :is([data-cursor="text"]) * {cursor:text!important;}
  html.sword-pointer :is(a[href],button,summary,[role="button"],input[type="button"],input[type="submit"],input[type="checkbox"],input[type="radio"],select,[data-cursor="action"]), html.sword-pointer :is(a[href],button,summary,[role="button"],input[type="button"],input[type="submit"],input[type="checkbox"],input[type="radio"],select,[data-cursor="action"]) * {cursor:none!important;}
  html.sword-pointer :is(textarea,input:not([type]),input:is([type="text"],[type="search"],[type="email"],[type="url"],[type="tel"],[type="password"],[type="number"]),[contenteditable]:not([contenteditable="false"])), html.sword-pointer :is(textarea,input:not([type]),input:is([type="text"],[type="search"],[type="email"],[type="url"],[type="tel"],[type="password"],[type="number"]),[contenteditable]:not([contenteditable="false"])) * {cursor:text!important;}
  html.sword-pointer.sword-pointer :is(:disabled,[aria-disabled="true"],[inert]), html.sword-pointer.sword-pointer :is(:disabled,[aria-disabled="true"],[inert]) * {cursor:not-allowed!important;}

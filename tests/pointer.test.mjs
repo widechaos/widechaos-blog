@@ -45,6 +45,9 @@ test('sword moves immediately, reticle eases separately, native editing and fail
     assert.equal(reticle.style.transform,'translate3d(100px,200px,0)');
     const [id,frame]=frames.entries().next().value;frames.delete(id);frame();
     assert.equal(reticle.style.transform,'translate3d(130px,215px,0)','only the outer reticle interpolates');
+    emit('pointerover',205,250,target('text'));
+    assert.equal(follower.dataset.state,'idle','plain text and labels keep the sword until selecting');
+    assert.equal(follower.classList.contains('is-visible'),true);
     emit('pointerover',210,250,target('input'));
     assert.equal(follower.dataset.state,'text');assert.equal(follower.classList.contains('is-visible'),false);
     emit('pointermove',240,260,target('action'));
