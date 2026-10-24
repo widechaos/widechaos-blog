@@ -7,7 +7,7 @@ from urllib.error import HTTPError
 
 MODULES={'__init__.py','content_service.py','site_catalog.py','ssr.py','production_adapter.py'}
 
-PUBLIC_ROOT={'app.js','content-model.js','style.css','content-layout.css','hero-art.js','project-demos.js','project-demos.css','avatar.png','city-art.png','og-card.jpg','mark.svg','x-sword.svg','collection.js','collection.css','pointer.js','pointer.css','pointer-sword.svg','pointer-sword-active.svg','radar.css'}
+PUBLIC_ROOT={'analytics.js','app.js','content-model.js','style.css','content-layout.css','hero-art.js','project-demos.js','project-demos.css','avatar.png','city-art.png','og-card.jpg','mark.svg','x-sword.svg','collection.js','collection.css','pointer.js','pointer.css','pointer-sword.svg','pointer-sword-active.svg','radar.css'}
 
 def allowed(name):
  p=Path(name)

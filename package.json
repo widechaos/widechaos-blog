@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "preview": "python3 serve.py",
-    "check": "node --check static/app.js && node --check static/hero-art.js && node --check static/project-demos.js && node --check static/content-model.js && node --check static/collection.js && node --check static/pointer.js",
+    "check": "node --check static/app.js && node --check static/hero-art.js && node --check static/project-demos.js && node --check static/content-model.js && node --check static/collection.js && node --check static/pointer.js && node --check static/analytics.js",
     "validate": "node scripts/validate-content.mjs",
     "test": "node --test tests/*.test.mjs"
   }

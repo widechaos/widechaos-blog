@@ -1,3 +1,4 @@
+import { createAnalytics } from "./analytics.js";
 import { mountPointer } from "./pointer.js";
 import { collectionCard, mountCollection } from "./collection.js";
 import { demoMarkup, mountDemos } from "./project-demos.js";
@@ -48,6 +49,7 @@ let motion =
   localStorage.getItem("wc-site-motion") || (reduced.matches ? "off" : "on");
 document.documentElement.dataset.motion = motion;
 mountPointer();
+const analytics = createAnalytics();
 const t = (zh, en) => (lang === "zh" ? zh : en);
 const tags = () =>
   t(
@@ -548,6 +550,7 @@ function render(scroll = true) {
   document.title =
     (h?.textContent.replace("✳", "").trim() || "十方空烬") + " · Ember";
   updatePageMetadata(path, routeArticle);
+  analytics.page(data.articles, lang);
   const badgeImages = Array.from(document.querySelectorAll("#collection img"));
   const retryBadge = (event) => retryCollectionImage(event.currentTarget);
   badgeImages.forEach((image) => {
