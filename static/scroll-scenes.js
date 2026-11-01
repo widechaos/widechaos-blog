@@ -33,8 +33,11 @@ export function mountScrollScenes(root) {
     groups.forEach((group, g) => group.cards.forEach((card, index) => {
       const next = layouts[g][index + 1];
       const progress = next ? clamp((height - 24 - next.top) / Math.max(240, height - 120)) : 0;
+      // A section taller than the room under the header can never be pinned and read whole; it scrolls instead.
+      const tall = layouts[g][index].height > height - 96;
+      if (tall !== card.hasAttribute('data-scene-tall')) card.toggleAttribute('data-scene-tall', tall);
       card.style.setProperty('--scene-cover', progress.toFixed(4));
-      card.style.setProperty('--scene-top', `${Math.min(96, height - layouts[g][index].height - 24)}px`);
+      card.style.setProperty('--scene-top', '96px');
       card.style.setProperty('--scene-order', index + 1);
     }));
     if (rows.length && !work.querySelector('.work-preview')?.contains(document.activeElement)) {
@@ -50,6 +53,7 @@ export function mountScrollScenes(root) {
   function clearCards() {
     groups.forEach(group => group.cards.forEach(card => {
       card.style.removeProperty('--scene-cover'); card.style.removeProperty('--scene-top'); card.style.removeProperty('--scene-order');
+      card.removeAttribute('data-scene-tall');
     }));
   }
   function configure() {
