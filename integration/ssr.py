@@ -6,10 +6,26 @@ E=lambda x:html.escape(str(x),quote=True)
 
 def render(root,path,data,lang='zh'):
  page=Path(root,'index.html').read_text();title='十方空烬 · Ember';summary='Build. Break. Rebuild.';canonical='https://widechaos.cn'+path;alternates='';status=200
- nav='<nav aria-label="主导航">'+''.join(f'<a href="{u}">{t}</a> ' for u,t in [('/','十方空烬'),('/projects','项目'),('/blog','十方志'),('/radar','开源雷达'),('/tools','工具'),('/about','关于')])+'</nav>'
+ nav='<nav aria-label="主导航">'+''.join(f'<a href="{u}">{t}</a> ' for u,t in [('/','十方空烬'),('/projects','项目'),('/blog','十方志'),('/radar','开源雷达'),('/tools','工具'),('/about','关于'),('/docs/tianshu','文档')])+'</nav>'
  def listing(items,kind):
   return ''.join(f'<section><h2><a href="{E("/blog/"+i["id"] if kind=="article" else "/projects/"+i["id"])}">{E(i["title"])}</a></h2><p>{E(i.get("summary") or i.get(lang) or "")}</p></section>' for i in items)
- if path.startswith('/blog/'):
+ if path=='/docs/tianshu' or path.startswith('/docs/tianshu/'):
+  source=Path(root)/'static'/'tianshu-manual.js'
+  if not source.exists():source=Path(root).parent/'static'/'tianshu-manual.js'
+  manual=json.loads(source.read_text().removeprefix('export const TIANSHU_MANUAL = ').strip().removesuffix(';'))
+  slug=path.split('/')[3] if len(path.split('/'))>3 else ''
+  pages=manual['pages'];entry=next((p for p in pages if p['slug']==slug),None)
+  title=(entry['title'] if entry else '天枢使用文档')+' · 十方空烬';summary=entry['summary'] if entry else '从第一次打开，到项目协作、阅读批注和知识整理。'
+  links=''.join('<a href="/docs/tianshu/'+E(p['slug'])+'"'+(' aria-current="page"' if p==entry else '')+'>'+E(p['title'])+'</a>' for p in pages)
+  notice='<p class="manual-language" lang="en">This detailed guide is currently available in Chinese. Screenshots show the desktop app with sample data.</p>' if lang=='en' else ''
+  content='<header><p class="eyebrow">TIANSHU / USER GUIDE</p><h1>'+E(entry['title'] if entry else '天枢使用文档')+'</h1><p class="manual-lead">'+E(summary)+'</p><small>界面核对：'+manual['updated']+' · 桌面版</small></header>'
+  if entry:
+   content+='<nav class="manual-contents" aria-label="本页目录">'+''.join('<a href="#part-'+str(i+1)+'">'+E(h)+'</a>' for i,h in enumerate(entry['headings']))+'</nav><article lang="zh-CN">'+entry['html']+'</article>'
+   index=pages.index(entry);content+='<nav class="manual-paging" aria-label="文档翻页">'+(' <a href="/docs/tianshu/'+E(pages[index-1]['slug'])+'">← '+E(pages[index-1]['title'])+'</a>' if index else '<span></span>')+('<a href="/docs/tianshu/'+E(pages[index+1]['slug'])+'">'+E(pages[index+1]['title'])+' →</a>' if index+1<len(pages) else '<a href="/docs/tianshu">返回文档首页</a>')+'</nav>'
+  elif slug:status=404;content='<h1>没有这篇使用文档</h1><a href="/docs/tianshu">返回文档首页</a>'
+  else:content+='<div class="manual-cards">'+''.join('<a href="/docs/tianshu/'+E(p['slug'])+'"><h2>'+E(p['title'])+'</h2><p>'+E(p['summary'])+'</p></a>' for p in pages)+'</div>'
+  main='<div class="page-wrap manual-page"><a class="back-link" href="/docs/tianshu">← 天枢使用文档</a>'+notice+'<div class="manual-layout"><aside><details open><summary>全部章节</summary><nav aria-label="天枢文档章节"><a href="/docs/tianshu">文档首页</a>'+links+'</nav></details></aside><div class="manual-main">'+content+'</div></div></div>'
+ elif path.startswith('/blog/'):
   article=next((a for a in data['articles'] if path=='/blog/'+a['id']),None)
   if article:
    lang=article['lang'];title=article['title'];summary=article['summary'];canonical=article['url']
