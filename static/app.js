@@ -1,3 +1,4 @@
+import { manualPage, mountManual } from './manual-view.js';
 import { ABOUT_COPY } from "./about-copy.js";
 import { createAnalytics } from "./analytics.js";
 import { mountScrollScenes } from "./scroll-scenes.js";
@@ -164,6 +165,7 @@ function header() {
       ["/radar", "开源雷达", "Radar"],
       ["/tools", "工具", "Tools"],
       ["/about", "关于", "About"],
+      ["/docs/tianshu", "文档", "Docs"],
     ]
       .map(
         ([p, z, e]) =>
@@ -173,7 +175,7 @@ function header() {
         "",
       )}</nav><div class="header-actions"><button id="search-open" class="search-icon" aria-label="${t("搜索", "Search")}"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="m15 15 6 6"/></svg></button><button id="language" aria-label="${t("Switch to English", "切换到中文")}">${t("English", "中文")}</button><button id="motion" class="motion" aria-pressed="${motion === "on"}" aria-label="${t("动态效果", "Motion effects")}"><i></i><span>${t("动态", "Motion")}</span></button></div>`;
   $("#footer").innerHTML =
-    `<div class="footer-top"><a class="footer-name" href="/">WIDECHAOS<span>↗</span></a><p>Per aspera ad astra.</p></div><div class="footer-links"><span>十方空烬 · Ember</span><div>${link("/projects", t("项目", "Projects"))}${link("/blog", t("十方志", "Journal"))}${link("/radar", t("开源雷达", "Radar"))}${link("/tools", t("工具", "Tools"))}${link("/now", t("现在", "Now"))}${rssLink("RSS ↗")}</div><div class="footer-profiles">${PROFILES.map(([name, , url]) => `<a href="${esc(url)}" target="_blank" rel="noopener" aria-label="${name}" title="${name}">${profileIcon(name)}</a>`).join("")}</div><button data-top>${t("返回顶部 ↑", "Back to top ↑")}</button></div>`;
+    `<div class="footer-top"><a class="footer-name" href="/">WIDECHAOS<span>↗</span></a><p>Per aspera ad astra.</p></div><div class="footer-links"><span>十方空烬 · Ember</span><div>${link("/projects", t("项目", "Projects"))}${link("/blog", t("十方志", "Journal"))}${link("/radar", t("开源雷达", "Radar"))}${link("/tools", t("工具", "Tools"))}${link("/now", t("现在", "Now"))}${link("/docs/tianshu", t("天枢文档", "Tianshu guide"))}${rssLink("RSS ↗")}</div><div class="footer-profiles">${PROFILES.map(([name, , url]) => `<a href="${esc(url)}" target="_blank" rel="noopener" aria-label="${name}" title="${name}">${profileIcon(name)}</a>`).join("")}</div><button data-top>${t("返回顶部 ↑", "Back to top ↑")}</button></div>`;
   $("#language").onclick = () => {
     lang = lang === "zh" ? "en" : "zh";
     localStorage.setItem("wc-site-lang", lang);
@@ -251,7 +253,7 @@ function projectDetail(id) {
   const next =
     data.projects[(data.projects.indexOf(p) + 1) % data.projects.length];
   const related = articleForProject(data.articles, p, lang);
-  return `<div class="page-wrap project-detail"><a class="back-link" href="/projects">← ${t("全部项目", "All projects")}</a><header class="project-heading"><p class="eyebrow">${esc(p.tag)}</p><h1>${esc(p.title)}</h1><p>${esc(desc(p))}</p></header><div class="project-reveal" data-project-reveal><div class="detail-visual">${visual}</div><div class="detail-panels"><div class="project-body"><div><h2>${t("源码与资料", "Source & resources")}</h2><p class="activity-line" data-activity="${esc(p.url)}">${t("正在读取最近更新…", "Checking latest activity…")}</p></div><div class="resource-links">${link(p.url, sourceLabel(p.url) + " " + arrow, "resource")}${id === "router" ? link("https://huggingface.co/datasets/WideChaos/bilingual-router-lora-v2", t("合成数据集", "Synthetic dataset") + " " + arrow, "resource") + link("https://www.kaggle.com/code/xover2022/bilingual-router-lora-v2-frozen-output-check", t("复现与核对", "Reproduction & checks") + " " + arrow, "resource") : ""}${id === "navigator" ? link("https://greasyfork.org/zh-CN/scripts/560039-deepseek-chat-navigator", t("安装脚本", "Install userscript") + " " + arrow, "resource") : ""}</div></div></div></div>${related ? `<a class="related-article project-related" href="/blog/${related.id}"><span>${t("相关文字", "Related writing")}</span><h2>${esc(related.title)}</h2>${arrow}</a>` : ""}${data.projects.length > 1 ? `<a class="next-project" href="/projects/${next.id}"><span>${t("下一件项目", "Next project")}</span><h2>${esc(next.title)}</h2>${arrow}</a>` : ""}</div>`;
+  return `<div class="page-wrap project-detail"><a class="back-link" href="/projects">← ${t("全部项目", "All projects")}</a><header class="project-heading"><p class="eyebrow">${esc(p.tag)}</p><h1>${esc(p.title)}</h1><p>${esc(desc(p))}</p></header><div class="project-reveal" data-project-reveal><div class="detail-visual">${visual}</div><div class="detail-panels"><div class="project-body"><div><h2>${t("源码与资料", "Source & resources")}</h2><p class="activity-line" data-activity="${esc(p.url)}">${t("正在读取最近更新…", "Checking latest activity…")}</p></div><div class="resource-links">${link(p.url, sourceLabel(p.url) + " " + arrow, "resource")}${/天枢|tianshu/i.test(p.title + " " + p.id) ? link("/docs/tianshu", t("使用文档", "User guide") + " " + arrow, "resource") : ""}${id === "router" ? link("https://huggingface.co/datasets/WideChaos/bilingual-router-lora-v2", t("合成数据集", "Synthetic dataset") + " " + arrow, "resource") + link("https://www.kaggle.com/code/xover2022/bilingual-router-lora-v2-frozen-output-check", t("复现与核对", "Reproduction & checks") + " " + arrow, "resource") : ""}${id === "navigator" ? link("https://greasyfork.org/zh-CN/scripts/560039-deepseek-chat-navigator", t("安装脚本", "Install userscript") + " " + arrow, "resource") : ""}</div></div></div></div>${related ? `<a class="related-article project-related" href="/blog/${related.id}"><span>${t("相关文字", "Related writing")}</span><h2>${esc(related.title)}</h2>${arrow}</a>` : ""}${data.projects.length > 1 ? `<a class="next-project" href="/projects/${next.id}"><span>${t("下一件项目", "Next project")}</span><h2>${esc(next.title)}</h2>${arrow}</a>` : ""}</div>`;
 }
 function sourceLabel(url) {
   if (repoOf(url)) return t("GitHub 源码", "Source on GitHub");
@@ -599,7 +601,9 @@ function render(scroll = true) {
   document.body.dataset.page = path === "/" ? "home" : path.split("/")[1];
   header();
   let html =
-    path === "/"
+    path === "/docs/tianshu" || path.startsWith("/docs/tianshu/")
+      ? manualPage(path, lang)
+      : path === "/"
       ? home()
       : path === "/projects"
         ? projects()
@@ -622,7 +626,7 @@ function render(scroll = true) {
   bindRadar();
   const h = $("#main h1")?.cloneNode(true);
   h?.querySelectorAll('[aria-hidden="true"]').forEach(node => node.remove());
-  document.title =
+  document.title = path.startsWith("/docs/tianshu") ? ((document.querySelector(".manual-main h1")?.textContent || "天枢使用文档") + " · 十方空烬") :
     (h?.textContent.replace("✳", "").trim() || "十方空烬") + " · Ember";
   updatePageMetadata(path, routeArticle);
   analytics.page(data.articles, lang);
@@ -632,6 +636,7 @@ function render(scroll = true) {
     image.addEventListener("error", retryBadge);
     if (image.complete && !image.naturalWidth) retryCollectionImage(image);
   });
+  const manualCleanup = mountManual($("#main"));
   const scrollSceneCleanup = mountScrollScenes($("#main"));
   const readingCleanup = mountReadingDock($("#main"));
   const collectionCleanup = mountCollection($("#main"), lang);
@@ -650,6 +655,7 @@ function render(scroll = true) {
   );
   document.querySelectorAll(".reveal").forEach((e) => observer.observe(e));
   cleanup = () => {
+    manualCleanup();
     scrollSceneCleanup();
     readingCleanup();
     collectionCleanup();

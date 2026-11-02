@@ -7,7 +7,7 @@ from urllib.error import HTTPError
 
 MODULES={'__init__.py','content_service.py','site_catalog.py','ssr.py','production_adapter.py'}
 
-PUBLIC_ROOT={'about-copy.js','analytics.js','app.js','content-model.js','style.css','content-layout.css','hero-art.js','project-demos.js','project-demos.css','avatar.png','city-art.png','og-card.jpg','mark.svg','x-sword.svg','collection.js','collection.css','pointer.js','pointer.css','pointer-sword.svg','pointer-sword-active.svg','radar.css','article-peek.js','article-peek.css','scroll-scenes.js'}
+PUBLIC_ROOT={'manual.css','manual-view.js','tianshu-manual.js','about-copy.js','analytics.js','app.js','content-model.js','style.css','content-layout.css','hero-art.js','project-demos.js','project-demos.css','avatar.png','city-art.png','og-card.jpg','mark.svg','x-sword.svg','collection.js','collection.css','pointer.js','pointer.css','pointer-sword.svg','pointer-sword-active.svg','radar.css','article-peek.js','article-peek.css','scroll-scenes.js'}
 
 def allowed(name):
  p=Path(name)
@@ -17,6 +17,7 @@ def allowed(name):
  if p.parent==Path('app/static'):return p.name in PUBLIC_ROOT
  if p.parent==Path('app/static/vendor'):return p.name in {'three.module.js','three.core.js','LICENSE.three.txt'}
  if p.parent==Path('app/static/fonts'):return bool(re.fullmatch(r'[a-z0-9-]+\.woff2',p.name))
+ if p.parent==Path('app/static/assets/tianshu'):return bool(re.fullmatch(r'[a-z0-9-]+\.png',p.name))
  return p.parent==Path('app/static/assets/collection') and bool(re.fullmatch(r'[a-f0-9]{20}-light\.svg',p.name))
 
 def unpack(body,root=None):

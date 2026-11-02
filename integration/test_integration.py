@@ -92,7 +92,7 @@ class IntegrationTests(unittest.TestCase):
   c=TestClient(app,follow_redirects=False)
   response=c.get('/radar');self.assertEqual(response.status_code,200)
   self.assertNotIn('location',response.headers)
-  self.assertEqual(host_auth.SITE_SCOPES['www'],original['www']+['/radar'])
+  self.assertEqual(host_auth.SITE_SCOPES['www'],original['www']+['/radar','/docs/tianshu'])
   self.assertEqual(host_auth.SITE_SCOPES['task'],original['task'])
   self.assertEqual(host_auth.SITE_SCOPES['quant'],original['quant'])
   self.assertEqual(c.get('/lifehub').status_code,307)

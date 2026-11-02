@@ -19,8 +19,8 @@ def install(app, *, root, catalog_path, blog_dir, native_renderer=None):
  # Register this public page with the host's existing site partition.
  # Private scopes and credential checks remain owned by the host.
  scopes=getattr(sys.modules.get('app.services.auth'),'SITE_SCOPES',None)
- if isinstance(scopes,dict) and 'www' in scopes and '/radar' not in scopes['www']:
-  scopes['www']=[*scopes['www'],'/radar']
+ if isinstance(scopes,dict) and 'www' in scopes:
+  scopes['www']=[*scopes['www'],*[p for p in ('/radar','/docs/tianshu') if p not in scopes['www']]]
  # The host blog module owns the section labels; reuse them instead of copying.
  host=sys.modules.get(getattr(native_renderer,'__module__',''),None)
  # English tag names live with the tag vocabulary in the content engine.
@@ -34,14 +34,19 @@ def install(app, *, root, catalog_path, blog_dir, native_renderer=None):
  def page_endpoint(path):
   async def endpoint(request:Request):
    actual=path.format(**request.path_params)
-   try:page,status=render(root,actual,service.bundle(),request.query_params.get('lang','zh'))
+   try:
+    try:data=service.bundle()
+    except Exception:
+     if actual!='/docs/tianshu' and not actual.startswith('/docs/tianshu/'):raise
+     data={'articles':[],'projects':[],'collection':[]}
+    page,status=render(root,actual,data,request.query_params.get('lang','zh'))
    except Exception:return HTMLResponse('Public content temporarily unavailable',503,headers={'Cache-Control':'no-store'})
    return HTMLResponse(page,status,headers={'Cache-Control':'no-cache'})
   return endpoint
  # Exact JSON path must precede the existing /static mount. It is already public
  # in the existing www scope; do not add a broad /api authentication exception.
  app.router.routes.insert(0,APIRoute('/static/content.json',content,methods=['GET','HEAD']))
- replacements={'/','/blog','/radar','/blog/{slug}','/projects','/projects/{slug}','/tools','/about','/now'}
+ replacements={'/docs/tianshu','/docs/tianshu/{slug}', '/','/blog','/radar','/blog/{slug}','/projects','/projects/{slug}','/tools','/about','/now'}
  app.router.routes[:]=[r for r in app.router.routes if getattr(r,'path',None) not in replacements]
  # Keep legacy RSS/category/tag routes and their handlers in their original order.
  # These precede the generic article route, and authentication remains untouched.
