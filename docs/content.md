@@ -74,7 +74,7 @@ python3 integration/preview_server.py --catalog /private/path/catalog.json --blo
 
 ## 天枢使用文档
 
-`/docs/tianshu` 及其章节由 `static/tianshu-manual.js` 中唯一的公开内容对象提供，浏览器和 SSR 共用；不写入博客或实时目录。客户端 `manual-view.js` 提供章节导航、全文关键词搜索、翻页与截图大图入口，`manual.css` 沿用站点视觉。全部章节提供中英文正文，目录、搜索、图注和翻页随全局语言切换；显式语言链接优先于本机偏好，无脚本直达也呈现对应正文。对外英文名为 Shuvia，中文保留天枢，既有 `/docs/tianshu` 链接保持兼容。截图仅使用隔离示例数据，放 `static/assets/tianshu/`，不用真实账号、密钥或私有项目截图。
+`/docs/tianshu` 及其章节由 `static/tianshu-manual.js` 中唯一的公开内容对象提供，浏览器和 SSR 共用；不写入博客或实时目录。客户端 `manual-view.js` 提供章节导航、全文关键词搜索、翻页与截图大图入口，`manual.css` 沿用站点视觉。全部章节提供中英文正文，目录、搜索、图注和翻页随全局语言切换；显式语言链接优先于本机偏好，无脚本直达也呈现对应正文。对外英文名为 Shuvia，中文保留天枢，既有 `/docs/tianshu` 链接保持兼容。截图仅使用真实应用和隔离示例数据，中文在 `static/assets/tianshu/`、英文在 `static/assets/tianshu/en/`；各语言的正文与大图都指向对应界面。不用真实账号、密钥或私有项目截图，也不修改截图中的文字伪造语言界面。
 
 更新截图时，正文中的图片与大图链接须带同一图片 SHA256 前12位的 `?v=` 版本，避免沿用旧品牌的缓存；对应检查在 `tests/manual.test.mjs`。
 
