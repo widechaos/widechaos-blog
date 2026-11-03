@@ -54,6 +54,11 @@ class ReleaseSafety(unittest.TestCase):
  def test_new_public_assets_are_allowed(self):
   for name in ('app/static/about-copy.js','app/static/og-card.jpg','app/static/fonts/poem-mashanzheng.woff2','app/static/collection.js','app/static/collection.css','app/static/pointer.js','app/static/pointer.css','app/static/pointer-sword.svg','app/static/pointer-sword-active.svg','app/static/radar.css','app/static/article-peek.js','app/static/article-peek.css','app/static/scroll-scenes.js'):self.assertTrue(allowed(name),name)
   for name in ('app/static/fonts/../main.py','app/static/fonts/private.js'):self.assertFalse(allowed(name),name)
+ def test_localized_manual_assets_keep_the_release_boundary(self):
+  self.assertTrue(allowed('app/static/assets/tianshu/en/onboarding.png'))
+  self.assertTrue(allowed('app/static/assets/tianshu/onboarding.png'))
+  for name in ('app/static/assets/tianshu/en/private.js','app/static/assets/tianshu/en/nested/source.png','app/static/assets/tianshu/fr/source.png','app/static/assets/tianshu/en/../secret.png','app/static/assets/private/source.png'):
+   self.assertFalse(allowed(name),name)
  def test_delta_release_reads_unchanged_files_from_host(self):
   sys.path.insert(0,str(ROOT/'scripts'));from build_release import release_bytes
   import gzip
