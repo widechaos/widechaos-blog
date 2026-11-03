@@ -1,5 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import { TIANSHU_MANUAL } from '../static/tianshu-manual.js';
 import { manualPage, manualPages } from '../static/manual-view.js';
 const tags = (html, tag) => [...html.matchAll(new RegExp(`<${tag}\\b`, 'g'))].length;
@@ -18,6 +20,7 @@ test('every chapter has complete English instructions and preserves its structur
       const content=lang==='en' ? p.en : p;
       const rendered=manualPage('/docs/tianshu/'+p.slug,lang);
       assert.ok(rendered.includes(content.title));
+      assert.ok(rendered.includes(lang === 'en' ? 'SHUVIA / USER GUIDE' : '天枢 / 使用文档'));
       assert.ok(rendered.includes('aria-current="page"'));
       for (const heading of content.headings) assert.ok(rendered.includes(heading));
       for (const m of rendered.matchAll(/href="#([^"]+)"/g)) assert.ok(rendered.includes(`id="${m[1]}"`),`${p.slug}: ${m[1]}`);
@@ -31,6 +34,8 @@ test('every chapter has complete English instructions and preserves its structur
 });
 test('English guide home, search and missing pages are English',()=>{
   assert.equal(TIANSHU_MANUAL.product, '天枢 Shuvia');
+  assert.ok(manualPage('/docs/tianshu','zh').includes('天枢 / 使用文档'));
+  assert.ok(!manualPage('/docs/tianshu','zh').includes('SHUVIA / USER GUIDE'));
   const home=manualPage('/docs/tianshu','en');
   for(const text of ['Shuvia user guide','All chapters','Guide home','Find a feature or action','Search','Read →','Chinese interface']) assert.ok(home.includes(text));
   assert.doesNotMatch(home,/currently available in Chinese|[\u3400-\u9fff]/);
@@ -39,4 +44,20 @@ test('English guide home, search and missing pages are English',()=>{
   assert.ok(manualPages('en').filter(p=>(p.title+p.summary+p.html).toLowerCase().includes('archive')).some(p=>p.slug==='projects'));
   assert.match(manualPages('en').find(p=>p.slug==='models').html,/provider.*charges|charges.*provider/i);
   assert.match(manualPages('en').find(p=>p.slug==='tutorial').html,/model provider may process/);
+});
+
+test('guide image links use the current screenshot bytes in both languages', () => {
+  const images = new Set();
+  for (const page of TIANSHU_MANUAL.pages) {
+    for (const content of [page, page.en]) {
+      for (const match of content.html.matchAll(/(?:src|href)="(\/static\/assets\/tianshu\/[a-z-]+\.png[^"]*)"/g)) {
+        const url = new URL(match[1], 'https://widechaos.cn');
+        const bytes = readFileSync(new URL('..' + url.pathname, import.meta.url));
+        const digest = createHash('sha256').update(bytes).digest('hex').slice(0, 12);
+        assert.equal(url.searchParams.get('v'), digest, `${page.slug}: ${url.pathname}`);
+        images.add(url.pathname);
+      }
+    }
+  }
+  assert.equal(images.size, 10);
 });
