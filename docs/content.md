@@ -74,6 +74,6 @@ python3 integration/preview_server.py --catalog /private/path/catalog.json --blo
 
 ## 天枢使用文档
 
-`/docs/tianshu` 及其章节由 `static/tianshu-manual.js` 中唯一的公开内容对象提供，浏览器和 SSR 共用；不写入博客或实时目录。客户端 `manual-view.js` 提供章节导航、全文关键词搜索、翻页与截图大图入口，`manual.css` 沿用站点视觉。当前详细文档为中文，全站切换英文时明确提示语言范围。截图仅使用隔离示例数据，放 `static/assets/tianshu/`，不用真实账号、密钥或私有项目截图。
+`/docs/tianshu` 及其章节由 `static/tianshu-manual.js` 中唯一的公开内容对象提供，浏览器和 SSR 共用；不写入博客或实时目录。客户端 `manual-view.js` 提供章节导航、全文关键词搜索、翻页与截图大图入口，`manual.css` 沿用站点视觉。全部章节提供中英文正文，目录、搜索、图注和翻页随全局语言切换；显式语言链接优先于本机偏好，无脚本直达也呈现对应正文。对外英文名为 Shuvia，中文保留天枢，既有 `/docs/tianshu` 链接保持兼容。截图仅使用隔离示例数据，放 `static/assets/tianshu/`，不用真实账号、密钥或私有项目截图。
 
 应用右上帮助直达此目录；网站页脚与天枢项目资源区也有入口。维护时按应用实际主线核对所有章节，再更新核对日期和相关截图；不要把二期规划写成现成功能。新增章节应使用固定 slug，并保持应用引导的深链接可用。

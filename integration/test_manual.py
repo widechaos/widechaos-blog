@@ -26,6 +26,7 @@ class ManualTests(unittest.TestCase):
    self.assertEqual(status,200)
    self.assertIn('All chapters',body)
    self.assertNotIn('currently available in Chinese',body)
+   self.assertNotIn('Tianshu',body)
    main=body.split('<main id="main" tabindex="-1">')[1].split('</main>')[0]
    self.assertIsNone(re.search(r'[\u3400-\u9fff]',main),slug)
    self.assertIn('https://widechaos.cn'+path+'?lang=en',body)
