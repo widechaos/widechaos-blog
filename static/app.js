@@ -179,6 +179,11 @@ function header() {
   $("#language").onclick = () => {
     lang = lang === "zh" ? "en" : "zh";
     localStorage.setItem("wc-site-lang", lang);
+    if (location.pathname === "/docs/tianshu" || location.pathname.startsWith("/docs/tianshu/")) {
+      const url = new URL(location.href);
+      url.searchParams.set("lang", lang);
+      history.replaceState({}, "", url);
+    }
     const article = data.articles.find(
       (a) => location.pathname.replace(/\/$/, "") === "/blog/" + a.id,
     );
@@ -585,6 +590,13 @@ function render(scroll = true) {
     if (!articleSet().some((a) => a.series === journalSeries)) journalSeries = "";
     journalPage = Math.max(1, parseInt(params.get("page"), 10) || 1);
   }
+  if (path === "/docs/tianshu" || path.startsWith("/docs/tianshu/")) {
+    const requestedLanguage = new URLSearchParams(location.search).get("lang");
+    if (requestedLanguage === "en" || requestedLanguage === "zh") {
+      lang = requestedLanguage;
+      localStorage.setItem("wc-site-lang", lang);
+    }
+  }
   const routeArticle = data.articles.find((a) => path === "/blog/" + a.id);
   if (
     routeArticle &&
@@ -626,7 +638,7 @@ function render(scroll = true) {
   bindRadar();
   const h = $("#main h1")?.cloneNode(true);
   h?.querySelectorAll('[aria-hidden="true"]').forEach(node => node.remove());
-  document.title = path.startsWith("/docs/tianshu") ? ((document.querySelector(".manual-main h1")?.textContent || "天枢使用文档") + " · 十方空烬") :
+  document.title = path.startsWith("/docs/tianshu") ? ((document.querySelector(".manual-main h1")?.textContent || t("天枢使用文档", "Tianshu user guide")) + t(" · 十方空烬", " · Ember")) :
     (h?.textContent.replace("✳", "").trim() || "十方空烬") + " · Ember";
   updatePageMetadata(path, routeArticle);
   analytics.page(data.articles, lang);
@@ -741,7 +753,8 @@ function bindCopy(root) {
   });
 }
 function updatePageMetadata(path, article) {
-  const canonical = article?.url || "https://widechaos.cn" + (path === "/" ? "/" : path);
+  const isManual = path === "/docs/tianshu" || path.startsWith("/docs/tianshu/");
+  const canonical = article?.url || "https://widechaos.cn" + (path === "/" ? "/" : path) + (isManual ? "?lang=" + lang : "");
   let canonicalLink = document.head.querySelector('link[rel="canonical"]');
   if (!canonicalLink) { canonicalLink = document.createElement("link"); canonicalLink.rel = "canonical"; document.head.append(canonicalLink); }
   canonicalLink.href = canonical;
@@ -753,7 +766,15 @@ function updatePageMetadata(path, article) {
       const link = document.createElement("link"); link.rel = "alternate"; link.hreflang = language === "zh" ? "zh-CN" : "en"; link.href = version.url; document.head.append(link);
     }
   }
-  const description = article ? summary(article) : t("十方空烬 · Ember。项目、文字与持续的探索。", "Ember · 十方空烬. Projects, writing and ongoing exploration.");
+  if (isManual) {
+    for (const language of ["zh", "en"]) {
+      const alternate = document.createElement("link");
+      alternate.rel = "alternate"; alternate.hreflang = language;
+      alternate.href = "https://widechaos.cn" + path + "?lang=" + language;
+      document.head.append(alternate);
+    }
+  }
+  const description = isManual ? (document.querySelector(".manual-lead")?.textContent || document.querySelector(".manual-main h1")?.textContent) : article ? summary(article) : t("十方空烬 · Ember。项目、文字与持续的探索。", "Ember · 十方空烬. Projects, writing and ongoing exploration.");
   for (const [key, value] of [["description", description], ["og:title", document.title], ["og:description", description], ["og:url", canonical]]) {
     const attribute = key.startsWith("og:") ? "property" : "name";
     let meta = document.head.querySelector(`meta[${attribute}="${key}"]`);
