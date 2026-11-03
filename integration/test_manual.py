@@ -13,6 +13,8 @@ class ManualTests(unittest.TestCase):
    body,status=render(ROOT,'/docs/tianshu/'+p['slug'],data)
    self.assertEqual(status,200)
    self.assertIn(p['title'],body)
+   self.assertIn('天枢 / 使用文档',body)
+   self.assertNotIn('SHUVIA / USER GUIDE',body)
    self.assertIn(re.sub(r'href="/docs/tianshu/([a-z-]+)"',r'href="/docs/tianshu/\1?lang=zh"',p['html']),body)
    self.assertIn(p['headings'][0],body)
    self.assertIn('https://widechaos.cn/docs/tianshu/'+p['slug'],body)
@@ -25,6 +27,7 @@ class ManualTests(unittest.TestCase):
    body,status=render(ROOT,path,data,'en')
    self.assertEqual(status,200)
    self.assertIn('All chapters',body)
+   self.assertIn('SHUVIA / USER GUIDE',body)
    self.assertNotIn('currently available in Chinese',body)
    self.assertNotIn('Tianshu',body)
    main=body.split('<main id="main" tabindex="-1">')[1].split('</main>')[0]

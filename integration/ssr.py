@@ -28,7 +28,7 @@ def render(root,path,data,lang='zh'):
   nav='<nav aria-label="'+t('主导航','Main navigation')+'">'+''.join('<a href="'+u+'">'+t(zh,en)+'</a> ' for u,zh,en in [('/','十方空烬','Home'),('/projects','项目','Projects'),('/blog','十方志','Journal'),('/radar','开源雷达','Radar'),('/tools','工具','Tools'),('/about','关于','About'),(href(),'文档','Docs')])+'</nav>'
   links=''.join('<a href="'+href(p['slug'])+'"'+(' aria-current="page"' if p==entry else '')+'>'+E(p['title'])+'</a>' for p in pages)
   notice='<p class="manual-language" lang="en">Screenshots show the desktop app’s Chinese interface with isolated sample data. The instructions below are in English.</p>' if english else ''
-  content='<header><p class="eyebrow">SHUVIA / USER GUIDE</p><h1>'+E(heading)+'</h1><p class="manual-lead">'+E(summary)+'</p><small>'+t('界面核对：','Interface checked: ')+manual['updated']+' · '+t('桌面版','Desktop app')+'</small></header>'
+  content='<header><p class="eyebrow">'+t('天枢 / 使用文档','SHUVIA / USER GUIDE')+'</p><h1>'+E(heading)+'</h1><p class="manual-lead">'+E(summary)+'</p><small>'+t('界面核对：','Interface checked: ')+manual['updated']+' · '+t('桌面版','Desktop app')+'</small></header>'
   if entry:
    ids=re.findall(r'<section id="([^"]+)"',entry['html'])
    body=re.sub(r'href="/docs/tianshu/([a-z-]+)"',lambda m:'href="'+href(m[1])+'"',entry['html'])
