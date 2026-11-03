@@ -14,7 +14,19 @@ export const TIANSHU_MANUAL = {
         "做完后应该看到什么",
         "建议的第一个任务",
         "继续阅读"
-      ]
+      ],
+      "en": {
+        "title": "Quick start",
+        "summary": "Connect a model, create a project, or try reading annotations with a short text.",
+        "headings": [
+          "What Tianshu helps you do",
+          "Your first launch",
+          "What you should see",
+          "A useful first task",
+          "Where to go next"
+        ],
+        "html": "<figure><a href=\"/static/assets/tianshu/onboarding.png\" target=\"_blank\" rel=\"noopener\"><img src=\"/static/assets/tianshu/onboarding.png\" alt=\"Quick start — desktop app with isolated sample data, Chinese interface\" width=\"1440\" height=\"1000\" loading=\"lazy\"></a><figcaption>Actual desktop app · Chinese interface, isolated sample data. Click to enlarge.</figcaption></figure><section id=\"part-1\"><h2>What Tianshu helps you do</h2><p>Tianshu is a local workspace for ongoing collaboration with agents. The top bar has two modes: Work and Reading. Work centers on project goals, conversations and task execution. Reading centers on source text, inline annotations and content maps. Both modes share model, appearance and knowledge base settings.</p><p>Open the local app to enter the workspace directly; a Tianshu account is not required. Scanning a WeRead QR code connects your own bookshelf and is separate from a Tianshu account.</p></section><section id=\"part-2\"><h2>Your first launch</h2><ol><li>Open Tianshu. The onboarding tour appears automatically. Use Next to learn the main entry points, Previous to go back, or Skip tour / Esc to close it.</li><li>At the bottom left, open Personal space → Models → Conversation and reading. Select a provider, enter a name, the required address and your own API key, then choose Test connection. After a successful test, choose Connect. Select an available model in your conversation.</li><li>To work, switch to Work, choose New project on the left, enter a name and select a specific project directory. Once created, tell the project coordinator your goal and expected deliverables.</li><li>To read, switch to Reading, choose Paste content, enter a title and body, then choose Add. Select a sentence, write a thought and press Enter.</li><li>To ask AI, select text, enter a question and press Ctrl / Command + Enter. Ordinary annotations can be saved without a model. You can connect a knowledge base later.</li></ol></section><section id=\"part-3\"><h2>What you should see</h2><ul><li>Work: your project appears on the left and opens its coordinator conversation. Planning and execution status appear in the associated navigation.</li><li>Reading: source text is in the center, with annotations beside the corresponding passage. Saved annotations remain when you reopen the material.</li><li>After you close the tour, it does not appear automatically again in the same browser profile. Help at the top right lets you replay it or open this guide. Clearing browser storage makes the tour appear again.</li></ul></section><section id=\"part-4\"><h2>A useful first task</h2><p>Try: “Inspect this directory in read-only mode and explain how its files are organized. Do not modify any files.” Check that the response cites the right files before deciding to make changes.</p><p>For reading, paste a short text you wrote yourself, mark a sentence with “I do not understand this step yet,” and try saving an annotation, locating its source and asking AI manually.</p></section><section id=\"part-5\"><h2>Where to go next</h2><p>Start with <a href=\"/docs/tianshu/tutorial\">your first reading collaboration</a>, then explore <a href=\"/docs/tianshu/workspace\">the interface and navigation</a>. For configuration details, see <a href=\"/docs/tianshu/models\">Models and external executors</a>; for connection problems, see <a href=\"/docs/tianshu/troubleshooting\">Troubleshooting</a>.</p></section>"
+      }
     },
     {
       "slug": "tutorial",
@@ -29,7 +41,21 @@ export const TIANSHU_MANUAL = {
         "4. 对照一条有出处的旧知识",
         "5. 找到保存的材料笔记，或交给项目",
         "练习完成的核对表"
-      ]
+      ],
+      "en": {
+        "title": "Your first reading collaboration",
+        "summary": "Follow a sample from annotation and AI questions to verified prior knowledge, saved notes and a project handoff.",
+        "headings": [
+          "Choose a small, checkable result",
+          "1. Add the sample text",
+          "2. Save and retrieve an annotation",
+          "3. Connect a model and ask a specific question",
+          "4. Compare with a cited existing note",
+          "5. Find the saved source note or hand off to a project",
+          "Completion checklist"
+        ],
+        "html": "<figure><a href=\"/static/assets/tianshu/annotations.png\" target=\"_blank\" rel=\"noopener\"><img src=\"/static/assets/tianshu/annotations.png\" alt=\"Your first reading collaboration — desktop app with isolated sample data, Chinese interface\" width=\"1440\" height=\"1000\" loading=\"lazy\"></a><figcaption>Actual desktop app · Chinese interface, isolated sample data. Click to enlarge.</figcaption></figure><section id=\"part-1\"><h2>Choose a small, checkable result</h2><p>This exercise leaves you with an annotation you can retrieve. With a model connected, you will ask a question and compare the source with a cited existing note. Finally, you will locate a saved source note or a project handoff receipt. Use material you are comfortable testing and a separate directory; you do not need to organize your entire knowledge base first.</p><p><strong>Without a model:</strong> you can open supported local material, paste content, save and edit annotations, and adjust the theme and font size. AI questions, model analysis and automatic knowledge collaboration require an available model. <strong>A Tianshu account or login is not required.</strong></p></section><section id=\"part-2\"><h2>1. Add the sample text</h2><ol><li>Switch to Reading and choose Paste content. Use the title “Turn questions into checkable tasks.”</li><li>Paste this body:<blockquote>Advance one small goal at a time whose result you can check.<br>Keep the source text and its origin, then record your own questions.<br>State the goal and constraints first, then check the actual result.</blockquote>This text was written for the exercise; it is not a quotation from a published book.</li><li>Choose Add. You should see all three paragraphs.</li></ol></section><section id=\"part-3\"><h2>2. Save and retrieve an annotation</h2><ol><li>Select “Advance one small goal at a time whose result you can check.”</li><li>In the nearby input, write “Try one small thing, then check whether its result meets the goal.” Press Enter.</li><li>Confirm that your thought appears to the right of that sentence. Click the mark again to see its color, line style and delete controls.</li><li>Switch to another material and back. Confirm that the annotation remains. You can also use annotation navigation to return to the original sentence.</li></ol><p>No model or knowledge base is needed for this step. You have saved a real reading record.</p></section><section id=\"part-4\"><h2>3. Connect a model and ask a specific question</h2><ol><li>Open Personal space → Models → Conversation and reading. Follow <a href=\"/docs/tianshu/models\">the model setup instructions</a> to test and connect your own provider.</li><li>Select the first sentence again and type “Explain how to turn a large goal into a small goal with a checkable result. Give an example.”</li><li>Press Ctrl / Command + Enter. Inspect the actual response and sources. If it fails, check the provider, quota and routing before sending again.</li></ol><p><strong>Know what is sent:</strong> a manual AI question sends the selected quotation, your question and the context needed to answer to your chosen model. An associated project may add project background and task summaries; a connected knowledge base may add matching excerpts from existing notes. Full-text analysis sends the text being analyzed. Automatic reading collaboration uses new marks or thoughts and relevant prior knowledge. Your model provider may process this content. Local storage does not mean content always stays on your device during a model call. Use material you are willing to send to that provider.</p><p><strong>Model charges are separate:</strong> API, model and external executor charges and quotas are set by their providers. Both connection tests and real questions may consume quota. This guide does not promise free use or a fixed price.</p></section><section id=\"part-5\"><h2>4. Compare with a cited existing note</h2><ol><li>Create a separate test knowledge directory containing <code>goal-breakdown.md</code> with this text: “For each task, define its deliverable, checking method and constraints before deciding the steps.” This is a practice note you supply yourself.</li><li>In Personal space → Knowledge base, select that directory for this exercise, choose an available model and save. Leave topic maintenance disabled if you do not intend to change topic files.</li><li>Return to the sample and ask “What does this passage add compared with my existing goal-breakdown note?” If retrieval finds nothing, check the directory and keywords; do not assume the model must find it.</li><li>Explicitly start content analysis from reading navigation. Select a claim with related prior knowledge and inspect its knowledge association card.</li><li>Check the existing note’s filename, exact quotation and comparison rationale. Expand context or full text and locate the original note. This step is complete only when you can check the source. A missing match or unlocated quotation is not a verified association.</li></ol></section><section id=\"part-6\"><h2>5. Find the saved source note or hand off to a project</h2><ol><li>Expand reading navigation. In the Source actions more menu, choose Organize this source’s notes to open the actual saved note. Automatic collaboration writebacks appear under Organize and hand off. Use View written note or View existing note to check the source and your original wording in the registered file.</li><li>Each source has one registered note file; subsequent expressions update that file. If the model finds no new knowledge, no new topic Wiki file may be needed. Your local annotation still exists.</li><li>To continue as work, first create a specific project. Use the reading handoff entry and explicitly request “Turn these three points into a checklist of verifiable tasks.”</li><li>Check the handoff receipt and open the destination project coordinator. Confirm that the quotation and instructions arrived. A todo count or finished executor alone does not establish acceptance.</li></ol></section><section id=\"part-7\"><h2>Completion checklist</h2><ul><li>Saved: the annotation reopens and can locate its original sentence.</li><li>Answered: you saw an actual model response and understand what was sent and who charges for it.</li><li>Cited: prior knowledge has a quotation and file source you can expand and check.</li><li>Located: the actual source note opens, or the project coordinator received the handoff.</li></ul><p>Without a model, complete the first two steps for now. Continue the later steps when your configuration is ready; do not present an unfinished project or association as successful.</p></section>"
+      }
     },
     {
       "slug": "workspace",
@@ -41,7 +67,18 @@ export const TIANSHU_MANUAL = {
         "切换与收起",
         "个人空间与会话设置的区别",
         "历史、文件与成果"
-      ]
+      ],
+      "en": {
+        "title": "Interface and navigation",
+        "summary": "Understand the top modes, left sidebar, central content and right navigation.",
+        "headings": [
+          "The main regions",
+          "Switching and collapsing",
+          "Personal space versus conversation settings",
+          "History, files and saved outputs"
+        ],
+        "html": "<figure><a href=\"/static/assets/tianshu/workspace.png\" target=\"_blank\" rel=\"noopener\"><img src=\"/static/assets/tianshu/workspace.png\" alt=\"Interface and navigation — desktop app with isolated sample data, Chinese interface\" width=\"1440\" height=\"1000\" loading=\"lazy\"></a><figcaption>Actual desktop app · Chinese interface, isolated sample data. Click to enlarge.</figcaption></figure><section id=\"part-1\"><h2>The main regions</h2><div class=\"manual-table\"><table><thead><tr><th scope=\"col\">Location</th><th scope=\"col\">Work mode</th><th scope=\"col\">Reading mode</th></tr></thead><tbody><tr><td>Top</td><td>Work / Reading switch, Help and navigation toggle</td><td>The same mode switch, current source title, Help and navigation toggle</td></tr><tr><td>Left</td><td>New project, Tianshu assistant, project list, All projects, History and files, Personal space</td><td>New tab, reading home, WeRead bookshelf, search and open pages, Personal space</td></tr><tr><td>Center</td><td>Coordinator or task conversation, input and execution cards</td><td>Original webpage or document, with annotations beside their source</td></tr><tr><td>Far right</td><td>The current project’s task organization chart</td><td>Source outline, content map and knowledge associations</td></tr></tbody></table></div></section><section id=\"part-2\"><h2>Switching and collapsing</h2><ul><li>Switch with Work / Reading at the top. Each mode retains its open content. Switching modes does not stop work that is already running.</li><li>The upper-left button collapses the relevant sidebar. In Reading, source icons remain available and scrollable.</li><li>The upper-right navigation toggle opens or closes the current navigation. Drag its divider to resize. Maximize, restore, search and zoom controls operate on the current map view.</li><li>Closing a reading page closes its tab and keeps the material and annotations. Reopen it from the source picker, Continue reading or its source entry.</li></ul></section><section id=\"part-3\"><h2>Personal space versus conversation settings</h2><p>Personal space at the bottom left manages the knowledge base, models, appearance and advanced configuration shared across modes. The gear near a conversation title manages only that work conversation: stage models, permission rules, tool connections, compaction and terminal.</p><p>Tianshu assistant is a separate global conversation. It can look up and pass requests to existing project coordinators. Each project remains managed by its own coordinator.</p></section><section id=\"part-4\"><h2>History, files and saved outputs</h2><p>History and files in the Work sidebar opens the history drawer. Filter by title and switch between conversations, files and saved outputs. The file tree uses the current conversation’s working directory. Supported project documents can open in Reading with their project association preserved.</p><p>Saved outputs can be reopened, quoted into the current conversation or traced back to their source conversation. Quoting first places the content in the input; review it and send it yourself.</p></section>"
+      }
     },
     {
       "slug": "projects",
@@ -54,7 +91,19 @@ export const TIANSHU_MANUAL = {
         "项目总览、板块和查找",
         "归档与恢复",
         "目录被占用时"
-      ]
+      ],
+      "en": {
+        "title": "Projects and task navigation",
+        "summary": "Choose a working directory, collaborate with one coordinator, and track, archive or restore projects.",
+        "headings": [
+          "Create a project",
+          "Open a project and check progress",
+          "All projects, sections and search",
+          "Archive and restore",
+          "When a directory is busy"
+        ],
+        "html": "<figure><a href=\"/static/assets/tianshu/project.png\" target=\"_blank\" rel=\"noopener\"><img src=\"/static/assets/tianshu/project.png\" alt=\"Projects and task navigation — desktop app with isolated sample data, Chinese interface\" width=\"1440\" height=\"1000\" loading=\"lazy\"></a><figcaption>Actual desktop app · Chinese interface, isolated sample data. Click to enlarge.</figcaption></figure><section id=\"part-1\"><h2>Create a project</h2><ol><li>In Work mode, choose New project on the left.</li><li>Enter a project name. Expand directory selection, choose an authorized directory or enter a specific path. Within a knowledge base container, choose a specific subproject rather than the entire knowledge base root.</li><li>Confirm the directory and create the project. This directory provides the agent’s working context; choose the actual project you want it to work on.</li><li>Tell the coordinator your goal, background, expected result and constraints. The coordinator schedules tasks, dispatches executors and collects results.</li></ol></section><section id=\"part-2\"><h2>Open a project and check progress</h2><ul><li>Click a project on the left to enter its single coordinator. The organization chart on the right shows actual parent and child tasks; dependencies are shown separately.</li><li>Click a task or todo count to return to its conversation. Handle questions in the original task context and send your answer back to the coordinator.</li><li>Running, waiting, stopped and unknown reflect actual states. An executor finishing does not mean the task has passed acceptance. Inspect tool records, file changes and outputs.</li><li>An ordinary conversation without a project can open navigation, but it indicates that no project is associated and does not show another project’s task chart.</li></ul></section><section id=\"part-3\"><h2>All projects, sections and search</h2><ul><li>All projects in the sidebar shows project cards with complete and incomplete counts, update times and actions.</li><li>Sections organize projects and can be collapsed, renamed or deleted. Deleting a section moves its projects to Uncategorized; it does not delete the projects.</li><li>Search by project name. A card’s more menu manages section assignment and archiving. If an action fails, read the error beside that item and retry.</li></ul></section><section id=\"part-4\"><h2>Archive and restore</h2><ol><li>Choose Archive in a project’s more menu to remove a temporarily unused project from the active list.</li><li>Open archived projects and search by name or section.</li><li>Restore the intended item. It remains the same project with its directory, tasks and conversation associations preserved. Archiving does not delete the directory.</li></ol></section><section id=\"part-5\"><h2>When a directory is busy</h2><p>If another conversation is modifying the same directory, the input area identifies what you are waiting for and links to that conversation. If you only need information, choose Switch to read-only and send. Writes continue to follow the original scheduling constraints.</p><p>The coordinator chooses parallel reads, scoped edits, an independent working copy or serial execution according to the task. Changes in an independent copy require preview and integration; they are not yet delivery to the main directory.</p></section>"
+      }
     },
     {
       "slug": "conversation",
@@ -68,7 +117,20 @@ export const TIANSHU_MANUAL = {
         "处理计划和工具授权",
         "停止、恢复和失败",
         "分叉和会话压缩"
-      ]
+      ],
+      "en": {
+        "title": "Work conversations and execution",
+        "summary": "Send goals, steer or queue while running, stop, approve actions and check results.",
+        "headings": [
+          "Compose and send",
+          "Add instructions while running",
+          "Choose a permission mode",
+          "Handle plans and tool approvals",
+          "Stop, resume and recover from failure",
+          "Branching and compaction"
+        ],
+        "html": "<figure><a href=\"/static/assets/tianshu/conversation.png\" target=\"_blank\" rel=\"noopener\"><img src=\"/static/assets/tianshu/conversation.png\" alt=\"Work conversations and execution — desktop app with isolated sample data, Chinese interface\" width=\"1440\" height=\"1000\" loading=\"lazy\"></a><figcaption>Actual desktop app · Chinese interface, isolated sample data. Click to enlarge.</figcaption></figure><section id=\"part-1\"><h2>Compose and send</h2><ol><li>Open a project coordinator or task conversation and check the working directory beneath its title.</li><li>Enter your goal and use the input’s Send action. Edit multiline content and check quotations and attachments before sending.</li><li>Below the input are permission mode, model / executor selection and actual context usage. Usage unavailable from the provider is shown as unknown, not zero.</li><li>During execution, Send becomes Stop. Responses and tool activity appear in the conversation; expand process cards to inspect them.</li></ol></section><section id=\"part-2\"><h2>Add instructions while running</h2><div class=\"manual-table\"><table><thead><tr><th scope=\"col\">Action</th><th scope=\"col\">When to use it</th><th scope=\"col\">Result</th></tr></thead><tbody><tr><td>Steer</td><td>A new constraint needs attention during this turn</td><td>Sent to the running conversation, subject to the actual engine’s capabilities and state</td></tr><tr><td>Queue</td><td>Continue after the current turn finishes</td><td>Appears in queued messages; you can remove it or send it as steering</td></tr><tr><td>Stop</td><td>You do not want the current execution to continue</td><td>The queue stays paused after stopping; check state and explicitly resume</td></tr><tr><td>View what is blocking</td><td>Another execution occupies the working directory</td><td>Open the occupying conversation or ask in read-only mode</td></tr></tbody></table></div></section><section id=\"part-3\"><h2>Choose a permission mode</h2><div class=\"manual-table\"><table><thead><tr><th scope=\"col\">Mode</th><th scope=\"col\">Behavior</th></tr></thead><tbody><tr><td>Ask when needed</td><td>Uses current rules and asks for approval when necessary</td></tr><tr><td>Automatic</td><td>Runs routine operations inside the project directory; asks for operations outside it or unclear intent</td></tr><tr><td>Plan first</td><td>Analyzes in read-only mode, then executes after plan approval</td></tr><tr><td>Read-only</td><td>Only inspects and discusses; file writes and command execution are skipped</td></tr><tr><td>Full access</td><td>Can read, write, run commands and use the network. Explicit denials and read-only task constraints still apply. Selecting it requires separate confirmation</td></tr></tbody></table></div></section><section id=\"part-4\"><h2>Handle plans and tool approvals</h2><p>A plan card lets you approve execution or request changes. Tool approval displays the specific operation, then lets you deny, allow once or allow the scope offered in the interface. Allow for this conversation applies only to the current conversation. Saved rules affect similar future actions, so inspect the matching scope first.</p><p>With the input empty, Shift + Tab cycles common permission modes. Full access is excluded from this shortcut.</p></section><section id=\"part-5\"><h2>Stop, resume and recover from failure</h2><p>After choosing Stop, check whether execution has actually stopped. Unknown means the outcome has not been established. Inspect nearby errors, process cards and existing files before dispatching again.</p><p>Explicitly continuing restarts subsequent work. Opening a historical conversation does not resume it automatically. Handle queues, pending approvals and tool errors separately; a recovered connection does not mean a task is complete.</p></section><section id=\"part-6\"><h2>Branching and compaction</h2><p>Branch from here on a response opens a separate context from that turn and preserves the original conversation. You can return to the original conversation or project coordinator.</p><p>Compaction in conversation settings summarizes older dialogue to free context while preserving the original records. Compaction does not delete your data.</p></section>"
+      }
     },
     {
       "slug": "review",
@@ -81,7 +143,19 @@ export const TIANSHU_MANUAL = {
         "工作会话批注",
         "终端",
         "保存和再次引用成果"
-      ]
+      ],
+      "en": {
+        "title": "Files, diffs, terminal and saved outputs",
+        "summary": "Inspect agent changes, annotate revisions and verify results before rolling back.",
+        "headings": [
+          "Browse project files",
+          "Review file differences",
+          "Annotate a work conversation",
+          "Use the terminal",
+          "Save and reuse an output"
+        ],
+        "html": "<section id=\"part-1\"><h2>Browse project files</h2><ol><li>Open History and files → Files. The tree uses the current conversation’s working directory.</li><li>Expand folders and select a file. Supported documents can open in Reading for source annotations.</li><li>Change indicators identify files modified by an agent with rollback information available. Open the diff to check their contents.</li></ol></section><section id=\"part-2\"><h2>Review file differences</h2><p>Open a diff from a response or change entry to compare before and after. Leave feedback on specific lines and return it to the original conversation. Check requirements, boundaries, actual output and preservation of existing behavior.</p><p>Revert to here previews the impact before restoring the relevant conversation and workspace changes from a checkpoint. If a file was externally modified or state is inconsistent, check the warning rather than overriding the protection.</p></section><section id=\"part-3\"><h2>Annotate a work conversation</h2><p>Select conversation text and leave feedback in the nearby input. Enter saves an annotation for later collection. Ctrl / Command + Enter branches immediately with the same context. Shift + Enter inserts a line break.</p><p>Saved annotations appear beside the conversation and can be checked against their original text. Work todos are accessible through task nodes and count entries.</p></section><section id=\"part-4\"><h2>Use the terminal</h2><p>Open the current conversation’s gear → Terminal to run commands in the authorized working directory. It shows output and has its own interrupt button. Changing an agent’s permission mode does not automatically make terminal operations read-only. Check the directory and command before running it.</p><p>Closing the terminal drawer and interrupting a running command are separate actions. Use the terminal’s interrupt action to end the command.</p></section><section id=\"part-5\"><h2>Save and reuse an output</h2><ol><li>Choose Save as output from a response’s actions, enter a title and content, then save.</li><li>In History and files → Outputs, search by title and open the item to inspect its source.</li><li>Quoting places it in the current conversation draft. Review it before sending. You can jump back to its source conversation.</li><li>After deletion, Undo is available only for the period shown in the interface. Do not assume it remains available after that period.</li></ol></section>"
+      }
     },
     {
       "slug": "reading",
@@ -93,7 +167,18 @@ export const TIANSHU_MANUAL = {
         "打开与切换",
         "补正文和失败状态",
         "阅读与项目的关联"
-      ]
+      ],
+      "en": {
+        "title": "Reading home and sources",
+        "summary": "Open webpages, local documents, WeRead books or pasted text.",
+        "headings": [
+          "Four source types",
+          "Open and switch sources",
+          "Missing text and import failures",
+          "Association with a project"
+        ],
+        "html": "<figure><a href=\"/static/assets/tianshu/reading-home.png\" target=\"_blank\" rel=\"noopener\"><img src=\"/static/assets/tianshu/reading-home.png\" alt=\"Reading home and sources — desktop app with isolated sample data, Chinese interface\" width=\"1440\" height=\"1000\" loading=\"lazy\"></a><figcaption>Actual desktop app · Chinese interface, isolated sample data. Click to enlarge.</figcaption></figure><section id=\"part-1\"><h2>Four source types</h2><div class=\"manual-table\"><table><thead><tr><th scope=\"col\">Entry</th><th scope=\"col\">Action</th><th scope=\"col\">Result and boundaries</th></tr></thead><tbody><tr><td>Local file</td><td>Choose a file on reading home and follow the import prompts</td><td>Supported PDF, DOC/DOCX, Excel and text / Markdown files use their respective readers. Handle parsing failures as errors</td></tr><tr><td>Webpage</td><td>Enter an address and open it</td><td>Browse directly in desktop Chromium. Sign in through the website itself</td></tr><tr><td>WeRead</td><td>Open the bookshelf and connect your own account first</td><td>Browse your bookshelf and groups. Accessible text depends on platform login, purchases and visibility</td></tr><tr><td>Paste content</td><td>Enter a title and body, then add it</td><td>Creates locally annotatable material, suitable for short texts and manually supplied source text</td></tr></tbody></table></div></section><section id=\"part-2\"><h2>Open and switch sources</h2><ul><li>New tab returns to reading home. Pin or unpin frequently used sites and use the address field to open a URL.</li><li>Continue reading returns to earlier material. Sidebar search filters open pages by title. The current title at the top opens the source picker.</li><li>The source picker supports search, source filters, recent reading and pinned material. Closing a tab does not delete the source or saved annotations.</li><li>With the sidebar collapsed, use source icons and hover titles to identify pages. The map, annotations and text have separate positioning controls.</li></ul></section><section id=\"part-3\"><h2>Missing text and import failures</h2><p>A source with an address but no usable body may ask you to supply text. First open the original website in the desktop app; if needed, manually paste text you can access. Handle CAPTCHA, sign-in, payment and empty content at the actual source. A table of contents or placeholder is not the full text.</p><p>If a local import fails, check the format, accessibility and file integrity. Check whether the material already exists before importing again to avoid duplicate records.</p></section><section id=\"part-4\"><h2>Association with a project</h2><p>Material opened from a project file tree or work reference retains that project’s context. Ordinary reading questions use a separate read-only conversation for each source, rather than directly reusing the project’s execution conversation.</p><p>To start actual work, explicitly hand it to the coordinator using project actions in Organize and hand off. Highlighting or asking a question alone does not create a new task.</p></section>"
+      }
     },
     {
       "slug": "annotations",
@@ -106,7 +191,19 @@ export const TIANSHU_MANUAL = {
         "颜色含义由你定义",
         "观点归属",
         "批注独立窗口"
-      ]
+      ],
+      "en": {
+        "title": "Selection, five-color annotations and AI",
+        "summary": "Record thoughts beside the source and distinguish author claims, your questions and explicit judgments.",
+        "headings": [
+          "Save an annotation",
+          "Change color, line style or delete",
+          "Define your color meanings",
+          "Keep attribution clear",
+          "Separate annotation window"
+        ],
+        "html": "<figure><a href=\"/static/assets/tianshu/annotations.png\" target=\"_blank\" rel=\"noopener\"><img src=\"/static/assets/tianshu/annotations.png\" alt=\"Selection, five-color annotations and AI — desktop app with isolated sample data, Chinese interface\" width=\"1440\" height=\"1000\" loading=\"lazy\"></a><figcaption>Actual desktop app · Chinese interface, isolated sample data. Click to enlarge.</figcaption></figure><section id=\"part-1\"><h2>Save an annotation</h2><ol><li>Select a passage in the source. An Annotate / Ask AI input appears nearby.</li><li>Type a thought and press Enter to save. With no thought entered, you can save just the mark. Shift + Enter adds a line break.</li><li>Ctrl / Command + Enter submits to AI. Ordinary manual questions require an available model, but do not require a connected knowledge base.</li><li>The annotation appears to the right of its source with a date and scrolls with it. When the source leaves the visible area, the annotation also hides. Use annotation navigation to locate older notes.</li></ol></section><section id=\"part-2\"><h2>Change color, line style or delete</h2><ol><li>Click an existing mark to open its color, line style and delete controls.</li><li>The five colors and line styles are independent. You can change line style while keeping the color.</li><li>Delete removes the note. To restore it, use Undo while the notification remains available. Closing a temporary input does not delete a saved note.</li></ol></section><section id=\"part-3\"><h2>Define your color meanings</h2><p>Open Personal space → Appearance → Annotation color names to name red, purple, blue, green and yellow. The preset Core / Method / Evidence / Inspiration / Memorable quote applies only when you explicitly choose it. You can also restore color names.</p><p>A color is your classification; it does not establish understanding, agreement or a judgment. Line style does not automatically express your stance either.</p></section><section id=\"part-4\"><h2>Keep attribution clear</h2><p>What the author says, what interests or confuses you, and what you explicitly judge are distinct records. Only a judgment you explicitly select and express in your own words counts as your judgment. AI replies and highlights do not take a position for you.</p><p>Adding a new expression about the same passage preserves later records; your first highlight does not permanently replace your subsequent thoughts.</p></section><section id=\"part-5\"><h2>Separate annotation window</h2><p>You can detach annotations into a separate window, dock them back beside the text, or close that window. Reading navigation and the content map stay in the main window.</p><p>After scrolling, resizing or switching pages, confirm that annotations still match the right source and passage. Selections from different sources do not share unsaved feedback.</p></section>"
+      }
     },
     {
       "slug": "navigation",
@@ -119,7 +216,19 @@ export const TIANSHU_MANUAL = {
         "聚焦、搜索和缩放",
         "从论点穿梭到旧知识",
         "当前边界"
-      ]
+      ],
+      "en": {
+        "title": "Content maps and knowledge links",
+        "summary": "Start with the outline, analyze text when needed, and verify claims and prior knowledge against sources.",
+        "headings": [
+          "Outline and source text",
+          "Generate a content map",
+          "Focus, search and zoom",
+          "Follow a claim to prior knowledge",
+          "Current boundaries"
+        ],
+        "html": "<figure><a href=\"/static/assets/tianshu/navigation.png\" target=\"_blank\" rel=\"noopener\"><img src=\"/static/assets/tianshu/navigation.png\" alt=\"Content maps and knowledge links — desktop app with isolated sample data, Chinese interface\" width=\"1440\" height=\"1000\" loading=\"lazy\"></a><figcaption>Actual desktop app · Chinese interface, isolated sample data. Click to enlarge.</figcaption></figure><section id=\"part-1\"><h2>Outline and source text</h2><p>Reading navigation on the right is separate from inline annotations. Books use their actual table of contents, PDFs use pages, and Office files use headings or worksheets. Click an outline entry to locate its source.</p><p>Ordinary webpages can retain their original website interface. Not every page yields stable text: feeds, text in images and cross-origin embedded content may be limited.</p></section><section id=\"part-2\"><h2>Generate a content map</h2><ol><li>Open material with usable text and expand reading navigation at the top right.</li><li>Explicitly start analysis from the content map’s analysis entry. Opening material or expanding navigation alone does not call a model for full-text analysis.</li><li>Wait for actual status feedback. Results should contain quotations you can verify against the source. No usable text or failure to verify all quotations produces an error.</li><li>Click a claim to locate its source and check context. Model-organized claims do not automatically become knowledge you endorse.</li></ol></section><section id=\"part-3\"><h2>Focus, search and zoom</h2><ul><li>Search temporarily shows matching paths and restores the original view when exited. Sibling branches omitted by focus retain counts and expansion controls.</li><li>Use panel search, zoom, maximize and restore. Maximizing the map temporarily hides desktop web content so it does not cover the map.</li><li>Navigation width is saved per source / tab. A temporarily narrow window limits the displayed width without overwriting the saved value.</li><li>Expanding branches and selecting claims preserve the selected node’s position where possible. A layout change does not mean a new analysis ran.</li></ul></section><section id=\"part-4\"><h2>Follow a claim to prior knowledge</h2><ol><li>With a knowledge base connected, select a claim to inspect related prior knowledge.</li><li>Cards prioritize comparisons such as new, different, potentially conflicting or consistent, then show quotations from the current and existing sources.</li><li>Expand context or full text and locate the original file. Returning preserves your reading view.</li><li>Older results without a locatable quotation are marked as unlocated. A quotation’s existence proves the words can be checked; it does not prove the semantic comparison is correct.</li></ol></section><section id=\"part-5\"><h2>Current boundaries</h2><p>This view maps the current source and associations with existing knowledge. Cross-book stance decisions, automatic merging and publication into a domain knowledge base are not promised as completed features. AI cannot make your personal stance or adjudication decisions for you.</p></section>"
+      }
     },
     {
       "slug": "documents",
@@ -132,7 +241,19 @@ export const TIANSHU_MANUAL = {
         "普通网页",
         "微信读书",
         "本机保存范围"
-      ]
+      ],
+      "en": {
+        "title": "PDF, Office and web reading",
+        "summary": "Navigate, select and annotate different source formats, and connect WeRead.",
+        "headings": [
+          "PDF",
+          "Word and Excel",
+          "Ordinary webpages",
+          "WeRead",
+          "What is stored locally"
+        ],
+        "html": "<section id=\"part-1\"><h2>PDF</h2><p>Import a local PDF and browse by page. Text-layer content supports selection, location and annotation, with marks aligned to the page’s text regions.</p><p>Scanned images without selectable text cannot be treated as text-layer pages. Prepare a text-layer version or paste content you can read as a source. Automatic OCR is not currently promised.</p></section><section id=\"part-2\"><h2>Word and Excel</h2><p>DOCX uses the document structure. Converting older DOC files depends on the desktop’s local helper. If conversion fails, keep the original and follow the error; a failure page is not source text.</p><p>Browse Excel by worksheet, select and copy ranges, and discuss relevant table content. The reader supports reading and annotation; it does not promise full Office editing, complex formula handling or layout fidelity.</p></section><section id=\"part-3\"><h2>Ordinary webpages</h2><ol><li>Enter a complete address on desktop reading home and open the site. Use the website’s own sign-in flow.</li><li>Selectable DOM body text supports marks, annotations and AI questions. Toolbars, navigation and fixed overlays should not be treated as article text.</li><li>Use web controls for Back, Forward and Reload. Resubmitting the same address can also reload it. Check the actual extraction result when you need saved source text.</li><li>Unified annotation is not guaranteed for images, canvas, cross-origin iframes, complex feeds or sites that prohibit selection. Manually supply readable text when needed.</li></ol></section><section id=\"part-4\"><h2>WeRead</h2><ol><li>Open WeRead from reading home or WeRead bookshelf on the left. If disconnected, follow the interface to connect your own account.</li><li>The desktop supports the official WeRead QR sign-in. For a connection method requiring a personal API key, enter your own key in the current form; do not use someone else’s account.</li><li>After connection, browse books in their original bookshelf groups. Available text is limited to what the platform actually permits you to access.</li><li>Reconnect to change accounts. On failure, check whether sign-in or authorization expired before importing again, and avoid importing private annotations from an old account.</li></ol></section><section id=\"part-5\"><h2>What is stored locally</h2><p>Notes, excerpts and source snapshots are stored in Tianshu’s local data. Website login state lives in Tianshu’s own browser data directory; it does not read Chrome or Safari accounts.</p><p>Signing into a website does not mean notes have synced. Closing a tab does not clear website cookies. Connecting a bookshelf does not grant export of every paid book’s full text.</p></section>"
+      }
     },
     {
       "slug": "knowledge",
@@ -145,7 +266,19 @@ export const TIANSHU_MANUAL = {
         "材料笔记与主题知识",
         "核对写回结果",
         "交给项目继续处理"
-      ]
+      ],
+      "en": {
+        "title": "Knowledge base and reading collaboration",
+        "summary": "Connect an existing folder, retrieve prior knowledge, save source notes and maintain topics within your authorization.",
+        "headings": [
+          "Connect an existing knowledge base",
+          "What changes after connection",
+          "Source notes and topic knowledge",
+          "Verify writeback results",
+          "Continue in a project"
+        ],
+        "html": "<figure><a href=\"/static/assets/tianshu/knowledge.png\" target=\"_blank\" rel=\"noopener\"><img src=\"/static/assets/tianshu/knowledge.png\" alt=\"Knowledge base and reading collaboration — desktop app with isolated sample data, Chinese interface\" width=\"1440\" height=\"1000\" loading=\"lazy\"></a><figcaption>Actual desktop app · Chinese interface, isolated sample data. Click to enlarge.</figcaption></figure><section id=\"part-1\"><h2>Connect an existing knowledge base</h2><ol><li>Open Personal space → Knowledge base at the bottom left and select Knowledge base root directory. It can be an existing Markdown notes directory or Obsidian vault.</li><li>Choose a default collaboration mode and available model configuration. Specify a fixed notes directory if needed.</li><li>To maintain existing topics automatically, separately choose the Topic knowledge write directory and enable its maintenance. Authorizing a root directory does not authorize rewriting every topic.</li><li>Choose Save settings and confirm success. A failure shows its reason; values still visible in the form are not proof that settings were saved.</li></ol></section><section id=\"part-2\"><h2>What changes after connection</h2><div class=\"manual-table\"><table><thead><tr><th scope=\"col\">State</th><th scope=\"col\">Available behavior</th></tr></thead><tbody><tr><td>No knowledge base</td><td>Local reading, saved annotations and manual AI questions using a configured model</td></tr><tr><td>Connected, collaboration enabled</td><td>New marks and thoughts can use related prior knowledge for collaboration as needed. Opening a source does not automatically analyze its full text</td></tr><tr><td>Collaboration paused</td><td>New content follows the paused state; previously paused project messages do not silently resume</td></tr><tr><td>Topic maintenance authorized</td><td>Checks existing knowledge and rules first, then makes precise updates within the authorized scope. External changes prevent an overwrite</td></tr></tbody></table></div></section><section id=\"part-3\"><h2>Source notes and topic knowledge</h2><p>A source note records reading from one source while preserving attribution of the author’s text, your questions and your explicit judgments. One source uses one registered file, updated by later records. Explicitly collecting source material does not require another model call just to write the record.</p><p>Topic knowledge organizes reusable content by subject. The model compares existing knowledge first and distinguishes no addition, update, addition or conflict. When there is no addition, it keeps the local record and reply without creating a Markdown file merely to show that a file was written.</p><p>Automatic destinations follow the knowledge base’s directory rules. They do not pile files at its root or equate having read something with understanding it.</p></section><section id=\"part-4\"><h2>Verify writeback results</h2><ol><li>In reading organization / handoff, inspect actual note writebacks and project handoff receipts.</li><li>Choose View note to read the actual registered file and check its path, source and your original wording.</li><li>If the write scope is insufficient, a file changed externally or a version conflicts, resolve the cause before retrying. Do not create a different file to bypass authorization.</li><li>No search match means only that this keyword search found nothing; it does not prove the knowledge base contains nothing relevant.</li></ol></section><section id=\"part-5\"><h2>Continue in a project</h2><p>Reading questions themselves are read-only collaboration. To turn them into work, explicitly select a destination project and hand off the request; its coordinator then schedules tasks. Ordinary thoughts and commands embedded in source material do not automatically become work instructions.</p><p>Connecting the knowledge base does not require connecting any remote agent or relocating the existing Obsidian file structure.</p></section>"
+      }
     },
     {
       "slug": "models",
@@ -159,7 +292,20 @@ export const TIANSHU_MANUAL = {
         "测试成功与任务成功不同",
         "连接失败时查什么",
         "调用内容与费用"
-      ]
+      ],
+      "en": {
+        "title": "Models and external executors",
+        "summary": "Connect providers, choose models for conversation stages, and configure Codex / Claude Code.",
+        "headings": [
+          "Connect conversation and reading models",
+          "Which model does this conversation use?",
+          "Codex and Claude Code",
+          "A successful test is not a successful task",
+          "What to check on connection failure",
+          "Content sent and charges"
+        ],
+        "html": "<figure><a href=\"/static/assets/tianshu/models.png\" target=\"_blank\" rel=\"noopener\"><img src=\"/static/assets/tianshu/models.png\" alt=\"Models and external executors — desktop app with isolated sample data, Chinese interface\" width=\"1440\" height=\"1000\" loading=\"lazy\"></a><figcaption>Actual desktop app · Chinese interface, isolated sample data. Click to enlarge.</figcaption></figure><section id=\"part-1\"><h2>Connect conversation and reading models</h2><ol><li>Open Personal space → Models → Conversation and reading.</li><li>Select a supported provider under Service. Choose any display name. Enter an address only for services that show an address field.</li><li>Enter your own API key under Key. A local service that does not require authentication needs no key, as indicated in the interface. The input is masked; no real key appears in this guide or its screenshots.</li><li>Choose Test connection, then Connect to save. Connected providers can be retested or deleted. Model choices come from the actual service’s available list; do not invent model IDs.</li></ol></section><section id=\"part-2\"><h2>Which model does this conversation use?</h2><p>Select the current model below the conversation input. Model routing in the gear settings can assign models to stages such as planning and execution. Changing the current conversation does not change every conversation.</p><p>New conversations without explicit routing inherit available configuration. If no model is available, configure one first. Context usage comes from the actual service. Any displayed cost estimate remains subject to the provider’s bill.</p></section><section id=\"part-3\"><h2>Codex and Claude Code</h2><ol><li>Open Personal space → Models → Codex and Claude Code to check global defaults and available executors.</li><li>Underlying executor provider settings are managed through the same DSH engine’s native configuration. Choosing a name does not fix an executor that is not installed, signed in or funded.</li><li>The executor entry in the Work input can set an override for this conversation. Subsequent dispatches use the model selection actually determined for them; already running executions are not relabeled with a new model.</li><li>Do not switch global configuration casually while execution is running or its state is unknown. Stop or establish the original execution’s state first, then follow the interface.</li></ol></section><section id=\"part-4\"><h2>A successful test is not a successful task</h2><p>A connection test checks service availability at that moment. A real task also depends on permissions, directory, tools, model quota and network. Inspect files and outputs after the executor finishes.</p><p>If the actual model or reasoning level is not returned, it remains unknown. A selected name is not verified runtime information.</p></section><section id=\"part-5\"><h2>What to check on connection failure</h2><ul><li>Is this the API address required by the provider, with the correct protocol and path?</li><li>Does the key belong to that service, remain valid, and allow access to the requested model?</li><li>Is the provider rate limited, unpaid, timing out or out of quota? Read the original error first.</li><li>Do not paste a different client’s subscription login token into a model API key field.</li></ul></section><section id=\"model-data\"><h2>Content sent and charges</h2><p>Reading questions send the selected source text, question and context needed to answer. Associated projects or knowledge bases may add project background, task summaries and matching prior-knowledge excerpts. Text analysis sends the text to be analyzed. Work execution reads task context and uses connected tools. Local saving alone does not require a model call; new annotations may trigger your selected model when automatic collaboration is enabled.</p><p>The model provider processes content it receives. API / model and external executor charges and quotas are set separately by their providers; even tests may consume quota. Not every model is free. Before sending sensitive material, consider your selected service and authorized scope.</p></section>"
+      }
     },
     {
       "slug": "settings",
@@ -171,7 +317,18 @@ export const TIANSHU_MANUAL = {
         "高级设置 · DSH",
         "当前会话工具",
         "帮助与重新引导"
-      ]
+      ],
+      "en": {
+        "title": "Appearance and advanced settings",
+        "summary": "Themes, text size, color names and tool configuration for the same engine.",
+        "headings": [
+          "Appearance saves immediately",
+          "Advanced settings · DSH",
+          "Tools for the current conversation",
+          "Help and replaying onboarding"
+        ],
+        "html": "<figure><a href=\"/static/assets/tianshu/appearance.png\" target=\"_blank\" rel=\"noopener\"><img src=\"/static/assets/tianshu/appearance.png\" alt=\"Appearance and advanced settings — desktop app with isolated sample data, Chinese interface\" width=\"1440\" height=\"1000\" loading=\"lazy\"></a><figcaption>Actual desktop app · Chinese interface, isolated sample data. Click to enlarge.</figcaption></figure><section id=\"part-1\"><h2>Appearance saves immediately</h2><ul><li>Open Personal space → Appearance and choose System, Light or Dark. Work and Reading share a theme.</li><li>The reading font-size slider adjusts source text without changing toolbar density.</li><li>Expand annotation color names to name each of the five colors. Names save immediately; invalid or blank input is marked unsaved.</li><li>Apply the Core / Method / Evidence / Inspiration / Memorable quote preset, or restore color names. This does not move, delete or reclassify existing marks.</li></ul></section><section id=\"part-2\"><h2>Advanced settings · DSH</h2><ol><li>In the desktop client, open Personal space → Advanced settings · DSH.</li><li>Choose DSH native configuration to open configuration for Tianshu’s current engine.</li><li>Configure MCP, Skills, subagents or external executors according to their own requirements. This edits the same configuration for the current Host; it does not start a second engine.</li><li>Return to the original conversation and verify actual availability. An ordinary web preview does not replace the desktop native settings entry.</li></ol></section><section id=\"part-3\"><h2>Tools for the current conversation</h2><p>The tools entry in a Work conversation’s gear shows instruction files, MCP connections and Skills. Conversation-specific permission rules and model routing remain managed within that conversation.</p><p>Advanced configuration is for users with a specific need. To get started, you only need a model, a specific project directory or reading material; you do not need to configure every tool first.</p></section><section id=\"part-4\"><h2>Help and replaying onboarding</h2><p>At the top right, Help → User guide opens this manual. Replay onboarding starts from the first step. Esc closes the tour and remembers that you skipped it. After completion or skipping, it does not automatically open again in the same browser profile.</p><p>If browser local storage is blocked, the tour’s remembered state may last only for the current window. This does not affect annotations and conversations saved by the local service.</p></section>"
+      }
     },
     {
       "slug": "shortcuts",
@@ -182,7 +339,17 @@ export const TIANSHU_MANUAL = {
         "批注快捷键",
         "从问题找到入口",
         "操作前检查"
-      ]
+      ],
+      "en": {
+        "title": "Common actions at a glance",
+        "summary": "The most useful annotation, AI, permission and navigation actions on one page.",
+        "headings": [
+          "Annotation shortcuts",
+          "Find the right entry",
+          "Check before acting"
+        ],
+        "html": "<section id=\"part-1\"><h2>Annotation shortcuts</h2><div class=\"manual-table\"><table><thead><tr><th scope=\"col\">Context</th><th scope=\"col\">Action</th><th scope=\"col\">Meaning</th></tr></thead><tbody><tr><td>Reading selection input</td><td>Enter</td><td>Save an annotation; an empty thought can retain just the mark</td></tr><tr><td>Reading selection input</td><td>Ctrl / Command + Enter</td><td>Ask AI</td></tr><tr><td>Work selection input</td><td>Enter</td><td>Save an annotation for later collection</td></tr><tr><td>Work selection input</td><td>Ctrl / Command + Enter</td><td>Branch immediately with the current context</td></tr><tr><td>Selection input</td><td>Shift + Enter</td><td>Insert a line break</td></tr><tr><td>Empty Work input</td><td>Shift + Tab</td><td>Cycle common permission modes, excluding Full access</td></tr><tr><td>Tour, settings and ordinary overlays</td><td>Esc</td><td>Close the current overlay; saved content remains</td></tr></tbody></table></div></section><section id=\"part-2\"><h2>Find the right entry</h2><div class=\"manual-table\"><table><thead><tr><th scope=\"col\">Goal</th><th scope=\"col\">Entry</th></tr></thead><tbody><tr><td>Create a project</td><td>Work → New project in the sidebar</td></tr><tr><td>Browse all projects or archives</td><td>Work → All projects</td></tr><tr><td>Find old conversations, files or outputs</td><td>Work → History and files</td></tr><tr><td>Change the current model or permissions</td><td>Below the conversation input</td></tr><tr><td>Manage providers, knowledge base or appearance</td><td>Personal space at the bottom left</td></tr><tr><td>See the task chart or content map</td><td>Navigation toggle at the top right</td></tr><tr><td>Find an old annotation</td><td>Reading navigation → Locate annotation</td></tr><tr><td>Change color or line style</td><td>Click the saved mark again</td></tr><tr><td>Replay the tour</td><td>Help at the top right</td></tr><tr><td>Stop current execution</td><td>Stop button in the running input area</td></tr></tbody></table></div></section><section id=\"part-3\"><h2>Check before acting</h2><p>Confirm the current project, conversation directory and source title, especially before quoting across pages, branching, reverting, changing permissions or redispatching. Judge the outcome from success receipts, actual files and real execution state.</p></section>"
+      }
     },
     {
       "slug": "troubleshooting",
@@ -198,7 +365,22 @@ export const TIANSHU_MANUAL = {
         "数据放在哪里",
         "目前不应期待的能力",
         "反馈问题时带什么"
-      ]
+      ],
+      "en": {
+        "title": "Troubleshooting and data boundaries",
+        "summary": "Distinguish local connection failures, model issues, source limitations and knowledge writeback errors.",
+        "headings": [
+          "The app will not open or the local connection is interrupted",
+          "Project list unavailable or directory invalid",
+          "AI does not reply, or todos remain after stopping",
+          "A webpage opens but cannot be marked, or the map is empty",
+          "An annotation saved, but no new knowledge file appeared",
+          "Where your data lives",
+          "Capabilities you should not currently assume",
+          "What to include in a problem report"
+        ],
+        "html": "<section id=\"part-1\"><h2>The app will not open or the local connection is interrupted</h2><p>Choose Retry or Retry connection in the workspace’s error message and wait for the original content to recover. An interrupted connection should not cause an existing conversation to be overwritten as a new one.</p><p>If it still fails, record the error and triggering action, then check that Tianshu’s local service is running. Do not repeatedly send the same work instruction as a connection test; it could execute more than once after reconnection.</p></section><section id=\"part-2\"><h2>Project list unavailable or directory invalid</h2><p>Use Retry inside the project list for list errors. A whole knowledge base, host root or Tianshu runtime data directory is not a suitable generic working directory. Choose a specific project.</p><p>If the directory is occupied, use View what is blocking to open the original conversation or ask in read-only mode. A scheduling conflict is different from an unresponsive model.</p></section><section id=\"part-3\"><h2>AI does not reply, or todos remain after stopping</h2><p>Check for planning, approval, queueing, a busy directory, insufficient quota or unknown state. Todos and queues may remain paused after Stop to prevent restarting without an explicit continuation.</p><p>Retry according to the specific error. For a dispatch with an unknown outcome, inspect the existing execution record before creating a duplicate task.</p></section><section id=\"part-4\"><h2>A webpage opens but cannot be marked, or the map is empty</h2><p>Ordinary website reading uses desktop Chromium. Stable annotations require selectable body text. Images, canvas, cross-origin embeds and complex feeds may not work.</p><p>A content map requires source text, a model and analysis you explicitly start. For extraction failure, unmatched quotations or no usable claims, check the source first. Section labels, website navigation and blank pages are not article text.</p></section><section id=\"part-5\"><h2>An annotation saved, but no new knowledge file appeared</h2><p>Local annotation saving, source-note collection and topic knowledge maintenance are separate operations. No knowledge base, paused collaboration, no new knowledge, no explicit collection or no authorized destination can all mean that no Markdown file is written.</p><p>Inspect organization / handoff receipts and the actual registered note. Keeping only the local record and response when there is no addition is normal. Check external changes and version conflicts before proceeding; do not overwrite them.</p></section><section id=\"part-6\"><h2>Where your data lives</h2><p>Conversations, annotations, excerpts and source versions live in Tianshu’s chosen local data directory. Website login state lives in its own browser profile. Exported or organized Markdown files live in your authorized knowledge directory.</p><p>A fresh browser profile shows onboarding again; this does not mean local notes are lost. Preserve complete local data and your authorized knowledge base before uninstalling or migrating. This guide does not promise automatic multi-device sync or account cloud backup.</p></section><section id=\"part-7\"><h2>Capabilities you should not currently assume</h2><ul><li>Full Office editing, unified annotations on every website, automatic OCR or unrestricted full-book export.</li><li>AI taking a stance for you, adjudicating cross-book conflicts or merging and publishing domain knowledge automatically.</li><li>An executor finishing means requirements have passed acceptance, or selecting a model means quota is available.</li></ul></section><section id=\"part-8\"><h2>What to include in a problem report</h2><p>State the page, action, expected result and actual message. You can attach a redacted screenshot. Hide API keys, account details, private project paths and source text you do not want public. Help always provides a route back to this guide.</p></section>"
+      }
     }
   ]
 };
