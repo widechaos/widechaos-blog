@@ -24,11 +24,8 @@ def render(root,path,data,lang='zh'):
   source=Path(root)/'static'/'tianshu-manual.js'
   if not source.exists():source=Path(root).parent/'static'/'tianshu-manual.js'
   manual=json.loads(source.read_text().removeprefix('export const TIANSHU_MANUAL = ').strip().removesuffix(';'))
-  page=next(page for page in manual['pages'] if page['slug']=='conversation')
-  image=re.search(r'<img[^>]+src="([^"]+)"',(page['en'] if english else page)['html'])[1]
-  alt=label('天枢 Shuvia 工作会话界面','Shuvia work conversation interface')
-  caption=label('真实界面 · 隔离示例数据，点击查看大图。','Actual interface · Sample data. Open the image for a full-size view.')
-  return '<figure class="project-screenshot"><a href="'+E(image)+'" target="_blank" rel="noopener"><img src="'+E(image)+'" alt="'+alt+'" width="1440" height="1000" decoding="async"></a><figcaption>'+caption+'</figcaption></figure>'
+  image=manual['projectScreenshots']['en' if english else 'zh']
+  return '<figure class="project-screenshot"><a href="'+E(image['src'])+'" target="_blank" rel="noopener"><img src="'+E(image['src'])+'" alt="'+E(image['alt'])+'" width="'+str(image['width'])+'" height="'+str(image['height'])+'" decoding="async"></a><figcaption>'+E(image['caption'])+'</figcaption></figure>'
  def listing(items,kind):
   return ''.join('<section><h2><a href="'+E('/blog/'+i['id'] if kind=='article' else '/projects/'+i['id']+'?lang='+lang)+'">'+E(i['title'] if kind=='article' else project_name(i))+'</a></h2><p>'+E(i.get('summary') or i.get(lang) or '')+'</p>'+(project_visual(i) if kind=='project' else '')+'</section>' for i in items)
  if path=='/docs/tianshu' or path.startswith('/docs/tianshu/'):

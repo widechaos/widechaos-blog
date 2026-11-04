@@ -57,7 +57,7 @@ class ManualTests(unittest.TestCase):
    self.assertEqual(status,200)
    self.assertIn('href="/projects/shuvia?lang='+lang+'"',projects)
    self.assertNotIn('project-guides',projects)
-   expected_image='/static/assets/tianshu/'+('en/' if lang=='en' else '')+'conversation.png?v='
+   expected_image='/static/assets/tianshu/'+('en/' if lang=='en' else '')+'showcase.png?v='
    self.assertIn('src="'+expected_image,projects)
 
    detail,status=render(ROOT,'/projects/shuvia',data,lang)
@@ -79,7 +79,7 @@ class ManualTests(unittest.TestCase):
  def test_all_screenshots_exist_and_stay_inside_public_guide_assets(self):
   source=(ROOT/'static/tianshu-manual.js').read_text()
   images=set(re.findall(r'/static/assets/tianshu/((?:en/)?[a-z0-9-]+\.png)',source))
-  self.assertEqual(len(images),20)
+  self.assertEqual(len(images),22)
   for name in images:self.assertTrue((ROOT/'static/assets/tianshu'/name).is_file(),name)
  def test_adapter_registers_specific_routes_and_keeps_private_scopes(self):
   import tempfile,types

@@ -79,18 +79,21 @@ test('guide parent navigation works from direct home and chapter links in either
 });
 
 
-test('Shuvia project previews use the matching real guide screenshot and full-size image', () => {
+test('Shuvia previews show the complete localized feature screenshot with the correct size and version', () => {
   for (const lang of ['zh','en']) {
-    const source=manualPages(lang).find(page=>page.slug==='conversation').html.match(/<img[^>]+src="([^"]+)"/)[1];
+    const image=TIANSHU_MANUAL.projectScreenshots[lang];
     const visual=shuviaProjectVisual(lang);
-    assert.ok(visual.includes(`src="${source}"`));
-    assert.ok(visual.includes(`href="${source}" target="_blank" rel="noopener"`));
-    assert.match(visual,/width="1440" height="1000"/);
+    assert.ok(visual.includes(`src="${image.src}"`));
+    assert.ok(visual.includes(`href="${image.src}" target="_blank" rel="noopener"`));
     assert.doesNotMatch(visual,/poster-big|project-poster/);
-    assert.equal(source.includes('/tianshu/en/'),lang==='en');
+    assert.equal(image.src.includes('/tianshu/en/'),lang==='en');
     if(lang==='en') assert.doesNotMatch(visual,/[\u3400-\u9fff]/u);
-    const url=new URL(source,'https://widechaos.cn');
+    const url=new URL(image.src,'https://widechaos.cn');
     const bytes=readFileSync(new URL('..'+url.pathname,import.meta.url));
     assert.equal(url.searchParams.get('v'),createHash('sha256').update(bytes).digest('hex').slice(0,12));
+    assert.equal(image.width,bytes.readUInt32BE(16));
+    assert.equal(image.height,bytes.readUInt32BE(20));
+    assert.ok(visual.includes(`width="${image.width}" height="${image.height}"`));
+    assert.ok(image.width>=1800 && image.height>=1100);
   }
 });
