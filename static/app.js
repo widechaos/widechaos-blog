@@ -1,4 +1,4 @@
-import { manualPage, mountManual } from './manual-view.js';
+import { manualPage, mountManual, projectGuides } from './manual-view.js';
 import { ABOUT_COPY } from "./about-copy.js";
 import { createAnalytics } from "./analytics.js";
 import { mountScrollScenes } from "./scroll-scenes.js";
@@ -156,6 +156,7 @@ function featuredWork(p, index) {
 }
 function header() {
   const path = location.pathname;
+  const inManual = path === "/docs/tianshu" || path.startsWith("/docs/tianshu/");
   const inRadar = path === "/radar" || data.articles.some(a => isRadar(a) && path === "/blog/" + a.id);
   $("#header").innerHTML =
     `<a class="brand" href="/" aria-label="十方空烬 · Ember 首页"><span class="brand-mark" aria-hidden="true"><img src="/static/x-sword.svg" alt="" width="42" height="49"></span><span>WIDECHAOS<small>${t("十方空烬 · Ember", "Ember · 十方空烬")}</small></span></a><nav aria-label="${t("主导航", "Main navigation")}">${[
@@ -165,11 +166,10 @@ function header() {
       ["/radar", "开源雷达", "Radar"],
       ["/tools", "工具", "Tools"],
       ["/about", "关于", "About"],
-      ["/docs/tianshu", "文档", "Docs"],
     ]
       .map(
         ([p, z, e]) =>
-          `<a href="${p}" ${(p === "/radar" ? inRadar : (p === "/blog" && inRadar) ? false : path === p || (p !== "/" && path.startsWith(p + "/"))) ? 'aria-current="page"' : ""}>${t(z, e)}</a>`,
+          `<a href="${p}" ${((p === "/projects" && inManual) || (p === "/radar" ? inRadar : (p === "/blog" && inRadar) ? false : path === p || (p !== "/" && path.startsWith(p + "/")))) ? 'aria-current="page"' : ""}>${t(z, e)}</a>`,
       )
       .join(
         "",
@@ -179,7 +179,7 @@ function header() {
   $("#language").onclick = () => {
     lang = lang === "zh" ? "en" : "zh";
     localStorage.setItem("wc-site-lang", lang);
-    if (location.pathname === "/docs/tianshu" || location.pathname.startsWith("/docs/tianshu/")) {
+    if (location.pathname === "/projects" || location.pathname === "/docs/tianshu" || location.pathname.startsWith("/docs/tianshu/")) {
       const url = new URL(location.href);
       url.searchParams.set("lang", lang);
       history.replaceState({}, "", url);
@@ -249,7 +249,7 @@ function projects() {
   const kinds = [...new Set(data.projects.map(p => p.kind))];
   if (!kinds.includes(projectFilter)) projectFilter = "all";
   const selected = sortProjects(data.projects).filter(p => projectFilter === "all" || p.kind === projectFilter);
-  return `<div class="page-wrap work-index">${pageHead("01", "项目", "Projects")}<div class="filter-bar project-filters" aria-label="${t("项目筛选", "Filter projects")}">${["all", ...kinds].map(id => `<button data-filter="${esc(id)}" aria-pressed="${projectFilter === id}">${id === "all" ? t("全部", "All") : esc(workKind(id))}</button>`).join("")}<span class="result-count">${selected.length} ${t("个项目", "PROJECTS")}</span></div><div class="work-browser" data-work-browser><div class="project-list">${selected.map(projectMini).join("")}</div><aside class="work-preview" aria-label="${t("项目预览", "Project preview")}">${selected.map((p, i) => `<div class="work-preview-entry" data-work-preview="${esc(p.id)}" ${i ? "hidden" : ""}><div class="work-preview-art">${projectVisual(p)}</div><a class="work-preview-caption" href="/projects/${esc(p.id)}"><span><small>${esc(p.tag)}</small><strong>${esc(p.title)}</strong></span>${arrow}</a></div>`).join("")}</aside></div></div>`;
+  return `<div class="page-wrap work-index">${pageHead("01", "项目", "Projects")}<div class="filter-bar project-filters" aria-label="${t("项目筛选", "Filter projects")}">${["all", ...kinds].map(id => `<button data-filter="${esc(id)}" aria-pressed="${projectFilter === id}">${id === "all" ? t("全部", "All") : esc(workKind(id))}</button>`).join("")}<span class="result-count">${selected.length} ${t("个项目", "PROJECTS")}</span></div><div class="work-browser" data-work-browser><div class="project-list">${selected.map(projectMini).join("")}</div><aside class="work-preview" aria-label="${t("项目预览", "Project preview")}">${selected.map((p, i) => `<div class="work-preview-entry" data-work-preview="${esc(p.id)}" ${i ? "hidden" : ""}><div class="work-preview-art">${projectVisual(p)}</div><a class="work-preview-caption" href="/projects/${esc(p.id)}"><span><small>${esc(p.tag)}</small><strong>${esc(p.title)}</strong></span>${arrow}</a></div>`).join("")}</aside></div>${projectGuides(lang)}</div>`;
 }
 function projectDetail(id) {
   const p = data.projects.find((p) => p.id === id);
@@ -590,7 +590,7 @@ function render(scroll = true) {
     if (!articleSet().some((a) => a.series === journalSeries)) journalSeries = "";
     journalPage = Math.max(1, parseInt(params.get("page"), 10) || 1);
   }
-  if (path === "/docs/tianshu" || path.startsWith("/docs/tianshu/")) {
+  if (path === "/projects" || path === "/docs/tianshu" || path.startsWith("/docs/tianshu/")) {
     const requestedLanguage = new URLSearchParams(location.search).get("lang");
     if (requestedLanguage === "en" || requestedLanguage === "zh") {
       lang = requestedLanguage;
