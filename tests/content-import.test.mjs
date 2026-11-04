@@ -147,3 +147,17 @@ test('import sources inside the preview tree, including linked paths, are reject
     }
   } finally { await rm(temp, { recursive: true, force: true }); }
 });
+
+
+test('localized project titles and public guide URLs survive a public export and reject invalid values', () => {
+  const bundle=structuredClone(source);
+  Object.assign(bundle.projects[0], {titleZh:'项目',titleEn:'Project',guideUrl:'https://widechaos.cn/docs/tianshu'});
+  const exported=buildPublicSnapshot(bundle);
+  const project=exported.projects.find(p=>p.id===bundle.projects[0].id);
+  assert.equal(project.titleEn,'Project');
+  assert.equal(project.guideUrl,'https://widechaos.cn/docs/tianshu');
+  assert.deepEqual(validateContent(exported),[]);
+  project.guideUrl='javascript:alert(1)';project.titleEn='';
+  assert.match(validateContent(exported).join('\n'),/guideUrl must use public HTTPS/);
+  assert.match(validateContent(exported).join('\n'),/localized project title/);
+});

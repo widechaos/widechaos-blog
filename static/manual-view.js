@@ -2,19 +2,15 @@ import { TIANSHU_MANUAL } from './tianshu-manual.js';
 const esc = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const manualPages = lang => TIANSHU_MANUAL.pages.map(p => ({...p, ...(lang === 'en' ? p.en : {})}));
 export const manualHref = (slug = '', lang = 'zh') => `/docs/tianshu${slug ? '/' + slug : ''}?lang=${lang === 'en' ? 'en' : 'zh'}`;
-export function projectGuides(lang = 'zh') {
-  const t = (zh, en) => lang === 'en' ? en : zh;
-  return `<section class="project-guides" id="product-guides" aria-labelledby="project-guides-title"><h2 id="project-guides-title">${t('产品文档', 'Product documentation')}</h2><a class="project-guide-link" href="${manualHref('', lang)}"><span><strong>${t('天枢 Shuvia', 'Shuvia')}</strong><small>${t('快速开始、功能说明与常见问题', 'Quick start, feature guides and troubleshooting')}</small></span><span>${t('使用文档', 'User guide')} <span aria-hidden="true">→</span></span></a></section>`;
-}
-export function manualPage(path, lang = 'zh') {
+export function manualPage(path, lang = 'zh', projectAvailable = true) {
   const english = lang === 'en', t = (zh, en) => english ? en : zh;
   const href = slug => manualHref(slug, lang);
   const slug = path.split('/')[3] || '';
   const pages = manualPages(lang), page = pages.find(p => p.slug === slug);
   const homeTitle = t('天枢使用文档', 'Shuvia user guide');
   const back = t('返回文档首页', 'Back to guide home');
-  const parentHref = slug ? href() : `/projects?lang=${english ? 'en' : 'zh'}#product-guides`;
-  const parentLabel = slug ? back : t('返回项目', 'Back to projects');
+  const parentHref = slug ? href() : `/projects${projectAvailable ? '/shuvia' : ''}?lang=${english ? 'en' : 'zh'}`;
+  const parentLabel = slug ? back : projectAvailable ? t('返回天枢项目', 'Back to Shuvia project') : t('返回项目', 'Back to projects');
   const title = page?.title || (slug ? t('没有这篇使用文档', 'Guide page not found') : homeTitle);
   const nav = pages.map((p, i) => `<a href="${href(p.slug)}" ${p === page ? 'aria-current="page"' : ''}><small>${String(i + 1).padStart(2,'0')}</small>${esc(p.title)}</a>`).join('');
   const sectionIds = page ? [...page.html.matchAll(/<section id="([^"]+)"/g)].map(m => m[1]) : [];

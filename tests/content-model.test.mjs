@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 import {
   selectHomeContent, filterPublishedContent, selectArticlesForLanguage, findArticleTranslation,
   selectFeaturedProjects, availableTools, articleForProject, articlePublishedAt,
-  articleTopics, topicLabel, retryCollectionImage,
+  articleTopics, topicLabel, retryCollectionImage, projectName, projectGuideHref,
 } from '../static/content-model.js';
 
 const source = JSON.parse(await readFile(new URL('../examples/public-content.json', import.meta.url), 'utf8'));
@@ -95,4 +95,16 @@ test('daily radar never crowds essays out of the homepage, in either language', 
   }
   assert.deepEqual(selectHomeContent(radar,'zh').writing,[]);
   assert.equal(selectHomeContent(essays,'zh').radar,null);
+});
+
+
+test('project labels and guide links preserve language without changing unrelated resources', () => {
+  const project = {title:'天枢 Shuvia', titleZh:'天枢 Shuvia', titleEn:'Shuvia', guideUrl:'https://widechaos.cn/docs/tianshu'};
+  assert.equal(projectName(project, 'zh'), '天枢 Shuvia');
+  assert.equal(projectName(project, 'en'), 'Shuvia');
+  assert.equal(projectName({title:'Existing project'}, 'en'), 'Existing project');
+  assert.equal(projectGuideHref(project, 'en'), '/docs/tianshu?lang=en');
+  assert.equal(projectGuideHref({...project,guideUrl:project.guideUrl+'?lang=zh#start'}, 'en'), '/docs/tianshu?lang=en#start');
+  assert.equal(projectGuideHref({...project,guideUrl:'https://example.org/guide'}, 'en'), 'https://example.org/guide');
+  assert.equal(projectGuideHref({}), '');
 });
