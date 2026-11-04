@@ -9,7 +9,7 @@ SLUG = re.compile(r'^[a-z0-9]+(?:-[a-z0-9]+)*$')
 FM = re.compile(r'^---\s*\n(.*?)\n---\s*\n', re.S)
 EXTENSIONS = ['fenced_code', 'codehilite', 'tables', 'toc', 'sane_lists', 'admonition', 'attr_list']
 FIELDS = {
- 'projects': ('id','title','tag','zh','en','url','kind','article','status','publishedAt','updatedAt','featuredRank','demo','topics','tool'),
+ 'projects': ('id','title','titleZh','titleEn','guideUrl','tag','zh','en','url','kind','article','status','publishedAt','updatedAt','featuredRank','demo','topics','tool'),
  'tools': ('id','title','titleZh','titleEn','zh','en','url','availability','tag','status'),
  'collection': ('title','url','image','kind','status'),
 }
@@ -54,6 +54,9 @@ def validate_catalog(catalog):
     if not re.fullmatch(r'/static/[A-Za-z0-9_./%-]+',image) or '..' in image: raise ValueError('Invalid collection asset path')
     if not public_url(url) and not (url.startswith('assets/') and '..' not in url): raise ValueError('Invalid collection URL')
    if section=='projects':
+    for field in ('titleZh','titleEn'):
+     if field in item and (not isinstance(item[field],str) or not item[field].strip()): raise ValueError('Invalid localized project title')
+    if 'guideUrl' in item and not public_url(item['guideUrl']): raise ValueError('Invalid project guide URL')
     if not all(isinstance(item.get(k),str) and item[k].strip() for k in ('zh','en','kind')): raise ValueError('Project descriptions and kind required')
     if item['kind'] not in catalog.get('projectKinds',{}): raise ValueError('Unknown project kind')
     if item.get('demo') not in (None,'router','bulletin','obsidian'): raise ValueError('Unknown demonstration')

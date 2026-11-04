@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { TIANSHU_MANUAL } from '../static/tianshu-manual.js';
-import { manualPage, manualPages, projectGuides } from '../static/manual-view.js';
+import { manualPage, manualPages } from '../static/manual-view.js';
 const tags = (html, tag) => [...html.matchAll(new RegExp(`<${tag}\\b`, 'g'))].length;
 test('every chapter has complete English instructions and preserves its structure and sources', () => {
   const pages=TIANSHU_MANUAL.pages;
@@ -68,15 +68,12 @@ test('guide image links use the current screenshot bytes in both languages', () 
 test('guide parent navigation works from direct home and chapter links in either language', () => {
   for (const lang of ['zh', 'en']) {
     const home = manualPage('/docs/tianshu', lang);
-    assert.match(home, new RegExp(`class="back-link" href="/projects\\?lang=${lang}#product-guides"`));
+    assert.match(home, new RegExp(`class="back-link" href="/projects/shuvia\\?lang=${lang}"`));
     for (const slug of ['quickstart', 'missing']) {
       const chapter = manualPage('/docs/tianshu/' + slug, lang);
       assert.match(chapter, new RegExp(`class="back-link" href="/docs/tianshu\\?lang=${lang}"`));
       assert.ok(chapter.includes(lang === 'en' ? 'Back to guide home' : '返回文档首页'));
     }
-    const entry = projectGuides(lang);
-    assert.ok(entry.includes('id="product-guides"'));
-    assert.ok(entry.includes(`/docs/tianshu?lang=${lang}`));
-    if (lang === 'en') assert.doesNotMatch(entry, /[\u3400-\u9fff]/u);
+    assert.ok(manualPage('/docs/tianshu', lang, false).includes(`href="/projects?lang=${lang}"`));
   }
 });

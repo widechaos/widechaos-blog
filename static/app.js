@@ -1,4 +1,4 @@
-import { manualPage, mountManual, projectGuides } from './manual-view.js';
+import { manualPage, mountManual } from './manual-view.js';
 import { ABOUT_COPY } from "./about-copy.js";
 import { createAnalytics } from "./analytics.js";
 import { mountScrollScenes } from "./scroll-scenes.js";
@@ -14,6 +14,8 @@ import {
   articleForProject,
   isRouterArticle,
   projectMonogram,
+  projectName,
+  projectGuideHref,
   filterPublishedContent,
   sortProjects,
   selectFeaturedProjects,
@@ -71,7 +73,7 @@ const TAG_KEYS = ["scientist", "wordsmith", "artist", "tactician", "knight", "li
 // Each signature word reacts in its own way on hover; see .tag-fx in content-layout.css.
 const tagFx = (x, i) => `<em class="tag-fx" data-tag="${TAG_KEYS[i]}">${x}</em>`;
 const articleSet = () => selectArticlesForLanguage(data.articles, lang);
-const projectTitle = (id) => data.projects.find((p) => p.id === id)?.title;
+const projectTitle = (id) => projectName(data.projects.find((p) => p.id === id), lang);
 const desc = (p) => p[lang];
 const link = (url, label, cls = "") =>
   `<a class="${cls}" href="${esc(url)}"${/^https?:/.test(url) ? ' target="_blank" rel="noopener"' : ""}>${label}</a>`;
@@ -142,7 +144,7 @@ function articleMeta(a) {
 }
 function projectVisual(p) {
   if (p.demo && ["router", "bulletin", "obsidian"].includes(p.demo)) return demoMarkup(p.demo, lang, p.demo === "bulletin" ? streamHeadlines() : []);
-  return `<div class="project-poster poster-${esc(p.id)}"><span class="poster-grid"></span><span class="poster-big">${esc(projectMonogram(p))}</span><span class="poster-label">${esc(p.title)}</span><small>${esc(p.tag)}</small></div>`;
+  return `<div class="project-poster poster-${esc(p.id)}"><span class="poster-grid"></span><span class="poster-big">${esc(projectMonogram(p))}</span><span class="poster-label">${esc(projectName(p, lang))}</span><small>${esc(p.tag)}</small></div>`;
 }
 // Bulletin's demo streams what is actually new here: recent titles and radar picks.
 function streamHeadlines() {
@@ -152,7 +154,7 @@ function streamHeadlines() {
   return [...recent.map((a) => a.title), ...picks].slice(0, 9);
 }
 function featuredWork(p, index) {
-  return `<article class="${index === 0 ? "feature-work" : ""} reveal"><div class="work-visual">${projectVisual(p)}</div><div class="${index === 0 ? "work-caption" : "small-caption"}"><div><p class="eyebrow">${esc(p.tag)}</p><h3>${link("/projects/" + p.id, esc(p.title) + " " + arrow)}</h3></div><p>${esc(desc(p))}</p></div></article>`;
+  return `<article class="${index === 0 ? "feature-work" : ""} reveal"><div class="work-visual">${projectVisual(p)}</div><div class="${index === 0 ? "work-caption" : "small-caption"}"><div><p class="eyebrow">${esc(p.tag)}</p><h3>${link("/projects/" + p.id, esc(projectName(p, lang)) + " " + arrow)}</h3></div><p>${esc(desc(p))}</p></div></article>`;
 }
 function header() {
   const path = location.pathname;
@@ -179,7 +181,7 @@ function header() {
   $("#language").onclick = () => {
     lang = lang === "zh" ? "en" : "zh";
     localStorage.setItem("wc-site-lang", lang);
-    if (location.pathname === "/projects" || location.pathname === "/docs/tianshu" || location.pathname.startsWith("/docs/tianshu/")) {
+    if (location.pathname === "/projects" || location.pathname.startsWith("/projects/") || location.pathname === "/docs/tianshu" || location.pathname.startsWith("/docs/tianshu/")) {
       const url = new URL(location.href);
       url.searchParams.set("lang", lang);
       history.replaceState({}, "", url);
@@ -207,7 +209,7 @@ function header() {
   $("#search-open").onclick = openSearch;
 }
 function projectMini(p, i) {
-  return `<a class="project-row" data-work-id="${esc(p.id)}" href="/projects/${p.id}"><span class="row-number">${String(i + 1).padStart(2, "0")}</span><div><h3>${esc(p.title)}</h3><p>${esc(desc(p))}</p></div><span class="project-type">${esc(p.tag)}</span>${arrow}</a>`;
+  return `<a class="project-row" data-work-id="${esc(p.id)}" href="/projects/${p.id}?lang=${lang}"><span class="row-number">${String(i + 1).padStart(2, "0")}</span><div><h3>${esc(projectName(p, lang))}</h3><p>${esc(desc(p))}</p></div><span class="project-type">${esc(p.tag)}</span>${arrow}</a>`;
 }
 function articleRow(a, i = 0, level = 3) {
   return `<a class="article-row" href="/blog/${a.id}" lang="${a.lang}"><span class="article-date"><time datetime="${esc(articlePublishedAt(a))}">${articleDate(a)}</time><small>${readingTime(a)}</small></span><div class="article-row-copy"><div class="entry-topics">${entryLabels(a)}</div><h${level}>${esc(a.title)}</h${level}><p>${esc(summary(a))}</p>${a.seriesCount > 1 ? `<span class="series-note">${esc(a.series)} · ${t(`共 ${a.seriesCount} 期，这是最新一期`, `${a.seriesCount} issues · latest shown`)}</span>` : ""}${fallbackLanguage(a) ? `<span class="language-note">${fallbackLanguage(a)}</span>` : ""}</div><span class="article-number" aria-hidden="true">${String(i + 1).padStart(2, "0")}</span>${arrow}</a>`;
@@ -249,16 +251,18 @@ function projects() {
   const kinds = [...new Set(data.projects.map(p => p.kind))];
   if (!kinds.includes(projectFilter)) projectFilter = "all";
   const selected = sortProjects(data.projects).filter(p => projectFilter === "all" || p.kind === projectFilter);
-  return `<div class="page-wrap work-index">${pageHead("01", "项目", "Projects")}<div class="filter-bar project-filters" aria-label="${t("项目筛选", "Filter projects")}">${["all", ...kinds].map(id => `<button data-filter="${esc(id)}" aria-pressed="${projectFilter === id}">${id === "all" ? t("全部", "All") : esc(workKind(id))}</button>`).join("")}<span class="result-count">${selected.length} ${t("个项目", "PROJECTS")}</span></div><div class="work-browser" data-work-browser><div class="project-list">${selected.map(projectMini).join("")}</div><aside class="work-preview" aria-label="${t("项目预览", "Project preview")}">${selected.map((p, i) => `<div class="work-preview-entry" data-work-preview="${esc(p.id)}" ${i ? "hidden" : ""}><div class="work-preview-art">${projectVisual(p)}</div><a class="work-preview-caption" href="/projects/${esc(p.id)}"><span><small>${esc(p.tag)}</small><strong>${esc(p.title)}</strong></span>${arrow}</a></div>`).join("")}</aside></div>${projectGuides(lang)}</div>`;
+  return `<div class="page-wrap work-index">${pageHead("01", "项目", "Projects")}<div class="filter-bar project-filters" aria-label="${t("项目筛选", "Filter projects")}">${["all", ...kinds].map(id => `<button data-filter="${esc(id)}" aria-pressed="${projectFilter === id}">${id === "all" ? t("全部", "All") : esc(workKind(id))}</button>`).join("")}<span class="result-count">${selected.length} ${t("个项目", "PROJECTS")}</span></div><div class="work-browser" data-work-browser><div class="project-list" id="product-guides">${selected.map(projectMini).join("")}</div><aside class="work-preview" aria-label="${t("项目预览", "Project preview")}">${selected.map((p, i) => `<div class="work-preview-entry" data-work-preview="${esc(p.id)}" ${i ? "hidden" : ""}><div class="work-preview-art">${projectVisual(p)}</div><a class="work-preview-caption" href="/projects/${esc(p.id)}?lang=${lang}"><span><small>${esc(p.tag)}</small><strong>${esc(projectName(p, lang))}</strong></span>${arrow}</a></div>`).join("")}</aside></div></div>`;
 }
 function projectDetail(id) {
   const p = data.projects.find((p) => p.id === id);
   if (!p) return notFound();
   const visual = projectVisual(p);
+  const guide = projectGuideHref(p, lang);
+  const onlyGuide = guide && p.url === p.guideUrl;
   const next =
     data.projects[(data.projects.indexOf(p) + 1) % data.projects.length];
   const related = articleForProject(data.articles, p, lang);
-  return `<div class="page-wrap project-detail"><a class="back-link" href="/projects">← ${t("全部项目", "All projects")}</a><header class="project-heading"><p class="eyebrow">${esc(p.tag)}</p><h1>${esc(p.title)}</h1><p>${esc(desc(p))}</p></header><div class="project-reveal" data-project-reveal><div class="detail-visual">${visual}</div><div class="detail-panels"><div class="project-body"><div><h2>${t("源码与资料", "Source & resources")}</h2><p class="activity-line" data-activity="${esc(p.url)}">${t("正在读取最近更新…", "Checking latest activity…")}</p></div><div class="resource-links">${link(p.url, sourceLabel(p.url) + " " + arrow, "resource")}${/天枢|tianshu|shuvia/i.test(p.title + " " + p.id) ? link("/docs/tianshu", t("使用文档", "User guide") + " " + arrow, "resource") : ""}${id === "router" ? link("https://huggingface.co/datasets/WideChaos/bilingual-router-lora-v2", t("合成数据集", "Synthetic dataset") + " " + arrow, "resource") + link("https://www.kaggle.com/code/xover2022/bilingual-router-lora-v2-frozen-output-check", t("复现与核对", "Reproduction & checks") + " " + arrow, "resource") : ""}${id === "navigator" ? link("https://greasyfork.org/zh-CN/scripts/560039-deepseek-chat-navigator", t("安装脚本", "Install userscript") + " " + arrow, "resource") : ""}</div></div></div></div>${related ? `<a class="related-article project-related" href="/blog/${related.id}"><span>${t("相关文字", "Related writing")}</span><h2>${esc(related.title)}</h2>${arrow}</a>` : ""}${data.projects.length > 1 ? `<a class="next-project" href="/projects/${next.id}"><span>${t("下一件项目", "Next project")}</span><h2>${esc(next.title)}</h2>${arrow}</a>` : ""}</div>`;
+  return `<div class="page-wrap project-detail"><a class="back-link" href="/projects?lang=${lang}">← ${t("全部项目", "All projects")}</a><header class="project-heading"><p class="eyebrow">${esc(p.tag)}</p><h1>${esc(projectName(p, lang))}</h1><p>${esc(desc(p))}</p></header><div class="project-reveal" data-project-reveal><div class="detail-visual">${visual}</div><div class="detail-panels"><div class="project-body"><div><h2>${onlyGuide ? t("使用与资料", "Use & resources") : t("源码与资料", "Source & resources")}</h2>${onlyGuide ? "" : `<p class="activity-line" data-activity="${esc(p.url)}">${t("正在读取最近更新…", "Checking latest activity…")}</p>`}</div><div class="resource-links">${guide ? link(guide, t("使用文档", "User guide") + " " + arrow, "resource") : ""}${onlyGuide ? "" : link(p.url, sourceLabel(p.url) + " " + arrow, "resource")}${id === "router" ? link("https://huggingface.co/datasets/WideChaos/bilingual-router-lora-v2", t("合成数据集", "Synthetic dataset") + " " + arrow, "resource") + link("https://www.kaggle.com/code/xover2022/bilingual-router-lora-v2-frozen-output-check", t("复现与核对", "Reproduction & checks") + " " + arrow, "resource") : ""}${id === "navigator" ? link("https://greasyfork.org/zh-CN/scripts/560039-deepseek-chat-navigator", t("安装脚本", "Install userscript") + " " + arrow, "resource") : ""}</div></div></div></div>${related ? `<a class="related-article project-related" href="/blog/${related.id}"><span>${t("相关文字", "Related writing")}</span><h2>${esc(related.title)}</h2>${arrow}</a>` : ""}${data.projects.length > 1 ? `<a class="next-project" href="/projects/${next.id}?lang=${lang}"><span>${t("下一件项目", "Next project")}</span><h2>${esc(projectName(next, lang))}</h2>${arrow}</a>` : ""}</div>`;
 }
 function sourceLabel(url) {
   if (repoOf(url)) return t("GitHub 源码", "Source on GitHub");
@@ -532,7 +536,7 @@ function toolsPage() {
 }
 function nowPage() {
   const latest = articleSet()[0];
-  const rows = data.projects.map((p, i) => `<a class="project-row" href="/projects/${p.id}" data-activity-row><span class="row-number">${String(i + 1).padStart(2, "0")}</span><div><h3>${esc(p.title)}</h3><p>${esc(desc(p))}</p><small class="activity-line" data-activity="${esc(p.url)}"></small></div><span class="project-type">${esc(p.tag)}</span>${arrow}</a>`).join("");
+  const rows = data.projects.map((p, i) => `<a class="project-row" href="/projects/${p.id}?lang=${lang}" data-activity-row><span class="row-number">${String(i + 1).padStart(2, "0")}</span><div><h3>${esc(projectName(p, lang))}</h3><p>${esc(desc(p))}</p><small class="activity-line" data-activity="${esc(p.url)}"></small></div><span class="project-type">${esc(p.tag)}</span>${arrow}</a>`).join("");
   return `<div class="page-wrap now-page">${pageHead("05", "现在", "Now")}<p class="now-updated">${t("更新于", "Updated")} <time id="now-date">${latest ? articlePublishedAt(latest) : ""}</time></p><p class="now-statement">AI scientist,<br>full stack<span>.</span></p><div class="now-direction"><span>From research to product, end to end.</span><span>Build intelligence. Test everything.</span></div>${sectionTitle("", "最近在动的", "Recently active")}<div class="project-list" id="now-projects">${rows}</div>${latest ? `${sectionTitle("", "最近写的", "Latest writing", link("/blog", t("全部文章", "All writing") + " " + arrow, "section-more"))}${articleSet().slice(0, 3).map((a, i) => articleRow(a, i)).join("")}` : ""}</div>`;
 }
 // Order the work by real activity once the public repositories answer.
@@ -590,7 +594,7 @@ function render(scroll = true) {
     if (!articleSet().some((a) => a.series === journalSeries)) journalSeries = "";
     journalPage = Math.max(1, parseInt(params.get("page"), 10) || 1);
   }
-  if (path === "/projects" || path === "/docs/tianshu" || path.startsWith("/docs/tianshu/")) {
+  if (path === "/projects" || path.startsWith("/projects/") || path === "/docs/tianshu" || path.startsWith("/docs/tianshu/")) {
     const requestedLanguage = new URLSearchParams(location.search).get("lang");
     if (requestedLanguage === "en" || requestedLanguage === "zh") {
       lang = requestedLanguage;
@@ -614,7 +618,7 @@ function render(scroll = true) {
   header();
   let html =
     path === "/docs/tianshu" || path.startsWith("/docs/tianshu/")
-      ? manualPage(path, lang)
+      ? manualPage(path, lang, data.projects.some(p => p.id === 'shuvia'))
       : path === "/"
       ? home()
       : path === "/projects"
@@ -901,7 +905,7 @@ function searchResults(q = "") {
   const query = q.trim().toLowerCase();
   const hits = [
     ...data.projects.map((p) => ({
-      title: p.title,
+      title: projectName(p, lang),
       sub: desc(p),
       url: "/projects/" + p.id,
       type: t("项目", "PROJECT"),

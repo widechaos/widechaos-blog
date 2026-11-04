@@ -2,7 +2,7 @@ import { filterPublishedContent } from '../static/content-model.js';
 
 const fields = {
   articles: ['id', 'title', 'url', 'lang', 'translationKey', 'body', 'summary', 'publishedAt', 'updatedAt', 'topics', 'status', 'discussionUrl'],
-  projects: ['id', 'title', 'tag', 'zh', 'en', 'url', 'kind', 'article', 'status', 'publishedAt', 'updatedAt', 'featuredRank', 'demo', 'topics', 'tool'],
+  projects: ['id', 'title', 'titleZh', 'titleEn', 'guideUrl', 'tag', 'zh', 'en', 'url', 'kind', 'article', 'status', 'publishedAt', 'updatedAt', 'featuredRank', 'demo', 'topics', 'tool'],
   tools: ['id', 'title', 'titleZh', 'titleEn', 'zh', 'en', 'url', 'availability', 'tag', 'status'],
   collection: ['title', 'url', 'image', 'kind', 'status'],
 };
@@ -95,6 +95,8 @@ export function validateContent(data) {
         if (/<\s*(?:script|iframe|object|embed|form|base|meta|link)\b|\son\w+\s*=|(?:javascript|vbscript)\s*:/i.test(item.body || '')) errors.push(`${label}: unexpected executable HTML. Use a trusted rendered article body.`);
       }
       if (name === 'projects') {
+        for (const field of ['titleZh', 'titleEn']) if (item[field] !== undefined && !text(item[field])) errors.push(`${label}: localized project title must be nonempty.`);
+        if (item.guideUrl !== undefined && !absoluteUrl(item.guideUrl)) errors.push(`${label}: guideUrl must use public HTTPS.`);
         if (!text(item.zh) || !text(item.en)) errors.push(`${label}: both project descriptions are required.`);
         if (!text(item.kind) || !data.projectKinds?.[item.kind]) errors.push(`${label}: kind must reference the projectKinds catalog.`);
         if (item.featuredRank !== undefined && (!Number.isInteger(item.featuredRank) || item.featuredRank < 1)) errors.push(`${label}: featuredRank must be a positive integer.`);

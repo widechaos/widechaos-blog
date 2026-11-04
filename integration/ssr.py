@@ -1,7 +1,7 @@
 """Readable HTML and metadata from the same public bundle as the browser."""
 import html,json,re
 from pathlib import Path
-from urllib.parse import quote
+from urllib.parse import quote, urlsplit, urlunsplit, parse_qsl, urlencode
 E=lambda x:html.escape(str(x),quote=True)
 
 def render(root,path,data,lang='zh'):
@@ -10,8 +10,17 @@ def render(root,path,data,lang='zh'):
  def label(zh,en):return en if english else zh
  in_manual=path=='/docs/tianshu' or path.startswith('/docs/tianshu/')
  nav='<nav aria-label="'+label('主导航','Main navigation')+'">'+''.join('<a href="'+u+'"'+(' aria-current="page"' if path==u or (u=='/projects' and (in_manual or path.startswith('/projects/'))) or (u not in ['/','/projects'] and path.startswith(u+'/')) else '')+'>'+label(zh,en)+'</a> ' for u,zh,en in [('/','首页','Home'),('/projects','项目','Projects'),('/blog','十方志','Journal'),('/radar','开源雷达','Radar'),('/tools','工具','Tools'),('/about','关于','About')])+'</nav>'
+ def project_name(project):return project.get('titleEn' if english else 'titleZh') or project['title']
+ def guide_href(project):
+  raw=project.get('guideUrl','')
+  if not raw:return ''
+  url=urlsplit(raw)
+  if url.scheme=='https' and url.netloc=='widechaos.cn' and (url.path=='/docs/tianshu' or url.path.startswith('/docs/tianshu/')):
+   params=dict(parse_qsl(url.query));params['lang']='en' if english else 'zh'
+   return urlunsplit(('', '', url.path, urlencode(params),url.fragment))
+  return raw
  def listing(items,kind):
-  return ''.join(f'<section><h2><a href="{E("/blog/"+i["id"] if kind=="article" else "/projects/"+i["id"])}">{E(i["title"])}</a></h2><p>{E(i.get("summary") or i.get(lang) or "")}</p></section>' for i in items)
+  return ''.join('<section><h2><a href="'+E('/blog/'+i['id'] if kind=='article' else '/projects/'+i['id']+'?lang='+lang)+'">'+E(i['title'] if kind=='article' else project_name(i))+'</a></h2><p>'+E(i.get('summary') or i.get(lang) or '')+'</p></section>' for i in items)
  if path=='/docs/tianshu' or path.startswith('/docs/tianshu/'):
   source=Path(root)/'static'/'tianshu-manual.js'
   if not source.exists():source=Path(root).parent/'static'/'tianshu-manual.js'
@@ -38,8 +47,9 @@ def render(root,path,data,lang='zh'):
    index=pages.index(entry);content+='<nav class="manual-paging" aria-label="'+t('文档翻页','Guide pages')+'">'+(' <a href="'+href(pages[index-1]['slug'])+'">← '+E(pages[index-1]['title'])+'</a>' if index else '<span></span>')+('<a href="'+href(pages[index+1]['slug'])+'">'+E(pages[index+1]['title'])+' →</a>' if index+1<len(pages) else '<a href="'+href()+'">'+back+'</a>')+'</nav>'
   elif slug:status=404;content='<h1>'+heading+'</h1><a href="'+href()+'">'+back+'</a>'
   else:content+='<p>'+t('按页面、功能与实际操作组织。先从快速开始完成一个小任务，再按需查阅。','Organized by page, feature and practical steps. Complete one small task with Quick start, then look up what you need.')+'</p><div class="manual-cards">'+''.join('<a href="'+href(p['slug'])+'"><h2>'+E(p['title'])+'</h2><p>'+E(p['summary'])+'</p><span>'+t('阅读','Read')+' →</span></a>' for p in pages)+'</div>'
-  parent_href=href() if slug else '/projects?lang='+('en' if english else 'zh')+'#product-guides'
-  parent_label=back if slug else t('返回项目','Back to projects')
+  has_project=any(p['id']=='shuvia' for p in data['projects'])
+  parent_href=href() if slug else ('/projects/shuvia' if has_project else '/projects')+'?lang='+('en' if english else 'zh')
+  parent_label=back if slug else (t('返回天枢项目','Back to Shuvia project') if has_project else t('返回项目','Back to projects'))
   main='<div class="page-wrap manual-page"><a class="back-link" href="'+parent_href+'">← '+parent_label+'</a>'+notice+'<div class="manual-layout"><aside><details open><summary>'+t('全部章节','All chapters')+'</summary><nav aria-label="'+t('天枢文档章节','Shuvia guide chapters')+'"><a href="'+href()+'">'+t('文档首页','Guide home')+'</a>'+links+'</nav></details></aside><div class="manual-main">'+content+'</div></div></div>'
  elif path.startswith('/blog/'):
   article=next((a for a in data['articles'] if path=='/blog/'+a['id']),None)
@@ -73,12 +83,12 @@ def render(root,path,data,lang='zh'):
    main+='<h2>项目</h2>'+listing(data['projects'],'project')
  elif path=='/projects':
   title=label('项目 · 十方空烬','Projects · Ember');summary=label('实验、工具与设计中的项目：模型实验、桌面工具和个人系统。','Experiments, tools and projects in design.');main='<h1>'+label('项目','Projects')+'</h1>'+listing(data['projects'],'project')
-  main+='<section class="project-guides" id="product-guides" aria-labelledby="project-guides-title"><h2 id="project-guides-title">'+label('产品文档','Product documentation')+'</h2><a class="project-guide-link" href="/docs/tianshu?lang='+('en' if english else 'zh')+'"><span><strong>'+label('天枢 Shuvia','Shuvia')+'</strong><small>'+label('快速开始、功能说明与常见问题','Quick start, feature guides and troubleshooting')+'</small></span><span>'+label('使用文档','User guide')+' <span aria-hidden="true">→</span></span></a></section>'
-
  elif path.startswith('/projects/'):
   p=next((p for p in data['projects'] if path=='/projects/'+p['id']),None)
   if p:
-   title=p['title']+' · 十方空烬';summary=p.get(lang) or summary;main=f'<h1>{E(title)}</h1><p>{E(p.get(lang,""))}</p><a href="{E(p["url"])}">源码与资料</a>'
+   title=project_name(p)+label(' · 十方空烬',' · Ember');summary=p.get(lang) or summary;guide=guide_href(p);only_guide=guide and p['url']==p.get('guideUrl')
+   resources=('<a class="resource" href="'+E(guide)+'">'+label('使用文档','User guide')+' ↗</a>' if guide else '')+('' if only_guide else '<a class="resource" href="'+E(p['url'])+'">'+label('源码与资料','Source & resources')+' ↗</a>')
+   main='<div class="page-wrap project-detail"><a class="back-link" href="/projects?lang='+lang+'">← '+label('全部项目','All projects')+'</a><header class="project-heading"><p class="eyebrow">'+E(p.get('tag',''))+'</p><h1>'+E(project_name(p))+'</h1><p>'+E(summary)+'</p></header><div class="project-body"><h2>'+label('使用与资料','Use & resources')+'</h2><div class="resource-links">'+resources+'</div></div></div>'
   else:status=404;main='<h1>项目不存在</h1>'
  elif path=='/tools':title='工具 · 十方空烬';summary='可以直接打开或安装使用的小工具。';main='<h1>工具</h1>'+''.join(f'<section><h2><a href="{E(p.get("tool",{}).get("url") or p["url"])}">{E(p["title"])}</a></h2><p>{E(p.get(lang,""))}</p></section>' for p in data['projects'] if p.get('tool'))
  elif path in ('/about','/collection'):

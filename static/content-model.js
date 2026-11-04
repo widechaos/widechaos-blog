@@ -112,3 +112,17 @@ export function selectHomeContent(articles, language) {
     radar: entries.find(isRadarArticle) || null,
   };
 }
+
+export function projectName(project, language = 'zh') {
+  return project?.[language === 'en' ? 'titleEn' : 'titleZh'] || project?.title || '';
+}
+
+export function projectGuideHref(project, language = 'zh') {
+  if (!project?.guideUrl) return '';
+  const url = new URL(project.guideUrl);
+  if (url.origin === 'https://widechaos.cn' && (url.pathname === '/docs/tianshu' || url.pathname.startsWith('/docs/tianshu/'))) {
+    url.searchParams.set('lang', language === 'en' ? 'en' : 'zh');
+    return url.pathname + url.search + url.hash;
+  }
+  return url.href;
+}

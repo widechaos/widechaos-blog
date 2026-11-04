@@ -2308,26 +2308,3 @@ html[data-motion="off"] .reveal {
 .name-star img { width: 100%; height: 100%; object-fit: contain; }
 .hero .name-star { font-size: 1em; opacity: .82; transform: rotate(-3deg); }
 @media(max-width:760px) { .brand-mark { width: 28px; height: 39px; } }
-
-/* Product help belongs to the project index's secondary resources. */
-.project-guides {
-  margin-top: clamp(40px, 6vw, 80px);
-  scroll-margin-top: 110px;
-}
-.project-guides h2 { font-size: clamp(20px, 2vw, 26px); margin: 0 0 20px; }
-.project-guide-link {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 16px 24px;
-  padding: 24px 0;
-  border-block: 1px solid var(--line);
-  text-decoration: none;
-}
-.project-guide-link > span:first-child { display: grid; gap: 8px; min-width: 0; }
-.project-guide-link strong { font-size: 20px; font-weight: 600; }
-.project-guide-link small { font-size: 14px; color: var(--muted); }
-.project-guide-link > span:last-child { color: var(--accent); font-size: 14px; }
-.project-guide-link:hover strong { color: var(--accent); }
-.project-guide-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 6px; }

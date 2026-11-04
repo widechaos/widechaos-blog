@@ -41,8 +41,9 @@ class ManualTests(unittest.TestCase):
     for target in re.findall(r'href="#([^"]+)"',main):self.assertIn('id="'+target+'"',main)
   body,status=render(ROOT,'/docs/tianshu/missing',data,'en')
   self.assertEqual(status,404);self.assertIn('Guide page not found',body)
- def test_guide_belongs_to_projects_and_parent_links_work_without_javascript(self):
-  data={'articles':[],'projects':[],'collection':[]}
+ def test_project_list_detail_and_guide_form_a_localized_round_trip_without_javascript(self):
+  project={'id':'shuvia','title':'天枢 Shuvia','titleZh':'天枢 Shuvia','titleEn':'Shuvia','tag':'AI workspace · In development','zh':'本机工作台，持续开发中。','en':'Local workspace in active development.','url':'https://widechaos.cn/docs/tianshu','guideUrl':'https://widechaos.cn/docs/tianshu'}
+  data={'articles':[],'projects':[project],'collection':[]}
   for lang in ['zh','en']:
    for slug in ['', '/quickstart', '/missing']:
     body,status=render(ROOT,'/docs/tianshu'+slug,data,lang)
@@ -50,13 +51,23 @@ class ManualTests(unittest.TestCase):
     header=body.split('<header id="header">')[1].split('</header>')[0]
     self.assertNotIn('/docs/tianshu',header)
     self.assertIn('<a href="/projects" aria-current="page">',header)
-    parent='/docs/tianshu?lang='+lang if slug else '/projects?lang='+lang+'#product-guides'
+    parent='/docs/tianshu?lang='+lang if slug else '/projects/shuvia?lang='+lang
     self.assertIn('class="back-link" href="'+parent+'"',body)
    projects,status=render(ROOT,'/projects',data,lang)
    self.assertEqual(status,200)
-   self.assertIn('id="product-guides"',projects)
-   self.assertIn('href="/docs/tianshu?lang='+lang+'"',projects)
-   self.assertIn('Product documentation' if lang=='en' else '产品文档',projects)
+   self.assertIn('href="/projects/shuvia?lang='+lang+'"',projects)
+   self.assertNotIn('project-guides',projects)
+   detail,status=render(ROOT,'/projects/shuvia',data,lang)
+   self.assertEqual(status,200)
+   main=detail.split('<main id="main" tabindex="-1">')[1].split('</main>')[0]
+   self.assertIn('<h1>'+project['titleEn' if lang=='en' else 'titleZh']+'</h1>',main)
+   self.assertEqual(main.count('href="/docs/tianshu?lang='+lang+'"'),1)
+   self.assertIn('href="/projects?lang='+lang+'"',main)
+   self.assertIn('User guide' if lang=='en' else '使用文档',main)
+   self.assertNotIn('github.com',main)
+   if lang=='en':self.assertIsNone(re.search(r'[\u3400-\u9fff]',main))
+   fallback,status=render(ROOT,'/docs/tianshu',{'articles':[],'projects':[],'collection':[]},lang)
+   self.assertIn('class="back-link" href="/projects?lang='+lang+'"',fallback)
 
  def test_all_screenshots_exist_and_stay_inside_public_guide_assets(self):
   source=(ROOT/'static/tianshu-manual.js').read_text()
