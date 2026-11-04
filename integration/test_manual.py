@@ -41,6 +41,23 @@ class ManualTests(unittest.TestCase):
     for target in re.findall(r'href="#([^"]+)"',main):self.assertIn('id="'+target+'"',main)
   body,status=render(ROOT,'/docs/tianshu/missing',data,'en')
   self.assertEqual(status,404);self.assertIn('Guide page not found',body)
+ def test_guide_belongs_to_projects_and_parent_links_work_without_javascript(self):
+  data={'articles':[],'projects':[],'collection':[]}
+  for lang in ['zh','en']:
+   for slug in ['', '/quickstart', '/missing']:
+    body,status=render(ROOT,'/docs/tianshu'+slug,data,lang)
+    self.assertEqual(status,404 if slug=='/missing' else 200)
+    header=body.split('<header id="header">')[1].split('</header>')[0]
+    self.assertNotIn('/docs/tianshu',header)
+    self.assertIn('<a href="/projects" aria-current="page">',header)
+    parent='/docs/tianshu?lang='+lang if slug else '/projects?lang='+lang+'#product-guides'
+    self.assertIn('class="back-link" href="'+parent+'"',body)
+   projects,status=render(ROOT,'/projects',data,lang)
+   self.assertEqual(status,200)
+   self.assertIn('id="product-guides"',projects)
+   self.assertIn('href="/docs/tianshu?lang='+lang+'"',projects)
+   self.assertIn('Product documentation' if lang=='en' else '产品文档',projects)
+
  def test_all_screenshots_exist_and_stay_inside_public_guide_assets(self):
   source=(ROOT/'static/tianshu-manual.js').read_text()
   images=set(re.findall(r'/static/assets/tianshu/((?:en/)?[a-z0-9-]+\.png)',source))
