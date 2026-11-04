@@ -47,3 +47,8 @@ export function mountManual(root) {
   field.addEventListener('input',search);
   return () => { form.removeEventListener('submit',search); field.removeEventListener('input',search); };
 }
+
+export function shuviaProjectVisual(lang = 'zh') {
+  const image = TIANSHU_MANUAL.projectScreenshots[lang === 'en' ? 'en' : 'zh'];
+  return `<figure class="project-screenshot"><a href="${esc(image.src)}" target="_blank" rel="noopener"><img src="${esc(image.src)}" alt="${esc(image.alt)}" width="${image.width}" height="${image.height}" decoding="async"></a><figcaption>${esc(image.caption)}</figcaption></figure>`;
+}

@@ -384,5 +384,23 @@ export const TIANSHU_MANUAL = {
         "html": "<section id=\"part-1\"><h2>The app will not open or the local connection is interrupted</h2><p>Choose Retry or Retry connection in the workspace’s error message and wait for the original content to recover. An interrupted connection should not cause an existing conversation to be overwritten as a new one.</p><p>If it still fails, record the error and triggering action, then check that Shuvia’s local service is running. Do not repeatedly send the same work instruction as a connection test; it could execute more than once after reconnection.</p></section><section id=\"part-2\"><h2>Project list unavailable or directory invalid</h2><p>Use Retry inside the project list for list errors. A whole knowledge base, host root or Shuvia runtime data directory is not a suitable generic working directory. Choose a specific project.</p><p>If the directory is occupied, use View what is blocking to open the original conversation or ask in read-only mode. A scheduling conflict is different from an unresponsive model.</p></section><section id=\"part-3\"><h2>AI does not reply, or todos remain after stopping</h2><p>Check for planning, approval, queueing, a busy directory, insufficient quota or unknown state. Todos and queues may remain paused after Stop to prevent restarting without an explicit continuation.</p><p>Retry according to the specific error. For a dispatch with an unknown outcome, inspect the existing execution record before creating a duplicate task.</p></section><section id=\"part-4\"><h2>A webpage opens but cannot be marked, or the map is empty</h2><p>Ordinary website reading uses desktop Chromium. Stable annotations require selectable body text. Images, canvas, cross-origin embeds and complex feeds may not work.</p><p>A content map requires source text, a model and analysis you explicitly start. For extraction failure, unmatched quotations or no usable claims, check the source first. Section labels, website navigation and blank pages are not article text.</p></section><section id=\"part-5\"><h2>An annotation saved, but no new knowledge file appeared</h2><p>Local annotation saving, source-note collection and topic knowledge maintenance are separate operations. No knowledge base, paused collaboration, no new knowledge, no explicit collection or no authorized destination can all mean that no Markdown file is written.</p><p>Inspect organization / handoff receipts and the actual registered note. Keeping only the local record and response when there is no addition is normal. Check external changes and version conflicts before proceeding; do not overwrite them.</p></section><section id=\"part-6\"><h2>Where your data lives</h2><p>Conversations, annotations, excerpts and source versions live in Shuvia’s chosen local data directory. Website login state lives in its own browser profile. Exported or organized Markdown files live in your authorized knowledge directory.</p><p>A fresh browser profile shows onboarding again; this does not mean local notes are lost. Preserve complete local data and your authorized knowledge base before uninstalling or migrating. This guide does not promise automatic multi-device sync or account cloud backup.</p></section><section id=\"part-7\"><h2>Capabilities you should not currently assume</h2><ul><li>Full Office editing, unified annotations on every website, automatic OCR or unrestricted full-book export.</li><li>AI taking a stance for you, adjudicating cross-book conflicts or merging and publishing domain knowledge automatically.</li><li>An executor finishing means requirements have passed acceptance, or selecting a model means quota is available.</li></ul></section><section id=\"part-8\"><h2>What to include in a problem report</h2><p>State the page, action, expected result and actual message. You can attach a redacted screenshot. Hide API keys, account details, private project paths and source text you do not want public. Help always provides a route back to this guide.</p></section>"
       }
     }
-  ]
+  ],
+  "projectScreenshots": {
+    "zh": {
+      "src": "/static/assets/tianshu/showcase.png?v=b9e7ab148c85",
+      "width": 1920,
+      "height": 1200,
+      "alt": "天枢 Shuvia：正文、三色批注与完整展开的阅读导航图",
+      "caption": "真实界面 · 批注与内容导航 · 示例数据，点击查看大图。",
+      "captured": "2026-11-04"
+    },
+    "en": {
+      "src": "/static/assets/tianshu/en/showcase.png?v=42d69d811092",
+      "width": 1920,
+      "height": 1200,
+      "alt": "Shuvia with source text, colored annotations and the expanded reading map",
+      "caption": "Actual interface · Annotations and content map · Sample data. Open full-size image.",
+      "captured": "2026-11-04"
+    }
+  }
 };

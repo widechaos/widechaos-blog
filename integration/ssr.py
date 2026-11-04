@@ -19,8 +19,15 @@ def render(root,path,data,lang='zh'):
    params=dict(parse_qsl(url.query));params['lang']='en' if english else 'zh'
    return urlunsplit(('', '', url.path, urlencode(params),url.fragment))
   return raw
+ def project_visual(project):
+  if project['id']!='shuvia':return ''
+  source=Path(root)/'static'/'tianshu-manual.js'
+  if not source.exists():source=Path(root).parent/'static'/'tianshu-manual.js'
+  manual=json.loads(source.read_text().removeprefix('export const TIANSHU_MANUAL = ').strip().removesuffix(';'))
+  image=manual['projectScreenshots']['en' if english else 'zh']
+  return '<figure class="project-screenshot"><a href="'+E(image['src'])+'" target="_blank" rel="noopener"><img src="'+E(image['src'])+'" alt="'+E(image['alt'])+'" width="'+str(image['width'])+'" height="'+str(image['height'])+'" decoding="async"></a><figcaption>'+E(image['caption'])+'</figcaption></figure>'
  def listing(items,kind):
-  return ''.join('<section><h2><a href="'+E('/blog/'+i['id'] if kind=='article' else '/projects/'+i['id']+'?lang='+lang)+'">'+E(i['title'] if kind=='article' else project_name(i))+'</a></h2><p>'+E(i.get('summary') or i.get(lang) or '')+'</p></section>' for i in items)
+  return ''.join('<section><h2><a href="'+E('/blog/'+i['id'] if kind=='article' else '/projects/'+i['id']+'?lang='+lang)+'">'+E(i['title'] if kind=='article' else project_name(i))+'</a></h2><p>'+E(i.get('summary') or i.get(lang) or '')+'</p>'+(project_visual(i) if kind=='project' else '')+'</section>' for i in items)
  if path=='/docs/tianshu' or path.startswith('/docs/tianshu/'):
   source=Path(root)/'static'/'tianshu-manual.js'
   if not source.exists():source=Path(root).parent/'static'/'tianshu-manual.js'
@@ -88,7 +95,7 @@ def render(root,path,data,lang='zh'):
   if p:
    title=project_name(p)+label(' · 十方空烬',' · Ember');summary=p.get(lang) or summary;guide=guide_href(p);only_guide=guide and p['url']==p.get('guideUrl')
    resources=('<a class="resource" href="'+E(guide)+'">'+label('使用文档','User guide')+' ↗</a>' if guide else '')+('' if only_guide else '<a class="resource" href="'+E(p['url'])+'">'+label('源码与资料','Source & resources')+' ↗</a>')
-   main='<div class="page-wrap project-detail"><a class="back-link" href="/projects?lang='+lang+'">← '+label('全部项目','All projects')+'</a><header class="project-heading"><p class="eyebrow">'+E(p.get('tag',''))+'</p><h1>'+E(project_name(p))+'</h1><p>'+E(summary)+'</p></header><div class="project-body"><h2>'+label('使用与资料','Use & resources')+'</h2><div class="resource-links">'+resources+'</div></div></div>'
+   main='<div class="page-wrap project-detail"><a class="back-link" href="/projects?lang='+lang+'">← '+label('全部项目','All projects')+'</a><header class="project-heading"><p class="eyebrow">'+E(p.get('tag',''))+'</p><h1>'+E(project_name(p))+'</h1><p>'+E(summary)+'</p></header>'+project_visual(p)+'<div class="project-body"><h2>'+label('使用与资料','Use & resources')+'</h2><div class="resource-links">'+resources+'</div></div></div>'
   else:status=404;main='<h1>项目不存在</h1>'
  elif path=='/tools':title='工具 · 十方空烬';summary='可以直接打开或安装使用的小工具。';main='<h1>工具</h1>'+''.join(f'<section><h2><a href="{E(p.get("tool",{}).get("url") or p["url"])}">{E(p["title"])}</a></h2><p>{E(p.get(lang,""))}</p></section>' for p in data['projects'] if p.get('tool'))
  elif path in ('/about','/collection'):

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { TIANSHU_MANUAL } from '../static/tianshu-manual.js';
-import { manualPage, manualPages } from '../static/manual-view.js';
+import { manualPage, manualPages, shuviaProjectVisual } from '../static/manual-view.js';
 const tags = (html, tag) => [...html.matchAll(new RegExp(`<${tag}\\b`, 'g'))].length;
 test('every chapter has complete English instructions and preserves its structure and sources', () => {
   const pages=TIANSHU_MANUAL.pages;
@@ -75,5 +75,25 @@ test('guide parent navigation works from direct home and chapter links in either
       assert.ok(chapter.includes(lang === 'en' ? 'Back to guide home' : '返回文档首页'));
     }
     assert.ok(manualPage('/docs/tianshu', lang, false).includes(`href="/projects?lang=${lang}"`));
+  }
+});
+
+
+test('Shuvia previews show the complete localized feature screenshot with the correct size and version', () => {
+  for (const lang of ['zh','en']) {
+    const image=TIANSHU_MANUAL.projectScreenshots[lang];
+    const visual=shuviaProjectVisual(lang);
+    assert.ok(visual.includes(`src="${image.src}"`));
+    assert.ok(visual.includes(`href="${image.src}" target="_blank" rel="noopener"`));
+    assert.doesNotMatch(visual,/poster-big|project-poster/);
+    assert.equal(image.src.includes('/tianshu/en/'),lang==='en');
+    if(lang==='en') assert.doesNotMatch(visual,/[\u3400-\u9fff]/u);
+    const url=new URL(image.src,'https://widechaos.cn');
+    const bytes=readFileSync(new URL('..'+url.pathname,import.meta.url));
+    assert.equal(url.searchParams.get('v'),createHash('sha256').update(bytes).digest('hex').slice(0,12));
+    assert.equal(image.width,bytes.readUInt32BE(16));
+    assert.equal(image.height,bytes.readUInt32BE(20));
+    assert.ok(visual.includes(`width="${image.width}" height="${image.height}"`));
+    assert.ok(image.width>=1800 && image.height>=1100);
   }
 });
