@@ -47,3 +47,12 @@ export function mountManual(root) {
   field.addEventListener('input',search);
   return () => { form.removeEventListener('submit',search); field.removeEventListener('input',search); };
 }
+
+export function shuviaProjectVisual(lang = 'zh') {
+  const english = lang === 'en';
+  const page = manualPages(lang).find(page => page.slug === 'conversation');
+  const source = page.html.match(/<img[^>]+src="([^"]+)"/)[1];
+  const alt = english ? 'Shuvia work conversation interface' : '天枢 Shuvia 工作会话界面';
+  const caption = english ? 'Actual interface · Sample data. Open the image for a full-size view.' : '真实界面 · 隔离示例数据，点击查看大图。';
+  return `<figure class="project-screenshot"><a href="${esc(source)}" target="_blank" rel="noopener"><img src="${esc(source)}" alt="${alt}" width="1440" height="1000" decoding="async"></a><figcaption>${caption}</figcaption></figure>`;
+}

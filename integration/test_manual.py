@@ -57,6 +57,9 @@ class ManualTests(unittest.TestCase):
    self.assertEqual(status,200)
    self.assertIn('href="/projects/shuvia?lang='+lang+'"',projects)
    self.assertNotIn('project-guides',projects)
+   expected_image='/static/assets/tianshu/'+('en/' if lang=='en' else '')+'conversation.png?v='
+   self.assertIn('src="'+expected_image,projects)
+
    detail,status=render(ROOT,'/projects/shuvia',data,lang)
    self.assertEqual(status,200)
    main=detail.split('<main id="main" tabindex="-1">')[1].split('</main>')[0]
@@ -65,6 +68,10 @@ class ManualTests(unittest.TestCase):
    self.assertIn('href="/projects?lang='+lang+'"',main)
    self.assertIn('User guide' if lang=='en' else '使用文档',main)
    self.assertNotIn('github.com',main)
+   self.assertIn('src="'+expected_image,main)
+   self.assertIn('target="_blank" rel="noopener"><img',main)
+   self.assertNotIn('project-poster',main)
+
    if lang=='en':self.assertIsNone(re.search(r'[\u3400-\u9fff]',main))
    fallback,status=render(ROOT,'/docs/tianshu',{'articles':[],'projects':[],'collection':[]},lang)
    self.assertIn('class="back-link" href="/projects?lang='+lang+'"',fallback)
