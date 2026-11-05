@@ -87,6 +87,11 @@ export function mountCollection(root, lang = 'zh') {
     dialog.querySelector('h2').textContent = card.dataset.title.replace(/^.*?[·:]\s*/, '');
     dialog.querySelector('.collection-viewer-count').textContent = `${String(index + 1).padStart(2, '0')} / ${String(cards.length).padStart(2, '0')}`;
     const source = dialog.querySelector('.collection-source');
+    const sourceLabel = card.dataset.kind === 'memento'
+      ? text('活动账号面板（需登录）', 'Event account dashboard (sign-in required)')
+      : text('凭证来源', 'Credential source');
+    source.setAttribute('aria-label', sourceLabel);
+    source.title = sourceLabel;
     source.hidden = !/^https:\/\//.test(card.dataset.source);
     if (!source.hidden) source.href = card.dataset.source;
     image.onload = () => { if (current === sequence) { sheet.hidden = false; status.hidden = true; fitSheet(); } };
