@@ -92,7 +92,8 @@ export function mountCollection(root, lang = 'zh') {
     image.alt = card.dataset.title;
     status.hidden = false;
     status.textContent = text('正在载入原图…', 'Loading original artwork…');
-    dialog.querySelector('h2').textContent = card.dataset.title.replace(/^.*?[·:]\s*/, '');
+    dialog.querySelector('h2').textContent = card.dataset.kind === 'reading'
+      ? card.dataset.title : card.dataset.title.replace(/^.*?[·:]\s*/, '');
     dialog.querySelector('.collection-viewer-count').textContent = `${String(index + 1).padStart(2, '0')} / ${String(cards.length).padStart(2, '0')}`;
     const source = dialog.querySelector('.collection-source');
     const sourceLabel = card.dataset.kind === 'memento'
