@@ -1,6 +1,13 @@
 const escape = (value) => String(value).replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const artwork = new Map();
 
+export function readingMedalTarget(cards, search) {
+  const id = new URLSearchParams(search).get('medal');
+  if (!/^[a-f0-9]{20}$/.test(id || '')) return null;
+  return cards.find(card => card.dataset.kind === 'reading'
+    && card.dataset.image === `/static/assets/collection/${id}-light.svg`) || null;
+}
+
 export function collectionCard(item, lang = 'zh') {
   const parts = item.title.split(/\s*[·:]\s*/);
   const issuer = parts.length > 1 ? parts.shift() : '';
@@ -52,6 +59,7 @@ export function mountCollection(root, lang = 'zh') {
   const stage = dialog.querySelector('.collection-image-scroll');
   const zoom = dialog.querySelector('[data-viewer-zoom]');
   let index = 0, sequence = 0, lastFocus, previousOverflow, frame = 0, viewerFrame = 0;
+  let deepLinked = false, disposing = false;
   const fitSheet = () => {
     if (!image.naturalWidth || sheet.hidden) return;
     const scale = dialog.classList.contains('is-zoomed')
@@ -89,7 +97,9 @@ export function mountCollection(root, lang = 'zh') {
     const source = dialog.querySelector('.collection-source');
     const sourceLabel = card.dataset.kind === 'memento'
       ? text('活动账号面板（需登录）', 'Event account dashboard (sign-in required)')
-      : text('凭证来源', 'Credential source');
+      : card.dataset.kind === 'reading'
+        ? text('微信读书平台', 'WeRead platform')
+        : text('凭证来源', 'Credential source');
     source.setAttribute('aria-label', sourceLabel);
     source.title = sourceLabel;
     source.hidden = !/^https:\/\//.test(card.dataset.source);
@@ -107,6 +117,14 @@ export function mountCollection(root, lang = 'zh') {
     card.style.removeProperty('--rx'); card.style.removeProperty('--ry');
     card.style.removeProperty('--shine'); card.classList.remove('is-hovered');
   };
+  const openCard = (card) => {
+    lastFocus = card;
+    previousOverflow = document.body.style.overflow;
+    dialog.showModal();
+    document.body.style.overflow = 'hidden';
+    show(cards.indexOf(card));
+    dialog.querySelector('[data-viewer-close]').focus({preventScroll:true});
+  };
   // Keep collapsed and offscreen collections lazy rather than fetching the entire wall.
   const artworkObserver = new IntersectionObserver((entries) => {
     entries.forEach(({target: card, isIntersecting}) => {
@@ -122,12 +140,7 @@ export function mountCollection(root, lang = 'zh') {
     card.addEventListener('click', (event) => {
       if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
       event.preventDefault();
-      lastFocus = card;
-      previousOverflow = document.body.style.overflow;
-      dialog.showModal();
-      document.body.style.overflow = 'hidden';
-      show(cards.indexOf(card));
-      dialog.querySelector('[data-viewer-close]').focus({preventScroll:true});
+      openCard(card);
     }, {signal});
     card.addEventListener('pointermove', (event) => {
       if (event.pointerType === 'touch' || matchMedia('(prefers-reduced-motion: reduce)').matches || document.documentElement.dataset.motion === 'off') return;
@@ -177,10 +190,26 @@ export function mountCollection(root, lang = 'zh') {
   dialog.addEventListener('close', () => {
     ++sequence;
     document.body.style.overflow = previousOverflow ?? '';
-    if (lastFocus?.isConnected) lastFocus.focus({preventScroll:true});
+    if (deepLinked && !disposing) {
+      const url = new URL(location.href);
+      url.searchParams.delete('medal');
+      history.replaceState(history.state, '', url);
+      deepLinked = false;
+    }
+    if (!disposing && lastFocus?.isConnected) lastFocus.focus({preventScroll:true});
   }, {signal});
+  const target = readingMedalTarget(cards, location.search);
+  if (target) {
+    deepLinked = true;
+    target.scrollIntoView({block:'center', behavior:'instant'});
+    openCard(target);
+  }
   return () => {
-    if (dialog.open) dialog.close();
+    disposing = true;
+    if (dialog.open) {
+      dialog.close();
+      document.body.style.overflow = previousOverflow ?? '';
+    }
     abort.abort(); artworkObserver.disconnect(); resize.disconnect(); cancelAnimationFrame(frame); cancelAnimationFrame(viewerFrame);
     cards.forEach(reset); dialog.remove();
   };
