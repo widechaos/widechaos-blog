@@ -83,3 +83,10 @@ python3 integration/preview_server.py --catalog /private/path/catalog.json --blo
 天枢项目的列表预览与详情视觉共用 `shuviaProjectVisual()`，读取手册内容对象 `projectScreenshots` 中独立采集的完整功能界面与散列版本；服务端直达也使用同一图源。完整显示真实界面，图片可打开大图，展示正文、三色侧注和全部展开的阅读导航节点；中文和英文分别从真实界面采集，未拼接或修改界面文字。项目页面的边框、图注与焦点样式沿用全站变量。
 
 微信读书勋章支持单图入口 `/about?medal=<图源的20位标识>#collection`，标识对应既有 `hash-light.svg` 资源。页面只匹配阅读分类的现有条目，直接打开原图查看器；未知或无效标识仍显示普通收藏页。关闭查看器会移除该参数并恢复页面滚动，不新增目录记录或公开个人平台信息。GitHub精选及折叠勋章墙的链接由同一图源标识生成，后续日更保持对应关系。
+
+
+## 项目真实截图
+
+现有项目可选screenshot对象，字段为src、width、height、alt、caption、sourceUrl。alt/caption各提供zh/en，width/height为原图实际正整数像素；src仅允许/static/assets/projects/下带12位摘要的PNG/JPEG/WebP文件，sourceUrl保留真实公开HTTPS原页面。目录仍以当前revision先dry-run再apply，不复制正文或另建图片目录数据库。图片先经原仓CI/部署，四项目身份与其他字段不变。
+
+前端和SSR复用同一截图数据，保留原比例、原图查看和来源链接。固定首页框内用contain，列表/详情以原比例展示；没有截图字段的项目继续原视觉。截图是实际界面快照，不修改图片里的指标或伪造运行状态；新增图片不构成另一篇公告。

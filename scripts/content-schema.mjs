@@ -2,7 +2,7 @@ import { filterPublishedContent } from '../static/content-model.js';
 
 const fields = {
   articles: ['id', 'title', 'url', 'lang', 'translationKey', 'body', 'summary', 'publishedAt', 'updatedAt', 'topics', 'status', 'discussionUrl'],
-  projects: ['id', 'title', 'titleZh', 'titleEn', 'guideUrl', 'tag', 'zh', 'en', 'url', 'kind', 'article', 'status', 'publishedAt', 'updatedAt', 'featuredRank', 'demo', 'topics', 'tool'],
+  projects: ['id', 'title', 'titleZh', 'titleEn', 'guideUrl', 'tag', 'zh', 'en', 'url', 'kind', 'article', 'status', 'publishedAt', 'updatedAt', 'featuredRank', 'demo', 'topics', 'tool', 'screenshot'],
   tools: ['id', 'title', 'titleZh', 'titleEn', 'zh', 'en', 'url', 'availability', 'tag', 'status'],
   collection: ['title', 'url', 'image', 'kind', 'status'],
 };
@@ -55,6 +55,7 @@ export function buildPublicSnapshot(source) {
     result[section] = (source[section] || []).filter(item => item?.status === 'published').map(item => {
       const value = pick(item, keys);
       if (value.tool) value.tool = pick(value.tool, ['availability', 'url']);
+      if (value.screenshot) value.screenshot = { ...pick(value.screenshot, ['src','width','height','sourceUrl']), alt: pick(value.screenshot.alt || {}, ['zh','en']), caption: pick(value.screenshot.caption || {}, ['zh','en']) };
       return value;
     });
   }
@@ -95,6 +96,10 @@ export function validateContent(data) {
         if (/<\s*(?:script|iframe|object|embed|form|base|meta|link)\b|\son\w+\s*=|(?:javascript|vbscript)\s*:/i.test(item.body || '')) errors.push(`${label}: unexpected executable HTML. Use a trusted rendered article body.`);
       }
       if (name === 'projects') {
+        if (item.screenshot !== undefined) {
+          const image = item.screenshot;
+          if (!image || !/^\/static\/assets\/projects\/[a-z0-9-]+-[a-f0-9]{12}\.(?:jpg|jpeg|png|webp)$/.test(image.src || '') || !['width','height'].every(k => Number.isInteger(image[k]) && image[k] > 0 && image[k] <= 8192) || !absoluteUrl(image.sourceUrl) || !['alt','caption'].every(k => image[k] && ['zh','en'].every(l => text(image[k][l])))) errors.push(`${label}: valid bilingual screenshot metadata is required.`);
+        }
         for (const field of ['titleZh', 'titleEn']) if (item[field] !== undefined && !text(item[field])) errors.push(`${label}: localized project title must be nonempty.`);
         if (item.guideUrl !== undefined && !absoluteUrl(item.guideUrl)) errors.push(`${label}: guideUrl must use public HTTPS.`);
         if (!text(item.zh) || !text(item.en)) errors.push(`${label}: both project descriptions are required.`);

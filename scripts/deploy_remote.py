@@ -17,6 +17,7 @@ def allowed(name):
  if p.parent==Path('app/static'):return p.name in PUBLIC_ROOT
  if p.parent==Path('app/static/vendor'):return p.name in {'three.module.js','three.core.js','LICENSE.three.txt'}
  if p.parent==Path('app/static/fonts'):return bool(re.fullmatch(r'[a-z0-9-]+\.woff2',p.name))
+ if p.parent==Path('app/static/assets/projects'):return bool(re.fullmatch(r'[a-z0-9-]+-[a-f0-9]{12}\.(?:jpg|jpeg|png|webp)',p.name))
  if p.parent in {Path('app/static/assets/tianshu'),Path('app/static/assets/tianshu/en')}:return bool(re.fullmatch(r'[a-z0-9-]+\.png',p.name))
  return p.parent==Path('app/static/assets/collection') and bool(re.fullmatch(r'[a-f0-9]{20}-light\.svg',p.name))
 

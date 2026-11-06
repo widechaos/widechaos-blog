@@ -20,12 +20,16 @@ def render(root,path,data,lang='zh'):
    return urlunsplit(('', '', url.path, urlencode(params),url.fragment))
   return raw
  def project_visual(project):
-  if project['id']!='shuvia':return ''
-  source=Path(root)/'static'/'tianshu-manual.js'
-  if not source.exists():source=Path(root).parent/'static'/'tianshu-manual.js'
-  manual=json.loads(source.read_text().removeprefix('export const TIANSHU_MANUAL = ').strip().removesuffix(';'))
-  image=manual['projectScreenshots']['en' if english else 'zh']
-  return '<figure class="project-screenshot"><a href="'+E(image['src'])+'" target="_blank" rel="noopener"><img src="'+E(image['src'])+'" alt="'+E(image['alt'])+'" width="'+str(image['width'])+'" height="'+str(image['height'])+'" decoding="async"></a><figcaption>'+E(image['caption'])+'</figcaption></figure>'
+  shot=project.get('screenshot')
+  if shot:image={**shot,'alt':shot['alt']['en' if english else 'zh'],'caption':shot['caption']['en' if english else 'zh']}
+  elif project['id']=='shuvia':
+   source=Path(root)/'static'/'tianshu-manual.js'
+   if not source.exists():source=Path(root).parent/'static'/'tianshu-manual.js'
+   manual=json.loads(source.read_text().removeprefix('export const TIANSHU_MANUAL = ').strip().removesuffix(';'))
+   image=manual['projectScreenshots']['en' if english else 'zh']
+  else:return ''
+  origin=(' · <a href="'+E(image['sourceUrl'])+'" target="_blank" rel="noopener">'+label('原页面','Original page')+' ↗</a>') if shot else ''
+  return '<figure class="project-screenshot'+(' project-screenshot-sourced' if shot else '')+'"><a href="'+E(image['src'])+'" target="_blank" rel="noopener"><img src="'+E(image['src'])+'" alt="'+E(image['alt'])+'" width="'+str(image['width'])+'" height="'+str(image['height'])+'" decoding="async"'+(' loading="lazy"' if shot else '')+'></a><figcaption>'+E(image['caption'])+origin+'</figcaption></figure>'
  def listing(items,kind):
   return ''.join('<section><h2><a href="'+E('/blog/'+i['id'] if kind=='article' else '/projects/'+i['id']+'?lang='+lang)+'">'+E(i['title'] if kind=='article' else project_name(i))+'</a></h2><p>'+E(i.get('summary') or i.get(lang) or '')+'</p>'+(project_visual(i) if kind=='project' else '')+'</section>' for i in items)
  if path=='/docs/tianshu' or path.startswith('/docs/tianshu/'):

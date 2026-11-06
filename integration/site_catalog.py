@@ -9,7 +9,7 @@ SLUG = re.compile(r'^[a-z0-9]+(?:-[a-z0-9]+)*$')
 FM = re.compile(r'^---\s*\n(.*?)\n---\s*\n', re.S)
 EXTENSIONS = ['fenced_code', 'codehilite', 'tables', 'toc', 'sane_lists', 'admonition', 'attr_list']
 FIELDS = {
- 'projects': ('id','title','titleZh','titleEn','guideUrl','tag','zh','en','url','kind','article','status','publishedAt','updatedAt','featuredRank','demo','topics','tool'),
+ 'projects': ('id','title','titleZh','titleEn','guideUrl','tag','zh','en','url','kind','article','status','publishedAt','updatedAt','featuredRank','demo','topics','tool','screenshot'),
  'tools': ('id','title','titleZh','titleEn','zh','en','url','availability','tag','status'),
  'collection': ('title','url','image','kind','status'),
 }
@@ -32,6 +32,17 @@ def public_url(value):
 def valid_date(value):
  try: return isinstance(value,str) and date.fromisoformat(value).isoformat()==value
  except ValueError: return False
+
+def validate_screenshot(image):
+ required={'src','width','height','alt','caption','sourceUrl'}
+ if not isinstance(image,dict) or set(image)!=required:raise ValueError('Screenshot fields required')
+ if not isinstance(image['src'],str) or not re.fullmatch(r'/static/assets/projects/[a-z0-9-]+-[a-f0-9]{12}\.(?:jpg|jpeg|png|webp)',image['src']):raise ValueError('Invalid screenshot asset path')
+ if any(type(image[k]) is not int or not 1<=image[k]<=8192 for k in ('width','height')):raise ValueError('Invalid screenshot dimensions')
+ for key in ('alt','caption'):
+  labels=image[key]
+  if not isinstance(labels,dict) or set(labels)!={'zh','en'} or not all(isinstance(labels[k],str) and labels[k].strip() for k in ('zh','en')):raise ValueError('Bilingual screenshot '+key+' required')
+ if not public_url(image['sourceUrl']):raise ValueError('Invalid screenshot source URL')
+ return image
 
 def validate_catalog(catalog):
  """Validate authoring records; unpublished records stay private."""
@@ -57,6 +68,7 @@ def validate_catalog(catalog):
     for field in ('titleZh','titleEn'):
      if field in item and (not isinstance(item[field],str) or not item[field].strip()): raise ValueError('Invalid localized project title')
     if 'guideUrl' in item and not public_url(item['guideUrl']): raise ValueError('Invalid project guide URL')
+    if 'screenshot' in item:validate_screenshot(item['screenshot'])
     if not all(isinstance(item.get(k),str) and item[k].strip() for k in ('zh','en','kind')): raise ValueError('Project descriptions and kind required')
     if item['kind'] not in catalog.get('projectKinds',{}): raise ValueError('Unknown project kind')
     if item.get('demo') not in (None,'router','bulletin','obsidian'): raise ValueError('Unknown demonstration')

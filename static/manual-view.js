@@ -48,7 +48,10 @@ export function mountManual(root) {
   return () => { form.removeEventListener('submit',search); field.removeEventListener('input',search); };
 }
 
+export function projectScreenshot(image, lang = 'zh') {
+  const source = image.sourceUrl ? ` · <a href="${esc(image.sourceUrl)}" target="_blank" rel="noopener">${lang === 'en' ? 'Original page' : '原页面'} ↗</a>` : '';
+  return `<figure class="project-screenshot${source ? ' project-screenshot-sourced' : ''}"><a href="${esc(image.src)}" target="_blank" rel="noopener"><img src="${esc(image.src)}" alt="${esc(image.alt)}" width="${image.width}" height="${image.height}" decoding="async"${source ? ' loading="lazy"' : ''}></a><figcaption>${esc(image.caption)}${source}</figcaption></figure>`;
+}
 export function shuviaProjectVisual(lang = 'zh') {
-  const image = TIANSHU_MANUAL.projectScreenshots[lang === 'en' ? 'en' : 'zh'];
-  return `<figure class="project-screenshot"><a href="${esc(image.src)}" target="_blank" rel="noopener"><img src="${esc(image.src)}" alt="${esc(image.alt)}" width="${image.width}" height="${image.height}" decoding="async"></a><figcaption>${esc(image.caption)}</figcaption></figure>`;
+  return projectScreenshot(TIANSHU_MANUAL.projectScreenshots[lang === 'en' ? 'en' : 'zh'], lang);
 }

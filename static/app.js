@@ -1,4 +1,4 @@
-import { manualPage, mountManual, shuviaProjectVisual } from './manual-view.js';
+import { manualPage, mountManual, shuviaProjectVisual, projectScreenshot } from './manual-view.js';
 import { ABOUT_COPY } from "./about-copy.js";
 import { createAnalytics } from "./analytics.js";
 import { mountScrollScenes } from "./scroll-scenes.js";
@@ -143,6 +143,7 @@ function articleMeta(a) {
   return `<div class="entry-meta"><time datetime="${esc(articlePublishedAt(a))}">${articleDate(a)}</time><span>${readingTime(a)}</span>${a.category ? `<span>${esc(categoryName(a.category))}</span>` : ""}</div>`;
 }
 function projectVisual(p) {
+  if (p.screenshot) return projectScreenshot({ ...p.screenshot, alt: p.screenshot.alt[lang], caption: p.screenshot.caption[lang] }, lang);
   if (p.id === "shuvia") return shuviaProjectVisual(lang);
   if (p.demo && ["router", "bulletin", "obsidian"].includes(p.demo)) return demoMarkup(p.demo, lang, p.demo === "bulletin" ? streamHeadlines() : []);
   return `<div class="project-poster poster-${esc(p.id)}"><span class="poster-grid"></span><span class="poster-big">${esc(projectMonogram(p))}</span><span class="poster-label">${esc(projectName(p, lang))}</span><small>${esc(p.tag)}</small></div>`;
