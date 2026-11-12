@@ -6,6 +6,7 @@ from pathlib import Path
 from fastapi import Request
 from fastapi.responses import JSONResponse,HTMLResponse,Response
 from fastapi.routing import APIRoute
+from starlette.concurrency import run_in_threadpool
 from .content_service import ContentService
 from .ssr import render
 
@@ -26,7 +27,7 @@ def install(app, *, root, catalog_path, blog_dir, native_renderer=None):
  # English tag names live with the tag vocabulary in the content engine.
  service=ContentService(catalog_path,blog_dir=blog_dir,render=native_renderer,categories=getattr(host,'CATEGORIES',None),tag_labels=engine_tag_labels(Path(catalog_path).parent.parent/'bin'/'content_cli.py'))
  async def content(request:Request):
-  try:data,etag=service.response()
+  try:data,etag=await run_in_threadpool(service.response)
   except Exception:return JSONResponse({'error':'Public content temporarily unavailable'},503,headers={'Cache-Control':'no-store'})
   headers={'ETag':etag,'Cache-Control':'no-cache'}
   if request.headers.get('if-none-match')==etag:return Response(status_code=304,headers=headers)
@@ -35,11 +36,11 @@ def install(app, *, root, catalog_path, blog_dir, native_renderer=None):
   async def endpoint(request:Request):
    actual=path.format(**request.path_params)
    try:
-    try:data=service.bundle()
+    try:data=await run_in_threadpool(service.bundle)
     except Exception:
      if actual!='/docs/tianshu' and not actual.startswith('/docs/tianshu/'):raise
      data={'articles':[],'projects':[],'collection':[]}
-    page,status=render(root,actual,data,request.query_params.get('lang','zh'))
+    page,status=await run_in_threadpool(render,root,actual,data,request.query_params.get('lang','zh'))
    except Exception:return HTMLResponse('Public content temporarily unavailable',503,headers={'Cache-Control':'no-store'})
    return HTMLResponse(page,status,headers={'Cache-Control':'no-cache'})
   return endpoint

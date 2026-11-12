@@ -27,7 +27,7 @@ class TextOnly(HTMLParser):
 def plain(value):
  p=TextOnly();p.feed(value or '');return p.text()
 
-def native_posts(blog_dir, render=None):
+def native_posts(blog_dir, render=None, metadata_only=False):
  result=[]
  for path in sorted(Path(blog_dir).glob('*.md')):
   if not SLUG.fullmatch(path.stem): continue
@@ -37,14 +37,14 @@ def native_posts(blog_dir, render=None):
   except yaml.YAMLError: continue
   if not isinstance(meta,dict) or str(meta.get('status',''))!='published': continue
   body=raw[match.end():]
-  rendered=render(path)['html'] if render else markdown.markdown(body,extensions=EXTENSIONS,extension_configs={'codehilite':{'guess_lang':False}})
+  rendered='' if metadata_only else render(path)['html'] if render else markdown.markdown(body,extensions=EXTENSIONS,extension_configs={'codehilite':{'guess_lang':False}})
   result.append({'slug':path.stem,'meta':meta,'html':rendered})
  return result
 
 def bridge_posts():
  raise RuntimeError('Choose --public-web or a local --blog-dir for preview')
 
-def build_bundle(posts,catalog,origin=ORIGIN,categories=None,tag_labels=None):
+def build_bundle(posts,catalog,origin=ORIGIN,categories=None,tag_labels=None,metadata_only=False):
  validate_catalog(catalog)
  data={section:[] for section in FIELDS}
  for section,fields in FIELDS.items():
@@ -70,8 +70,8 @@ def build_bundle(posts,catalog,origin=ORIGIN,categories=None,tag_labels=None):
   published=str(meta.get('date',''))
   if not valid_date(published): raise ValueError('Published article requires its original date')
   if (key,language) in groups: raise ValueError('Duplicate article translation')
-  groups.add((key,language));body=clean_body(post.get('html',''))
-  if not body.strip(): raise ValueError('Empty published article body')
+  groups.add((key,language));body='' if metadata_only else clean_body(post.get('html',''))
+  if not metadata_only and not body.strip(): raise ValueError('Empty published article body')
   article={'id':slug,'title':str(meta.get('title') or slug),'url':origin+'/blog/'+slug,'lang':language,'translationKey':key,'body':body,'summary':str(metadata.get('summary') or meta.get('summary') or plain(body)[:160]),'publishedAt':published,'status':'published','topics':list(metadata.get('topics',[]))}
   updated=str(meta.get('updated') or metadata.get('updatedAt') or '')
   if updated:
@@ -100,7 +100,7 @@ def build_bundle(posts,catalog,origin=ORIGIN,categories=None,tag_labels=None):
 
 class ContentService:
  def __init__(self,catalog_path,blog_dir=None,bridge=False,render=None,bridge_ttl=1.0,categories=None,tag_labels=None):
-  self.categories=categories;self.tag_labels=tag_labels;self.catalog_path=Path(catalog_path);self.blog_dir=Path(blog_dir) if blog_dir else None;self.bridge=bridge;self.render=render;self.bridge_ttl=bridge_ttl;self._lock=threading.Lock();self._cache=None;self._fingerprint=None;self._at=0
+  self.categories=categories;self.tag_labels=tag_labels;self.catalog_path=Path(catalog_path);self.blog_dir=Path(blog_dir) if blog_dir else None;self.bridge=bridge;self.render=render;self.bridge_ttl=bridge_ttl;self._lock=threading.Lock();self._metadata_lock=threading.Lock();self._cache=None;self._fingerprint=None;self._at=0
  def bundle(self):
   with self._lock:
    stat=self.catalog_path.stat();signature=[stat.st_mtime_ns,stat.st_size]
@@ -112,5 +112,19 @@ class ContentService:
    posts=bridge_posts() if self.bridge else native_posts(self.blog_dir,self.render)
    data=build_bundle(posts,catalog,categories=self.categories,tag_labels=self.tag_labels)
    self._cache=data;self._fingerprint=signature;self._at=time.monotonic();return copy.deepcopy(data)
+ def metadata(self):
+  if self.bridge:return self.bundle()
+  with self._metadata_lock:
+   stat=self.catalog_path.stat();signature=[stat.st_mtime_ns,stat.st_size]
+   if self.blog_dir:
+    signature.extend((p.name,p.stat().st_mtime_ns,p.stat().st_size) for p in sorted(self.blog_dir.glob('*.md')))
+   cached=getattr(self,'_metadata_cache',None)
+   if cached and cached[0]==signature:return copy.deepcopy(cached[1])
+   catalog=json.loads(self.catalog_path.read_text())
+   data=build_bundle(native_posts(self.blog_dir,metadata_only=True),catalog,categories=self.categories,tag_labels=self.tag_labels,metadata_only=True)
+   for article in data['articles']:
+    for key in ('body','summary'):article.pop(key,None)
+   self._metadata_cache=(signature,data)
+   return copy.deepcopy(data)
  def response(self):
   data=self.bundle();return data,'"'+digest(data)+'"'
