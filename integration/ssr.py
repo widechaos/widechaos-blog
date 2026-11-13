@@ -91,7 +91,6 @@ def render(root,path,data,lang='zh'):
     key=radar[0].get('translationKey') or radar[0]['id']
     latest=next((a for a in radar if (a.get('translationKey') or a['id'])==key and a['lang']==lang),radar[0])
     main+='<aside aria-label="开源雷达"><h2><a href="/radar">开源雷达</a></h2><p>'+E(latest['title'])+'</p></aside>'
-   main+='<h2>项目</h2>'+listing(data['projects'],'project')
  elif path=='/projects':
   title=label('项目 · 十方空烬','Projects · Ember');summary=label('实验、工具与设计中的项目：模型实验、桌面工具和个人系统。','Experiments, tools and projects in design.');main='<h1>'+label('项目','Projects')+'</h1>'+listing(data['projects'],'project')
  elif path.startswith('/projects/'):

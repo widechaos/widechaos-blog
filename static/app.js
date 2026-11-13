@@ -18,7 +18,6 @@ import {
   projectGuideHref,
   filterPublishedContent,
   sortProjects,
-  selectFeaturedProjects,
   availableTools,
   articlePublishedAt,
   topicLabel,
@@ -155,9 +154,6 @@ function streamHeadlines() {
   const picks = radar ? [...radar.body.matchAll(/<h3[^>]*>\s*\d+\.\s+(\S+)\s+⭐/g)].map((m) => "★ " + m[1]) : [];
   return [...recent.map((a) => a.title), ...picks].slice(0, 9);
 }
-function featuredWork(p, index) {
-  return `<article class="${index === 0 ? "feature-work" : ""} reveal"><div class="work-visual">${projectVisual(p)}</div><div class="${index === 0 ? "work-caption" : "small-caption"}"><div><p class="eyebrow">${esc(p.tag)}</p><h3>${link("/projects/" + p.id, esc(projectName(p, lang)) + " " + arrow)}</h3></div><p>${esc(desc(p))}</p></div></article>`;
-}
 function header() {
   const path = location.pathname;
   const inManual = path === "/docs/tianshu" || path.startsWith("/docs/tianshu/");
@@ -227,13 +223,7 @@ function homeRadar() {
   if (!radar) return "";
   return `<aside class="home-radar" aria-label="${t("开源雷达", "Open-source radar")}"><a href="/radar"><div class="home-radar-label"><h2>${t("开源雷达", "Open-source radar")}</h2><span>${t("每日项目精选", "Daily project picks")}</span></div><div class="home-radar-issue" lang="${radar.lang}"><time datetime="${esc(articlePublishedAt(radar))}">${articleDate(radar)}</time><p>${esc(radarTitle(radar))}</p>${fallbackLanguage(radar) ? `<small class="language-note">${fallbackLanguage(radar)}</small>` : ""}</div><span class="home-radar-open">${t("浏览雷达", "Explore radar")} ↗</span></a></aside>`;
 }
-function homeWorkConnection(project) {
-  const related = articleForProject(data.articles, project, lang);
-  if (!related) return "";
-  return `<a class="work-connection" href="/blog/${esc(related.id)}"><span>${t("相关文字", "Related writing")}</span><span>${esc(related.title)}</span><span aria-hidden="true">↗</span></a>`;
-}
 function home() {
-  const featured = selectFeaturedProjects(data.projects, 3);
   return `<section class="hero" id="intro"><div class="hero-art" id="hero-art"><img src="/static/city-art.png" alt="" fetchpriority="high"></div><div class="hero-shade"></div><div class="hero-copy"><p class="eyebrow"><span class="accent-dot"></span> EMBER / RENCHAO WU</p><h1 aria-label="十方空烬"><span>十方</span><span class="name-second">空烬<span class="name-star" aria-hidden="true"><img src="/static/x-sword.svg" alt="" width="96" height="112"></span></span></h1><p class="hero-slogan">BUILD. BREAK. REBUILD.</p><p class="identity-tags">${tags()
     .map((x, i) => `<span>${tagFx(x, i)}</span>`)
     .join(
@@ -241,7 +231,6 @@ function home() {
     )}</p><div class="hero-links">${link("/projects", t("看项目", "Explore projects") + " " + arrow, "primary-link")}${link("/blog", t("读十方志", "Read the journal") + " <span>↗</span>", "text-link")}</div></div>${lang === "zh" ? `<div class="hero-poem" lang="zh-CN"><span>智灯已灭余空烬</span><span>犹自光明照十方</span></div>` : `<div class="hero-poem hero-poem-en" lang="en"><p><span>From the ashes a fire shall be woken,</span><span>a light from the shadows shall spring.</span></p><small>— J.R.R. Tolkien</small></div>`}<div class="hero-bottom"><a href="#latest" class="scroll-cue"><span>↓</span> ${t("向下浏览", "SCROLL TO EXPLORE")}</a><span class="hero-location">WIDECHAOS.CN</span><button id="art-mode" aria-pressed="${light === "etch"}">${t("画面", "VIEW")} <b>${light === "neon" ? t("夜景", "NIGHT") : t("线描", "ETCH")}</b> ⇄</button></div></section>
  <div class="home-sequence" data-home-sequence><div class="home-scene scene-writing" data-home-scene>${homeJournal()}
  ${homeRadar()}</div>
- ${featured.length ? `<section class="section selected home-scene scene-feature" data-home-scene id="selected" aria-labelledby="selected-title"><header class="section-title"><span class="index">02 /</span><h2 id="selected-title">${t("精选项目", "Selected projects")}</h2></header>${homeWorkConnection(featured[0])}${featuredWork(featured[0], 0)}${featured.length > 1 ? `<div class="supporting-projects" id="selected-more"><div class="work-pair">${featured.slice(1).map((p, i) => featuredWork(p, i + 1)).join("")}</div></div>` : ""}<div class="selected-footer">${link("/projects", t("查看全部项目", "View all projects") + " " + arrow, "section-more")}</div></section>` : ""}
 
 
  <section class="manifesto-section home-scene" data-home-scene id="manifesto"><div class="manifesto-caption"><span class="eyebrow">${t("MANIFESTO / 宣言", "MANIFESTO")}</span>${link("/about", t("关于我", "About me") + " " + arrow)}</div><p class="manifesto-text">${t("短期促进生产，<br><span>长期促进革命。</span>", "Short-term,<br>fueling production.<br><span>Long-term,<br>fueling the revolution.</span>")}</p><p class="manifesto-tribute"${lang === "zh" ? ' lang="zh-CN"' : ""}>${t("<span>星星之火，可以燎原</span><small>毛泽东　一九三〇</small>", "<span>A single spark can start a prairie fire.</span><small>— Mao Zedong, 1930</small>")}</p><div class="manifesto-bottom"><span>Build. Break. Rebuild.</span><span>十方空烬 · Ember</span></div></section></div>`;
