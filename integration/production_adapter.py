@@ -1,7 +1,7 @@
 """Prepared adapter; installing is a separate, approved production action.
 Mount only behind the existing authentication middleware. No auth changes.
 """
-import importlib.util,sys
+import asyncio,importlib.util,sys
 from pathlib import Path
 from fastapi import Request
 from fastapi.responses import JSONResponse,HTMLResponse,Response
@@ -26,23 +26,32 @@ def install(app, *, root, catalog_path, blog_dir, native_renderer=None):
  host=sys.modules.get(getattr(native_renderer,'__module__',''),None)
  # English tag names live with the tag vocabulary in the content engine.
  service=ContentService(catalog_path,blog_dir=blog_dir,render=native_renderer,categories=getattr(host,'CATEGORIES',None),tag_labels=engine_tag_labels(Path(catalog_path).parent.parent/'bin'/'content_cli.py'))
- async def content(request:Request):
-  try:data,etag=await run_in_threadpool(service.response)
+ # Bound the complete allocation-heavy path, not only Markdown rendering.
+ # Waiting requests retain neither a copied bundle nor a rendered page.
+ public_reads=asyncio.Semaphore(2)
+ def content_response(if_none_match):
+  try:data,etag=service.response()
   except Exception:return JSONResponse({'error':'Public content temporarily unavailable'},503,headers={'Cache-Control':'no-store'})
   headers={'ETag':etag,'Cache-Control':'no-cache'}
-  if request.headers.get('if-none-match')==etag:return Response(status_code=304,headers=headers)
+  if if_none_match==etag:return Response(status_code=304,headers=headers)
   return JSONResponse(data,headers=headers)
+ async def content(request:Request):
+  async with public_reads:
+   return await run_in_threadpool(content_response,request.headers.get('if-none-match'))
+ def page_response(actual,language):
+  try:
+   try:data=service.bundle()
+   except Exception:
+    if actual!='/docs/tianshu' and not actual.startswith('/docs/tianshu/'):raise
+    data={'articles':[],'projects':[],'collection':[]}
+   page,status=render(root,actual,data,language)
+   return HTMLResponse(page,status,headers={'Cache-Control':'no-cache'})
+  except Exception:return HTMLResponse('Public content temporarily unavailable',503,headers={'Cache-Control':'no-store'})
  def page_endpoint(path):
   async def endpoint(request:Request):
    actual=path.format(**request.path_params)
-   try:
-    try:data=await run_in_threadpool(service.bundle)
-    except Exception:
-     if actual!='/docs/tianshu' and not actual.startswith('/docs/tianshu/'):raise
-     data={'articles':[],'projects':[],'collection':[]}
-    page,status=await run_in_threadpool(render,root,actual,data,request.query_params.get('lang','zh'))
-   except Exception:return HTMLResponse('Public content temporarily unavailable',503,headers={'Cache-Control':'no-store'})
-   return HTMLResponse(page,status,headers={'Cache-Control':'no-cache'})
+   async with public_reads:
+    return await run_in_threadpool(page_response,actual,request.query_params.get('lang','zh'))
   return endpoint
  # Exact JSON path must precede the existing /static mount. It is already public
  # in the existing www scope; do not add a broad /api authentication exception.

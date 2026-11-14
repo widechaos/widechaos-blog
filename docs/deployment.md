@@ -80,3 +80,7 @@ python3 scripts/deploy.py --config /private/path/site-deploy.json --rollback
 ## 日常边界
 
 上传源码不会自动批准任何文章。新增文章、补译文和作品变更走原内容工具；网站读取更新后刷新显示，不需要代码发布。审核、账号连接与平台分发凭据仍留在原私有运行环境。
+
+## Public read memory
+
+The public adapter admits two allocation-heavy responses at a time. Bundle copies, server rendering and response encoding share the same gate and run outside the event loop; queued requests do not allocate a content bundle. This does not change private routes, content, ETags or the host resource policy. Diagnose container memory events and exit status before treating a transient 502 as a source or image failure.
