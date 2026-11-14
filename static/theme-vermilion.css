@@ -1,0 +1,27 @@
+/* Site palette: blue-black stage, silver text, restrained vermilion actions. */
+:root {
+  --accent: #d17b6b;
+  --accent-fill: #a94738;
+  --accent-hover: #b04d3e;
+  --accent-on: #fff1eb;
+  --cyan: var(--ink);
+}
+.primary-link,
+.tool-launch,
+.feed-copy button {
+  background: var(--accent-fill);
+  color: var(--accent-on);
+}
+.primary-link:hover,
+.tool-launch:hover,
+.feed-copy button:hover {
+  background: var(--accent-hover);
+  color: var(--accent-on);
+}
+::selection {
+  background: var(--accent-fill);
+  color: var(--accent-on);
+}
+.booting body::after {
+  background-image: linear-gradient(90deg, transparent, var(--accent), transparent);
+}

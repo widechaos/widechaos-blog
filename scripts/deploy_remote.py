@@ -7,7 +7,7 @@ from urllib.error import HTTPError
 
 MODULES={'__init__.py','content_service.py','site_catalog.py','ssr.py','production_adapter.py'}
 
-PUBLIC_ROOT={'manual.css','manual-view.js','tianshu-manual.js','about-copy.js','analytics.js','app.js','content-model.js','style.css','content-layout.css','hero-art.js','home-art.js','project-demos.js','project-demos.css','avatar.png','city-art.png','og-card.jpg','mark.svg','x-sword.svg','collection.js','collection.css','pointer.js','pointer.css','pointer-sword.svg','pointer-sword-active.svg','radar.css','article-peek.js','article-peek.css','scroll-scenes.js'}
+PUBLIC_ROOT={'theme-vermilion.css','manual.css','manual-view.js','tianshu-manual.js','about-copy.js','analytics.js','app.js','content-model.js','style.css','content-layout.css','hero-art.js','home-art.js','project-demos.js','project-demos.css','avatar.png','city-art.png','og-card.jpg','mark.svg','x-sword.svg','collection.js','collection.css','pointer.js','pointer.css','pointer-sword.svg','pointer-sword-active.svg','radar.css','article-peek.js','article-peek.css','scroll-scenes.js'}
 
 CHINA2098_ART = {'5B4rng.jpg', 'ELqvdA.jpg', 'oADgZW.jpg', 'd8dY43.jpg', '4XoXE2.jpg', 'Ye35Oq.jpg', 'rAQgvG.jpg', 'Lelzqw.jpg', '3dl9nD.jpg', '9NXdAR.jpg', 'YeLBvP.jpg', '9mAw9a.jpg', 'lRlmEJ.jpg', '0n0PEK.jpg', '8exKRO.jpg', 'rA0xyJ.jpg', 'XnegW3.jpg', '6bZR06.jpg', 'xYoEJ4.jpg', 'QnPvW8.jpg', 'aYKoBk.jpg', 'xYoEZ2.jpg', 'bKXlem.jpg', 'eJ4KYG.jpg', '0nAY04.jpg', '28l9wa.jpg', 'g8qe0x.jpg', 'w61Ao5.jpg', 'J9av10.jpg', '28l9Ra.jpg'}
 
