@@ -1,3 +1,4 @@
+import { nextHomeArt } from "./home-art.js";
 import { manualPage, mountManual, shuviaProjectVisual, projectScreenshot } from './manual-view.js';
 import { ABOUT_COPY } from "./about-copy.js";
 import { createAnalytics } from "./analytics.js";
@@ -39,6 +40,7 @@ const esc = (s) =>
       ],
   );
 const arrow = '<span aria-hidden="true">↗</span>';
+let homeArt = "", previousRoute = "";
 let lang = localStorage.getItem("wc-site-lang") === "en" ? "en" : "zh";
 let cleanup = () => {},
   hero = null,
@@ -224,11 +226,11 @@ function homeRadar() {
   return `<aside class="home-radar" aria-label="${t("开源雷达", "Open-source radar")}"><a href="/radar"><div class="home-radar-label"><h2>${t("开源雷达", "Open-source radar")}</h2><span>${t("每日项目精选", "Daily project picks")}</span></div><div class="home-radar-issue" lang="${radar.lang}"><time datetime="${esc(articlePublishedAt(radar))}">${articleDate(radar)}</time><p>${esc(radarTitle(radar))}</p>${fallbackLanguage(radar) ? `<small class="language-note">${fallbackLanguage(radar)}</small>` : ""}</div><span class="home-radar-open">${t("浏览雷达", "Explore radar")} ↗</span></a></aside>`;
 }
 function home() {
-  return `<section class="hero" id="intro"><div class="hero-art" id="hero-art"><img src="/static/city-art.png" alt="" fetchpriority="high"></div><div class="hero-shade"></div><div class="hero-copy"><p class="eyebrow"><span class="accent-dot"></span> EMBER / RENCHAO WU</p><h1 aria-label="十方空烬"><span>十方</span><span class="name-second">空烬<span class="name-star" aria-hidden="true"><img src="/static/x-sword.svg" alt="" width="96" height="112"></span></span></h1><p class="hero-slogan">BUILD. BREAK. REBUILD.</p><p class="identity-tags">${tags()
+  return `<section class="hero" id="intro"><div class="hero-art" id="hero-art"><img src="${homeArt}" alt="" fetchpriority="high"></div><div class="hero-shade"></div><div class="hero-copy"><p class="eyebrow"><span class="accent-dot"></span> EMBER / RENCHAO WU</p><h1 aria-label="十方空烬"><span>十方</span><span class="name-second">空烬<span class="name-star" aria-hidden="true"><img src="/static/x-sword.svg" alt="" width="96" height="112"></span></span></h1><p class="hero-slogan">BUILD. BREAK. REBUILD.</p><p class="identity-tags">${tags()
     .map((x, i) => `<span>${tagFx(x, i)}</span>`)
     .join(
       "",
-    )}</p><div class="hero-links">${link("/projects", t("看项目", "Explore projects") + " " + arrow, "primary-link")}${link("/blog", t("读十方志", "Read the journal") + " <span>↗</span>", "text-link")}</div></div>${lang === "zh" ? `<div class="hero-poem" lang="zh-CN"><span>智灯已灭余空烬</span><span>犹自光明照十方</span></div>` : `<div class="hero-poem hero-poem-en" lang="en"><p><span>From the ashes a fire shall be woken,</span><span>a light from the shadows shall spring.</span></p><small>— J.R.R. Tolkien</small></div>`}<div class="hero-bottom"><a href="#latest" class="scroll-cue"><span>↓</span> ${t("向下浏览", "SCROLL TO EXPLORE")}</a><span class="hero-location">WIDECHAOS.CN</span><button id="art-mode" aria-pressed="${light === "etch"}">${t("画面", "VIEW")} <b>${light === "neon" ? t("夜景", "NIGHT") : t("线描", "ETCH")}</b> ⇄</button></div></section>
+    )}</p><div class="hero-links">${link("/projects", t("看项目", "Explore projects") + " " + arrow, "primary-link")}${link("/blog", t("读十方志", "Read the journal") + " <span>↗</span>", "text-link")}</div></div>${lang === "zh" ? `<div class="hero-poem" lang="zh-CN"><span>智灯已灭余空烬</span><span>犹自光明照十方</span></div>` : `<div class="hero-poem hero-poem-en" lang="en"><p><span>From the ashes a fire shall be woken,</span><span>a light from the shadows shall spring.</span></p><small>— J.R.R. Tolkien</small></div>`}<div class="hero-bottom"><a href="#latest" class="scroll-cue"><span>↓</span> ${t("向下浏览", "SCROLL TO EXPLORE")}</a><span class="hero-location">WIDECHAOS.CN</span><button id="art-mode" aria-pressed="${light === "etch"}">${t("画面", "VIEW")} <b>${light === "neon" ? t("原画", "ORIGINAL") : t("线描", "ETCH")}</b> ⇄</button></div></section>
  <div class="home-sequence" data-home-sequence><div class="home-scene scene-writing" data-home-scene>${homeJournal()}
  ${homeRadar()}</div>
 
@@ -581,6 +583,8 @@ function render(scroll = true) {
   hero?.dispose();
   hero = null;
   const path = location.pathname.replace(/\/$/, "") || "/";
+  if (path === "/" && previousRoute !== "/") homeArt = nextHomeArt();
+  previousRoute = path;
   if (path === "/blog") {
     const params = new URLSearchParams(location.search);
     searchTerm = params.get("q") || "";
@@ -680,9 +684,12 @@ function render(scroll = true) {
   if ($("#hero-art")) {
     // The 3D layer is heavy and only the homepage uses it; the image shows meanwhile.
     const host = $("#hero-art");
+    host.querySelector("img").addEventListener("error", event => {
+      event.currentTarget.src = "/static/city-art.png";
+    }, { once: true });
     import("./hero-art.js").then(({ mountHero }) => {
       if (!host.isConnected) return;
-      hero = mountHero(host, { image: "/static/city-art.png" });
+      hero = mountHero(host, { image: host.querySelector("img").getAttribute("src"), preserveColor: true });
       hero.setMode(light);
     });
     $("#art-mode").onclick = () => {
@@ -690,7 +697,7 @@ function render(scroll = true) {
       hero?.setMode(light);
       $("#art-mode").setAttribute("aria-pressed", light === "etch");
       $("#art-mode b").textContent =
-        light === "neon" ? t("夜景", "NIGHT") : t("线描", "ETCH");
+        light === "neon" ? t("原画", "ORIGINAL") : t("线描", "ETCH");
     };
   }
   document.querySelectorAll("[data-filter]").forEach(

@@ -18,6 +18,7 @@ const fragmentShader = /* glsl */ `
   uniform float uTime;
   uniform float uMotion;
   uniform float uEtch;
+  uniform float uOriginal;
   varying vec2 vUv;
 
   float heroLuma(vec3 c) { return dot(c, vec3(.2126, .7152, .0722)); }
@@ -78,7 +79,7 @@ const fragmentShader = /* glsl */ `
 
   void main() {
     vec2 uv = coverUv(vUv);
-    vec3 color = uEtch > .5 ? drawing(uv) : heroGrade(photo(uv));
+    vec3 color = uEtch > .5 ? drawing(uv) : mix(heroGrade(photo(uv)), photo(uv), uOriginal);
 
     vec2 lensLocal = (vUv - uPointer) * uResolution / min(uResolution.x, uResolution.y);
     float squareDistance = max(abs(lensLocal.x), abs(lensLocal.y));
@@ -103,14 +104,14 @@ const fragmentShader = /* glsl */ `
 
     vec2 pixels = vUv * uResolution;
     float rainfall = rain(pixels, uTime, 1.0) + rain(pixels + vec2(71., 39.), uTime * .83, 1.71) * .35;
-    color += rainfall * vec3(.052, .064, .073) * uMotion;
+    color += rainfall * vec3(.052, .064, .073) * uMotion * (1.0 - uOriginal);
     gl_FragColor = vec4(color, 1.0);
     #include <colorspace_fragment>
   }
 `;
 
 /** Mount a decorative image treatment while retaining an ordinary image fallback. */
-export function mountHero(host, { image = '/static/city-art.png' } = {}) {
+export function mountHero(host, { image = '/static/city-art.png', preserveColor = false } = {}) {
   if (!(host instanceof HTMLElement)) return { dispose() {}, setMode() {} };
 
   let disposed = false;
@@ -295,6 +296,7 @@ export function mountHero(host, { image = '/static/city-art.png' } = {}) {
       uniforms: {
         uImage: { value: null },
         uResolution: { value: new THREE.Vector2(1, 1) },
+        uOriginal: { value: preserveColor ? 1 : 0 },
         uImageSize: { value: new THREE.Vector2(16, 9) },
         uPointer: { value: pointer.clone() },
         uLens: { value: 0 },

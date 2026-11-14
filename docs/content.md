@@ -88,3 +88,7 @@ python3 integration/preview_server.py --catalog /private/path/catalog.json --blo
 现有项目可选screenshot对象，字段为src、width、height、alt、caption、sourceUrl。alt/caption各提供zh/en，width/height为原图实际正整数像素；src仅允许/static/assets/projects/下带12位摘要的PNG/JPEG/WebP文件，sourceUrl保留真实公开HTTPS原页面。目录仍以当前revision先dry-run再apply，不复制正文或另建图片目录数据库。图片先经原仓CI/部署，四项目身份与其他字段不变。
 
 前端和SSR复用同一截图数据，保留原比例、原图查看和来源链接。固定首页框内用contain，列表/详情以原比例展示；没有截图字段的项目继续原视觉。截图是实际界面快照，不修改图片里的指标或伪造运行状态；新增图片不构成另一篇公告。
+
+## 首页背景图
+
+`static/home-art.js`列出《中国2098》三十幅整图，图源和作者项目对应关系见`THIRD_PARTY.md`。首次进入、刷新或离开后重新返回首页时随机选择，同一标签页避开上一张；同页切换语言或原画/线描保持当前图。每次只请求所选一张，同源加载，原JPEG及其嵌入签名保持；首屏不另加来源链接。普通模式保留原色，不叠加原城市图的冷色处理和雨丝。分享卡片的图片和元数据单独维护，不跟随首页随机图池。
