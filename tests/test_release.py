@@ -59,6 +59,13 @@ class ReleaseSafety(unittest.TestCase):
   self.assertTrue(allowed('app/static/assets/tianshu/onboarding.png'))
   for name in ('app/static/assets/tianshu/en/private.js','app/static/assets/tianshu/en/nested/source.png','app/static/assets/tianshu/fr/source.png','app/static/assets/tianshu/en/../secret.png','app/static/assets/private/source.png'):
    self.assertFalse(allowed(name),name)
+ def test_home_art_assets_keep_the_release_boundary(self):
+  self.assertTrue(allowed('app/static/home-art.js'))
+  paintings=list((ROOT/'static/assets/china2098').glob('*.jpg'))
+  self.assertEqual(len(paintings),30)
+  for painting in paintings:self.assertTrue(allowed('app/static/assets/china2098/'+painting.name),painting.name)
+  for name in ('app/static/assets/china2098/unknown.jpg','app/static/assets/china2098/source.py','app/static/assets/china2098/nested/XnegW3.jpg','app/static/assets/china2098/../XnegW3.jpg'):
+   self.assertFalse(allowed(name),name)
  def test_delta_release_reads_unchanged_files_from_host(self):
   sys.path.insert(0,str(ROOT/'scripts'));from build_release import release_bytes
   import gzip
