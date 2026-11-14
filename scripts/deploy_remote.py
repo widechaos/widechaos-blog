@@ -7,7 +7,7 @@ from urllib.error import HTTPError
 
 MODULES={'__init__.py','content_service.py','site_catalog.py','ssr.py','production_adapter.py'}
 
-PUBLIC_ROOT={'theme-vermilion.css','manual.css','manual-view.js','tianshu-manual.js','about-copy.js','analytics.js','app.js','content-model.js','style.css','content-layout.css','hero-art.js','home-art.js','project-demos.js','project-demos.css','avatar.png','city-art.png','og-card.jpg','mark.svg','x-sword.svg','collection.js','collection.css','pointer.js','pointer.css','pointer-sword.svg','pointer-sword-active.svg','radar.css','article-peek.js','article-peek.css','scroll-scenes.js'}
+PUBLIC_ROOT={'share-card.js','share-card-pool.js','theme-vermilion.css','manual.css','manual-view.js','tianshu-manual.js','about-copy.js','analytics.js','app.js','content-model.js','style.css','content-layout.css','hero-art.js','home-art.js','project-demos.js','project-demos.css','avatar.png','city-art.png','og-card.jpg','mark.svg','x-sword.svg','collection.js','collection.css','pointer.js','pointer.css','pointer-sword.svg','pointer-sword-active.svg','radar.css','article-peek.js','article-peek.css','scroll-scenes.js'}
 
 CHINA2098_ART = {'5B4rng.jpg', 'ELqvdA.jpg', 'oADgZW.jpg', 'd8dY43.jpg', '4XoXE2.jpg', 'Ye35Oq.jpg', 'rAQgvG.jpg', 'Lelzqw.jpg', '3dl9nD.jpg', '9NXdAR.jpg', 'YeLBvP.jpg', '9mAw9a.jpg', 'lRlmEJ.jpg', '0n0PEK.jpg', '8exKRO.jpg', 'rA0xyJ.jpg', 'XnegW3.jpg', '6bZR06.jpg', 'xYoEJ4.jpg', 'QnPvW8.jpg', 'aYKoBk.jpg', 'xYoEZ2.jpg', 'bKXlem.jpg', 'eJ4KYG.jpg', '0nAY04.jpg', '28l9wa.jpg', 'g8qe0x.jpg', 'w61Ao5.jpg', 'J9av10.jpg', '28l9Ra.jpg'}
 
@@ -20,6 +20,9 @@ def allowed(name):
  if p.parent==Path('app/static/vendor'):return p.name in {'three.module.js','three.core.js','LICENSE.three.txt'}
  if p.parent==Path('app/static/fonts'):return bool(re.fullmatch(r'[a-z0-9-]+\.woff2',p.name))
  if p.parent==Path('app/static/assets/china2098'):return p.name in CHINA2098_ART
+ if p.parent==Path('app/static/assets/share-cards'):
+  match=re.fullmatch(r'v1-([0-9]{4})\.jpg',p.name)
+  return bool(match and int(match[1])<2190)
  if p.parent==Path('app/static/assets/projects'):return bool(re.fullmatch(r'[a-z0-9-]+-[a-f0-9]{12}\.(?:jpg|jpeg|png|webp)',p.name))
  if p.parent in {Path('app/static/assets/tianshu'),Path('app/static/assets/tianshu/en')}:return bool(re.fullmatch(r'[a-z0-9-]+\.png',p.name))
  return p.parent==Path('app/static/assets/collection') and bool(re.fullmatch(r'[a-f0-9]{20}-light\.svg',p.name))
@@ -37,11 +40,13 @@ def unpack(body,root=None):
  for name,sha in manifest['files'].items():
   if name in files:continue
   if root is None or not allowed(name) or digest(root/name)!=sha:raise ValueError('Release omits a file the host does not hold: '+name)
-  files[name]=(root/name).read_bytes()
- if {k:hashlib.sha256(v).hexdigest() for k,v in files.items()}!=manifest['files']:raise ValueError('Release hash mismatch')
+  files[name]=root/name
+ if {k:body_digest(v) for k,v in files.items()}!=manifest['files']:raise ValueError('Release hash mismatch')
  required={'app/personal_site/index.html','bin/site_catalog.py'}|{'app/site_content/'+name for name in MODULES}
  if not required.issubset(files):raise ValueError('Incomplete release')
  return files,manifest
+
+def body_digest(value):return digest(value) if isinstance(value,Path) else hashlib.sha256(value).hexdigest()
 
 def digest(path):return hashlib.sha256(path.read_bytes()).hexdigest() if path.is_file() else None
 
@@ -49,7 +54,11 @@ def atomic(path,body):
  path.parent.mkdir(parents=True,exist_ok=True)
  fd,name=tempfile.mkstemp(prefix='.site-',dir=path.parent)
  try:
-  with os.fdopen(fd,'wb') as stream:stream.write(body);stream.flush();os.fsync(stream.fileno())
+  with os.fdopen(fd,'wb') as stream:
+   if isinstance(body,Path):
+    with body.open('rb') as source:shutil.copyfileobj(source,stream)
+   else:stream.write(body)
+   stream.flush();os.fsync(stream.fileno())
   os.chmod(name,0o644);os.replace(name,path)
  finally:
   if os.path.exists(name):os.unlink(name)
@@ -104,6 +113,68 @@ def verify(probes):
    if attempt==39:raise
    time.sleep(1)
 
+def validate_source_manifest(manifest):
+ if manifest.get('repository')!='https://github.com/widechaos/widechaos-blog' or not re.fullmatch('[a-f0-9]{40}',manifest.get('revision','')):raise ValueError('Invalid source identity')
+ if not isinstance(manifest.get('files'),dict) or not all(allowed(name) and isinstance(sha,str) and re.fullmatch('[a-f0-9]{64}',sha) for name,sha in manifest['files'].items()):raise ValueError('Invalid source file manifest')
+ required={'app/personal_site/index.html','bin/site_catalog.py'}|{'app/site_content/'+name for name in MODULES}
+ if not required.issubset(manifest['files']):raise ValueError('Incomplete release')
+
+def pull_source(manifest,root,stage):
+ validate_source_manifest(manifest)
+ files={};wanted={}
+ for name,sha in manifest['files'].items():
+  if digest(root/name)==sha:files[name]=root/name;continue
+  if name=='app/personal_site/index.html':source='index.html'
+  elif name.startswith('app/static/'):source=name.removeprefix('app/')
+  elif name.startswith('app/site_content/'):source='integration/'+Path(name).name
+  else:source='integration/site_catalog.py'
+  wanted[source]=name
+ if not wanted:return files
+ # One immutable public source archive; never accept a caller-supplied URL.
+ url='https://codeload.github.com/widechaos/widechaos-blog/tar.gz/'+manifest['revision']
+ with urlopen(Request(url,headers={'User-Agent':'widechaos-site-deploy'}),timeout=90) as response:
+  with tarfile.open(fileobj=response,mode='r|gz') as archive:
+   for item in archive:
+    source=item.name.partition('/')[2]
+    if source not in wanted:continue
+    name=wanted.pop(source)
+    if not item.isfile() or not 0<item.size<=20*1024*1024:raise ValueError('Unexpected source member')
+    target=stage/name;target.parent.mkdir(parents=True,exist_ok=True)
+    with archive.extractfile(item) as incoming,target.open('wb') as outgoing:shutil.copyfileobj(incoming,outgoing,1024*1024)
+    if digest(target)!=manifest['files'][name]:raise ValueError('Source file hash mismatch')
+    files[name]=target
+ if wanted:raise ValueError('Source archive omits release files')
+ return files
+
+def apply_release(root,container,control,state,state_path,payload,files,manifest,body=None):
+ changes=[name for name,value in files.items() if digest(root/name)!=body_digest(value)]
+ if not payload['apply']:return {'operation':'plan','revision':manifest['revision'],'changes':changes,'liveContent':'preserved'}
+ require_capacity()
+ # The host's existing framework remains intact; only this small dependency is needed.
+ preflight(container,'import bleach,markdown,yaml; from app.routes import blog; assert callable(blog._parse)')
+ backup=control/('before-'+str(time.time_ns()));backup.mkdir(mode=0o700)
+ for name in changes:
+  target=root/name
+  if target.is_symlink() or any(p.is_symlink() for p in target.parents if p!=root.parent):raise ValueError('Symlink destination is forbidden')
+  if target.is_file():
+   old=backup/name;old.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(target,old)
+ atomic(backup/'snapshot.json',json.dumps({'files':changes,'previous':state},indent=2).encode())
+ before_content={str(p.relative_to(root)):digest(p) for p in (root/'content/blog').glob('*.md')}
+ before_content['content/site-catalog.json']=digest(root/'content/site-catalog.json')
+ try:
+  for name in changes:atomic(root/name,files[name])
+  # This runs with production's Python and original Markdown renderer before restart.
+  preflight(container,'from app.site_content.content_service import ContentService; from app.site_content.ssr import render; from app.routes import blog; s=ContentService("content/site-catalog.json",blog_dir="content/blog",render=blog._parse); d=s.bundle(); page,status=render("app/personal_site","/",d); assert status==200; assert isinstance(d["articles"],list)')
+  if any(digest(root/name)!=sha for name,sha in before_content.items()):raise ValueError('Content changed during deployment; inspect concurrent publishing')
+  command('docker','restart',container);health=verify(payload['private_probes'])
+  release=control/manifest['revision'];release.mkdir(exist_ok=True,mode=0o700)
+  if body is not None:atomic(release/'release.tar.gz',body)
+  atomic(release/'release.json',json.dumps(manifest,indent=2).encode())
+  atomic(state_path,json.dumps({**manifest,'backup':backup.name},indent=2).encode())
+  return {'ok':True,'operation':'deploy','revision':manifest['revision'],'changedFiles':len(changes),**health}
+ except Exception:
+  restore(root,backup,changes);command('docker','restart',container);verify(payload['private_probes']);raise
+
 def run(payload):
  root=Path(payload['root']).resolve();container=payload['container']
  if not payload.get('private_probes'):raise ValueError('Local authentication probes are required')
@@ -126,33 +197,16 @@ def run(payload):
    else:state_path.unlink(missing_ok=True)
    return {'ok':True,'operation':'rollback','revision':previous['revision'] if previous else 'pre-migration',**health}
   if payload['operation']=='inventory':return {'ok':True,'operation':'inventory','files':{name:digest(root/name) for name in payload['names'] if allowed(name)}}
+  if 'source_manifest' in payload:
+   manifest=payload['source_manifest'];validate_source_manifest(manifest)
+   changes=[name for name,sha in manifest['files'].items() if digest(root/name)!=sha]
+   if not payload['apply']:return {'operation':'plan','revision':manifest['revision'],'changes':changes,'liveContent':'preserved','transport':'verified-source-pull'}
+   require_capacity()
+   with tempfile.TemporaryDirectory(prefix='source-',dir=control) as folder:
+    files=pull_source(manifest,root,Path(folder))
+    return apply_release(root,container,control,state,state_path,payload,files,manifest)
   body=base64.b64decode(payload['archive'],validate=True);files,manifest=unpack(body,root)
-  changes=[name for name,value in files.items() if digest(root/name)!=hashlib.sha256(value).hexdigest()]
-  if not payload['apply']:return {'operation':'plan','revision':manifest['revision'],'changes':changes,'liveContent':'preserved'}
-  require_capacity()
-  # The host's existing framework remains intact; only this small dependency is needed.
-  preflight(container,'import bleach,markdown,yaml; from app.routes import blog; assert callable(blog._parse)')
-  backup=control/('before-'+str(time.time_ns()));backup.mkdir(mode=0o700)
-  for name in files:
-   target=root/name
-   if target.is_symlink() or any(p.is_symlink() for p in target.parents if p!=root.parent):raise ValueError('Symlink destination is forbidden')
-   if target.is_file():
-    old=backup/name;old.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(target,old)
-  atomic(backup/'snapshot.json',json.dumps({'files':list(files),'previous':state},indent=2).encode())
-  before_content={str(p.relative_to(root)):digest(p) for p in (root/'content/blog').glob('*.md')}
-  before_content['content/site-catalog.json']=digest(root/'content/site-catalog.json')
-  try:
-   for name,value in files.items():atomic(root/name,value)
-   # This runs with production's Python and original Markdown renderer before restart.
-   preflight(container,'from app.site_content.content_service import ContentService; from app.site_content.ssr import render; from app.routes import blog; s=ContentService("content/site-catalog.json",blog_dir="content/blog",render=blog._parse); d=s.bundle(); page,status=render("app/personal_site","/",d); assert status==200; assert isinstance(d["articles"],list)')
-   if any(digest(root/name)!=sha for name,sha in before_content.items()):raise ValueError('Content changed during deployment; inspect concurrent publishing')
-   command('docker','restart',container);health=verify(payload['private_probes'])
-   release=control/manifest['revision'];release.mkdir(exist_ok=True,mode=0o700)
-   atomic(release/'release.tar.gz',body);atomic(release/'release.json',json.dumps(manifest,indent=2).encode())
-   atomic(state_path,json.dumps({**manifest,'backup':backup.name},indent=2).encode())
-   return {'ok':True,'operation':'deploy','revision':manifest['revision'],'changedFiles':len(changes),**health}
-  except Exception:
-   restore(root,backup,files);command('docker','restart',container);verify(payload['private_probes']);raise
+  return apply_release(root,container,control,state,state_path,payload,files,manifest,body)
 
 if __name__=='__main__':
  try:print(json.dumps(run(json.load(sys.stdin)),ensure_ascii=False))

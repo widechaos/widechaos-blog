@@ -84,3 +84,13 @@ python3 scripts/deploy.py --config /private/path/site-deploy.json --rollback
 ## Public read memory
 
 The public adapter admits two allocation-heavy responses at a time. Bundle copies, server rendering and response encoding share the same gate and run outside the event loop; queued requests do not allocate a content bundle. This does not change private routes, content, ETags or the host resource policy. Diagnose container memory events and exit status before treating a transient 502 as a source or image failure.
+
+
+## 较大静态图池的传输
+
+完整分享图池约200 MiB，上线时在原命令增加 `--pull-source`。管理连接仅发送通过CI的提交标识及文件摘要清单，宿主从固定的公开GitHub仓库下载对应提交的源码归档，流式读取并只暂存清单内缺少的公开文件；逐个验证原清单的SHA-256后，才进入原容量检查、快照、写入、重启和验活。URL不接受外部输入，私有路径仍被白名单拒绝。下载失败或摘要不符不写入网站文件，暂存目录自动清理。未变化的文件以路径复用，避免把整个图池留在内存；快照与写入只覆盖变化的文件。源提交保存在回执清单中，回退继续使用原快照。
+
+```sh
+python3 scripts/deploy.py --config /private/path/site-deploy.json --pull-source
+python3 scripts/deploy.py --config /private/path/site-deploy.json --pull-source --apply --timeout 1800
+```

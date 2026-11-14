@@ -92,3 +92,12 @@ python3 integration/preview_server.py --catalog /private/path/catalog.json --blo
 ## 首页背景图
 
 `static/home-art.js`列出《中国2098》三十幅整图，图源和作者项目对应关系见`THIRD_PARTY.md`。首次进入、刷新或离开后重新返回首页时随机选择，同一标签页避开上一张；同页切换语言或原画/线描保持当前图。每次只请求所选一张，同源加载，原JPEG及其嵌入签名保持；首屏不另加来源链接。普通模式保留原色，不叠加原城市图的冷色处理和雨丝。分享卡片的图片和元数据单独维护，不跟随首页随机图池。
+
+
+## 首页分享图
+
+分享图池在 `static/share-card-pool.js`：此前十四条文字、本轮十九条毛泽东诗词和四十条古代诗词，共七十三条，与三十幅原画形成完整的2,190张1200×630 JPEG。每张以 `static/assets/share-cards/v1-NNNN.jpg` 固定命名，同一版本不要改变编号含义。改文字、构图或图池顺序时升级版本并重建，以免旧分享链接改变内容。
+
+首页页脚“复制分享链接”从全池等概率选择，避开本浏览器最近128个组合；存储不可用时仍能随机选择。复制失败则显示可选择的地址。参数 `?card=v1-NNNN` 固定分享组合，服务端同时输出对应的 `og:image`、`twitter:image` 和含参数的 `og:url`，搜索引擎 canonical 仍为首页。直接访问首页时服务端也随机选择，但X可能缓存相同首页网址，不能保证反复粘贴相同首页地址时换图。文章和其他页面继续使用原分享图。
+
+生成器仅用于构建，生产无需浏览器或图像处理依赖。开发环境准备 Playwright/Chromium 和 Pillow，运行 `node scripts/render-share-cards.mjs`；可用 `SHARE_PLAYWRIGHT` 指定 Playwright 模块、`SHARE_CHROMIUM` 指定无头 Chromium、`SHARE_PYTHON` 指定含Pillow的Python。生成器检查全部文字边界，再输出完整组合。图片总量约200 MiB，每次访客或平台只加载所选一张，不能把全池加入预加载。

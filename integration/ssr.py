@@ -1,10 +1,10 @@
 """Readable HTML and metadata from the same public bundle as the browser."""
-import html,json,re
+import html,json,re,secrets
 from pathlib import Path
 from urllib.parse import quote, urlsplit, urlunsplit, parse_qsl, urlencode
 E=lambda x:html.escape(str(x),quote=True)
 
-def render(root,path,data,lang='zh'):
+def render(root,path,data,lang='zh',share_card=None):
  page=Path(root,'index.html').read_text();title='十方空烬 · Ember';summary='Build. Break. Rebuild.';canonical='https://widechaos.cn'+path;alternates='';status=200
  english=lang=='en'
  def label(zh,en):return en if english else zh
@@ -118,10 +118,22 @@ def render(root,path,data,lang='zh'):
  page=re.sub(r'<title>.*?</title>',f'<title>{E(title)}</title>',page,flags=re.S)
  page=re.sub(r'<meta\s+name="description"\s+content="[^"]*"\s*/?>',f'<meta name="description" content="{E(summary)}">',page)
  kind='article' if path.startswith('/blog/') and status==200 else 'website'
- card=''.join(f'<meta property="{k}" content="{E(v)}">' for k,v in [('og:site_name','十方空烬 · Ember'),('og:type',kind),('og:title',title),('og:description',summary),('og:url',canonical),('og:image','https://widechaos.cn/static/og-card.jpg'),('og:image:width','1200'),('og:image:height','630'),('og:locale','en_US' if lang=='en' else 'zh_CN')])+f'<meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="https://widechaos.cn/static/og-card.jpg">'
+ image='https://widechaos.cn/static/og-card.jpg';share_url=canonical;share_meta=''
+ if path=='/':
+  source=Path(root)/'static/share-card-pool.js'
+  if not source.exists():source=Path(root).parent/'static/share-card-pool.js'
+  pool=json.loads(source.read_text().removeprefix('export const SHARE_CARD_POOL = ').strip().removesuffix(';'))
+  count=len(pool['artworks'])*len(pool['quotes']);prefix=pool['version']+'-'
+  valid=isinstance(share_card,str) and re.fullmatch(re.escape(prefix)+r'[0-9]{4}',share_card) and int(share_card[len(prefix):])<count
+  key=share_card if valid else prefix+f'{secrets.randbelow(count):04d}'
+  image='https://widechaos.cn/static/assets/share-cards/'+key+'.jpg'
+  share_url=canonical+'?card='+key
+  share_meta='<meta name="wc-share-card" content="'+key+'">'
+
+ card=''.join(f'<meta property="{k}" content="{E(v)}">' for k,v in [('og:site_name','十方空烬 · Ember'),('og:type',kind),('og:title',title),('og:description',summary),('og:url',share_url),('og:image',image),('og:image:width','1200'),('og:image:height','630'),('og:locale','en_US' if lang=='en' else 'zh_CN')])+f'<meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="{E(image)}">'
  # The browser renders from this copy instead of waiting for a second request.
  inline='<script id="site-data" type="application/json">'+json.dumps(data,ensure_ascii=False,separators=(',',':')).replace('<','\\u003c')+'</script>'
- page=page.replace('</head>',f'<link rel="canonical" href="{E(canonical)}">{alternates}{card}{inline}</head>')
+ page=page.replace('</head>',f'<link rel="canonical" href="{E(canonical)}">{alternates}{share_meta}{card}{inline}</head>')
  page=page.replace('lang="zh-CN"',f'lang="{lang}"',1).replace('<header id="header"></header>',f'<header id="header">{nav}</header>').replace('<main id="main" tabindex="-1"></main>',f'<main id="main" tabindex="-1">{main}</main>').replace('<footer id="footer"></footer>','<footer id="footer">© 十方空烬 · Ember <a href="/blog/rss.xml">RSS</a></footer>')
  page=re.sub(r'<noscript\b.*?</noscript\s*>','',page,flags=re.S)
  return page,status

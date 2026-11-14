@@ -678,3 +678,7 @@ html[lang="en"] .about-intro-copy > p:first-child { font-family: Georgia, serif;
   .home-sequence[data-scroll-scene="on"] > .home-scene[data-scene-tall]:not(:last-child) { margin-bottom: 24px; }
   .card-sequence[data-scroll-scene="on"] > .stack-card[data-scene-tall]:not(:last-child) { margin-bottom: 0; }
 }
+
+.footer-share { color: var(--ink); }
+.footer-share input { display: block; max-width: 100%; width: 28rem; padding: .75rem; margin-top: .75rem; background: var(--bg); color: var(--ink); border: 1px solid currentColor; }
+.footer-share input[hidden] { display: none; }

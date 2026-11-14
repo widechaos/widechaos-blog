@@ -38,20 +38,20 @@ def install(app, *, root, catalog_path, blog_dir, native_renderer=None):
  async def content(request:Request):
   async with public_reads:
    return await run_in_threadpool(content_response,request.headers.get('if-none-match'))
- def page_response(actual,language):
+ def page_response(actual,language,share_card=None):
   try:
    try:data=service.bundle()
    except Exception:
     if actual!='/docs/tianshu' and not actual.startswith('/docs/tianshu/'):raise
     data={'articles':[],'projects':[],'collection':[]}
-   page,status=render(root,actual,data,language)
+   page,status=render(root,actual,data,language,share_card)
    return HTMLResponse(page,status,headers={'Cache-Control':'no-cache'})
   except Exception:return HTMLResponse('Public content temporarily unavailable',503,headers={'Cache-Control':'no-store'})
  def page_endpoint(path):
   async def endpoint(request:Request):
    actual=path.format(**request.path_params)
    async with public_reads:
-    return await run_in_threadpool(page_response,actual,request.query_params.get('lang','zh'))
+    return await run_in_threadpool(page_response,actual,request.query_params.get('lang','zh'),request.query_params.get('card'))
   return endpoint
  # Exact JSON path must precede the existing /static mount. It is already public
  # in the existing www scope; do not add a broad /api authentication exception.

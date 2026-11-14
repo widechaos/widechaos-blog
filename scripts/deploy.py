@@ -19,7 +19,7 @@ def inventory_files(answer):
  return held
 
 def main():
- p=argparse.ArgumentParser();p.add_argument('--config',type=Path,required=True,help='Private local deployment settings, outside the repository');p.add_argument('--ref',default='origin/main');p.add_argument('--target',help='Existing SSH alias for the content host')
+ p=argparse.ArgumentParser();p.add_argument('--pull-source',action='store_true',help='Fetch the verified public commit on the host instead of transferring a large archive');p.add_argument('--config',type=Path,required=True,help='Private local deployment settings, outside the repository');p.add_argument('--ref',default='origin/main');p.add_argument('--target',help='Existing SSH alias for the content host')
  p.add_argument('--bridge',help='Existing SSH host/alias for the management machine');p.add_argument('--bridge-port',type=int,default=22)
  p.add_argument('--root');p.add_argument('--container');p.add_argument('--timeout',type=int,default=600)
  group=p.add_mutually_exclusive_group();group.add_argument('--apply',action='store_true');group.add_argument('--rollback',action='store_true');a=p.parse_args()
@@ -58,9 +58,13 @@ def main():
   answer=send({**payload,'operation':'inventory','names':list(manifest['files'])})
   held=inventory_files(answer)
   changed={name for name,sha in manifest['files'].items() if held.get(name)!=sha}
-  archive,_=release_bytes(manifest['revision'],only=changed)
-  payload['archive']=base64.b64encode(archive).decode()
-  print(f'{len(changed)} of {len(manifest["files"])} files differ; sending {len(archive)//1024} KiB',file=sys.stderr)
+  if a.pull_source:
+   payload['source_manifest']=manifest
+   print(f'{len(changed)} files differ; host will pull and hash the immutable public source',file=sys.stderr)
+  else:
+   archive,_=release_bytes(manifest['revision'],only=changed)
+   payload['archive']=base64.b64encode(archive).decode()
+   print(f'{len(changed)} of {len(manifest["files"])} files differ; sending {len(archive)//1024} KiB',file=sys.stderr)
  result=send(payload)
  print(result.stdout);print(result.stderr[-1000:] if result.returncode else '');raise SystemExit(result.returncode)
 if __name__=='__main__':main()

@@ -36,6 +36,12 @@ class ReleaseSafety(unittest.TestCase):
     with self.assertRaisesRegex(RuntimeError,'Command failed'):
      preflight('web','import os,time; from pathlib import Path; Path('+repr(str(pidfile))+').write_text(str(os.getpid())); time.sleep(30)',seconds=1)
    with self.assertRaises(ProcessLookupError):os.kill(int(pidfile.read_text()),0)
+ def test_share_card_release_range_is_bounded(self):
+  for i in (0,2189):self.assertTrue(allowed(f'app/static/assets/share-cards/v1-{i:04d}.jpg'))
+  for name in ('v1-2190.jpg','v2-0000.jpg','v1-0000.svg','../private.jpg','v1-0000.jpg/secret'):
+   self.assertFalse(allowed('app/static/assets/share-cards/'+name))
+  self.assertTrue(allowed('app/static/share-card-pool.js'))
+  self.assertTrue(allowed('app/static/share-card.js'))
  def test_private_paths_never_enter_payload(self):
   for name in ('content/blog/post.md','content/site-catalog.json','.env','app/main.py','app/routes/tasks.py','app/services/auth.py','app/static/private.html','app/static/lifehub.js','app/static/quant.js','../static/app.js','ssl/private.key'):
    self.assertFalse(allowed(name),name)

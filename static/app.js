@@ -1,3 +1,4 @@
+import { mountShareLink, chooseShareCard } from "./share-card.js";
 import { nextHomeArt } from "./home-art.js";
 import { manualPage, mountManual, shuviaProjectVisual, projectScreenshot } from './manual-view.js';
 import { ABOUT_COPY } from "./about-copy.js";
@@ -26,6 +27,7 @@ import {
 } from "./content-model.js";
 // Server pages carry the content inline; the JSON request is only a fallback.
 const inlineData = document.getElementById("site-data")?.textContent;
+const homeShareCard = document.querySelector('meta[name="wc-share-card"]')?.content || chooseShareCard();
 const data = filterPublishedContent(inlineData ? JSON.parse(inlineData) : await fetch("/static/content.json").then((r) => {
   if (!r.ok) throw new Error("Content unavailable");
   return r.json();
@@ -177,7 +179,8 @@ function header() {
         "",
       )}</nav><div class="header-actions"><button id="search-open" class="search-icon" aria-label="${t("搜索", "Search")}"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="m15 15 6 6"/></svg></button><button id="language" aria-label="${t("Switch to English", "切换到中文")}">${t("English", "中文")}</button><button id="motion" class="motion" aria-pressed="${motion === "on"}" aria-label="${t("动态效果", "Motion effects")}"><i></i><span>${t("动态", "Motion")}</span></button></div>`;
   $("#footer").innerHTML =
-    `<div class="footer-top"><a class="footer-name" href="/">WIDECHAOS<span>↗</span></a><p>Per aspera ad astra.</p></div><div class="footer-links"><span>十方空烬 · Ember</span><div>${link("/projects", t("项目", "Projects"))}${link("/blog", t("十方志", "Journal"))}${link("/radar", t("开源雷达", "Radar"))}${link("/tools", t("工具", "Tools"))}${link("/now", t("现在", "Now"))}${link("/docs/tianshu", t("天枢文档", "Shuvia guide"))}${rssLink("RSS ↗")}</div><div class="footer-profiles">${PROFILES.map(([name, , url]) => `<a href="${esc(url)}" target="_blank" rel="noopener" aria-label="${name}" title="${name}">${profileIcon(name)}</a>`).join("")}</div><button data-top>${t("返回顶部 ↑", "Back to top ↑")}</button></div>`;
+    `<div class="footer-top"><a class="footer-name" href="/">WIDECHAOS<span>↗</span></a><p>Per aspera ad astra.</p></div><div class="footer-links"><span>十方空烬 · Ember</span><div>${link("/projects", t("项目", "Projects"))}${link("/blog", t("十方志", "Journal"))}${link("/radar", t("开源雷达", "Radar"))}${link("/tools", t("工具", "Tools"))}${link("/now", t("现在", "Now"))}${link("/docs/tianshu", t("天枢文档", "Shuvia guide"))}${rssLink("RSS ↗")}${path === "/" ? `<button type="button" data-share-site>${t("复制分享链接", "Copy share link")}</button>` : ""}</div><div class="footer-profiles">${PROFILES.map(([name, , url]) => `<a href="${esc(url)}" target="_blank" rel="noopener" aria-label="${name}" title="${name}">${profileIcon(name)}</a>`).join("")}</div><button data-top>${t("返回顶部 ↑", "Back to top ↑")}</button></div>${path === "/" ? `<div class="footer-share"><span data-share-status role="status"></span><input data-share-url hidden readonly aria-label="${t("分享链接", "Share link")}"></div>` : ""}`;
+  mountShareLink($("#footer"), lang === "en");
   $("#language").onclick = () => {
     lang = lang === "zh" ? "en" : "zh";
     localStorage.setItem("wc-site-lang", lang);
@@ -782,7 +785,8 @@ function updatePageMetadata(path, article) {
     }
   }
   const description = isManual ? (document.querySelector(".manual-lead")?.textContent || document.querySelector(".manual-main h1")?.textContent) : article ? summary(article) : t("十方空烬 · Ember。项目、文字与持续的探索。", "Ember · 十方空烬. Projects, writing and ongoing exploration.");
-  for (const [key, value] of [["description", description], ["og:title", document.title], ["og:description", description], ["og:url", canonical]]) {
+  const shareImage = path === "/" ? `https://widechaos.cn/static/assets/share-cards/${homeShareCard}.jpg` : "https://widechaos.cn/static/og-card.jpg";
+  for (const [key, value] of [["description", description], ["og:title", document.title], ["og:description", description], ["og:url", path === "/" ? canonical + "?card=" + homeShareCard : canonical], ["og:image", shareImage], ["twitter:image", shareImage]]) {
     const attribute = key.startsWith("og:") ? "property" : "name";
     let meta = document.head.querySelector(`meta[${attribute}="${key}"]`);
     if (!meta) { meta = document.createElement("meta"); meta.setAttribute(attribute, key); document.head.append(meta); }
