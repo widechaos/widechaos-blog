@@ -128,7 +128,7 @@ def pull_source(manifest,root,stage):
   elif name.startswith('app/static/'):source=name.removeprefix('app/')
   elif name.startswith('app/site_content/'):source='integration/'+Path(name).name
   else:source='integration/site_catalog.py'
-  wanted[source]=name
+  wanted.setdefault(source,[]).append(name)
  if not wanted:return files
  # One immutable public source archive; never accept a caller-supplied URL.
  url='https://codeload.github.com/widechaos/widechaos-blog/tar.gz/'+manifest['revision']
@@ -137,13 +137,15 @@ def pull_source(manifest,root,stage):
    for item in archive:
     source=item.name.partition('/')[2]
     if source not in wanted:continue
-    name=wanted.pop(source)
+    names=wanted.pop(source);name=names[0]
     if not item.isfile() or not 0<item.size<=20*1024*1024:raise ValueError('Unexpected source member')
     target=stage/name;target.parent.mkdir(parents=True,exist_ok=True)
     with archive.extractfile(item) as incoming,target.open('wb') as outgoing:shutil.copyfileobj(incoming,outgoing,1024*1024)
-    if digest(target)!=manifest['files'][name]:raise ValueError('Source file hash mismatch')
-    files[name]=target
- if wanted:raise ValueError('Source archive omits release files')
+    sha=digest(target)
+    for name in names:
+     if sha!=manifest['files'][name]:raise ValueError('Source file hash mismatch')
+     files[name]=target
+ if wanted or set(files)!=set(manifest['files']):raise ValueError('Source archive omits release files')
  return files
 
 def apply_release(root,container,control,state,state_path,payload,files,manifest,body=None):

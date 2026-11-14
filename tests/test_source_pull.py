@@ -9,6 +9,7 @@ class VerifiedSourcePull(unittest.TestCase):
  def fixture(self):
   files={'app/personal_site/index.html':b'<html>public</html>','bin/site_catalog.py':b'# catalog'}
   files.update({'app/site_content/'+name:b'# module '+name.encode() for name in MODULES})
+  files['bin/site_catalog.py']=files['app/site_content/site_catalog.py']
   files['app/static/assets/share-cards/v1-0000.jpg']=b'\xff\xd8public-image'
   manifest={'repository':'https://github.com/widechaos/widechaos-blog','revision':'a'*40,'files':{k:hashlib.sha256(v).hexdigest() for k,v in files.items()}}
   return files,manifest
