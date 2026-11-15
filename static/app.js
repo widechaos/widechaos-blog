@@ -268,7 +268,7 @@ function sourceLabel(url) {
   if (repoOf(url)) return t("GitHub 源码", "Source on GitHub");
   if (/huggingface\.co\/datasets\//.test(url)) return t("Hugging Face 数据集", "Dataset on Hugging Face");
   if (/huggingface\.co\/spaces\//.test(url)) return t("在线演示 · Hugging Face", "Live demo on Hugging Face");
-  if (/huggingface\.co\//.test(url)) return t("Hugging Face 模型", "Model on Hugging Face");
+  if (/huggingface\.co\//.test(url)) return t("查看模型与复现包", "View model & reproduction package");
   return t("项目主页", "Project page");
 }
 // Latest public activity, read in the visitor's browser and cached for the visit.
