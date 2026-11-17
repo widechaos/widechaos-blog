@@ -1187,6 +1187,7 @@ nav a[aria-current]:after {
   margin: 35px 0 20px;
 }
 .article-body a {
+  overflow-wrap: anywhere;
   color: var(--cyan);
   text-decoration: underline;
   text-underline-offset: 4px;
