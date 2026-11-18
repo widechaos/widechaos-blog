@@ -2322,3 +2322,29 @@ html[data-motion="off"] .reveal {
 .work-visual > .project-screenshot-sourced { width: 100%; height: 100%; display: grid; grid-template-rows: minmax(0, 1fr) auto; }
 .work-visual > .project-screenshot-sourced > a { min-height: 0; height: 100%; }
 .work-visual > .project-screenshot-sourced img { height: 100%; object-fit: contain; }
+
+/* Keep scrollbar geometry stable while revealing each scroll area's thumb on hover. */
+:root, :root * {
+  scrollbar-width: thin !important;
+  scrollbar-color: transparent transparent !important;
+}
+:root:hover, :root *:hover {
+  scrollbar-color: var(--muted, currentColor) transparent !important;
+}
+:root::-webkit-scrollbar, :root *::-webkit-scrollbar {
+  width: 8px !important;
+  height: 8px !important;
+}
+:root::-webkit-scrollbar-track, :root *::-webkit-scrollbar-track,
+:root::-webkit-scrollbar-corner, :root *::-webkit-scrollbar-corner {
+  background: transparent !important;
+}
+:root::-webkit-scrollbar-thumb, :root *::-webkit-scrollbar-thumb {
+  background: transparent !important;
+  border: 2px solid transparent !important;
+  border-radius: 999px !important;
+  background-clip: padding-box !important;
+}
+:root:hover::-webkit-scrollbar-thumb, :root *:hover::-webkit-scrollbar-thumb {
+  background-color: var(--muted, currentColor) !important;
+}
