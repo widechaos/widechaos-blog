@@ -156,10 +156,10 @@ export function mountReadingNotes(root, {path, lang, track = noop}) {
   const name = node('input');
   name.name='name'; name.autocomplete='nickname'; name.maxLength=24; name.required=true;
   const random = button('reading-note-secondary',tr('随机生成用户名','Suggest a name'));
-  const recover = button('reading-note-secondary',tr('用邮箱恢复身份','Recover by email'));
-  const help = node('p','reading-note-help',tr('用户名会公开，邮箱只用于验证和恢复身份。','Your name is public. Your email is used to verify and recover your identity.'));
+  const help = node('p','reading-note-help',tr('用户名会公开，邮箱仅供联系。','Your name is public. Your email is kept private for contact.'));
   const submit = button('reading-note-submit',tr('提交批注','Submit annotation'));
   submit.type = 'submit';
+  submit.setAttribute('aria-keyshortcuts','Enter');
   const cancel = button('reading-note-secondary',tr('取消','Cancel'));
   const formStatus = node('p','reading-note-help');
   formStatus.setAttribute('role','status');
@@ -177,7 +177,7 @@ export function mountReadingNotes(root, {path, lang, track = noop}) {
     return item;
   }
 
-  identity.append(label(tr('邮箱','Email'),mail),label(tr('用户名','Name'),name),random,recover,help);
+  identity.append(label(tr('邮箱','Email'),mail),label(tr('用户名','Name'),name),random,help);
   const actions = node('div','reading-note-actions');
   actions.append(cancel,submit);
   form.append(quotation,label(tr('批注','Annotation'),body),identity,actions,formStatus);
@@ -188,11 +188,10 @@ export function mountReadingNotes(root, {path, lang, track = noop}) {
   function errorText(error) {
     return ({
       rate:tr('提交太频繁，请稍后再试。','Too many requests. Try again later.'),
-      mail:tr('验证邮件发送失败，草稿已保留。请重试。','Email delivery failed. Your draft is still here. Try again.'),
       email:tr('请检查邮箱地址。','Check your email address.'),
       name:tr('请换一个用户名。','Choose a different name.'),
       invalid:tr('请检查所填内容。','Check the information you entered.'),
-      signin:tr('身份已失效，请通过邮箱恢复。','Your session expired. Recover by email.'),
+      signin:tr('请重新填写邮箱和用户名。','Enter your email and name again.'),
     })[error.message] || tr('暂时无法连接，请重试。','Could not connect. Try again.');
   }
 
@@ -518,15 +517,12 @@ export function mountReadingNotes(root, {path, lang, track = noop}) {
     name.value=choices[Math.floor(Math.random()*choices.length)];
   });
   cancel.addEventListener('click',()=>{document.getSelection()?.removeAllRanges();closeComposer();toggle.focus({preventScroll:true});});
-  recover.addEventListener('click',async()=>{
-    if (!mail.reportValidity()) return;
-    recover.disabled=true;
-    try {
-      await noteRequest({...context,op:'recover',email:mail.value},listener);
-      formStatus.textContent=tr('验证链接已发送。','Verification email sent.');
-    } catch (error) {
-      if (!abort.signal.aborted) formStatus.textContent=errorText(error);
-    } finally { recover.disabled=false; }
+  form.addEventListener('keydown',event=>{
+    if (event.key!=='Enter' || event.isComposing || event.keyCode===229) return;
+    if (event.target===body && event.shiftKey) return;
+    if (![body,mail,name].includes(event.target)) return;
+    event.preventDefault();
+    if (!event.repeat && !submit.disabled) form.requestSubmit(submit);
   });
 
   form.addEventListener('submit',async event=>{
@@ -549,6 +545,7 @@ export function mountReadingNotes(root, {path, lang, track = noop}) {
     try {
       const result=await noteRequest({...data,requestId:request},listener);
       if (abort.signal.aborted) return;
+      reader=result.reader || reader;
       track('annotation_submit');
       requestKey='';
       selected=result.note ? [result.note] : [];
@@ -558,7 +555,6 @@ export function mountReadingNotes(root, {path, lang, track = noop}) {
         draw();
       }
       const status={
-        awaiting_email:tr('验证链接已发出，确认邮箱后提交审核。','Verification email sent. Confirm your email to submit for review.'),
         pending:tr('批注已提交，等待审核。','Annotation submitted for review.'),
         published:tr('批注已发布。','Annotation published.'),
       }[result.state];

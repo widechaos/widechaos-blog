@@ -118,10 +118,6 @@
 }
 [data-motion='off'] :is(.reading-note-transmission.is-sending svg,.reading-note-item.is-received) { animation: none; }
 .reading-note-source :is(a,button,input,textarea):focus-visible, .reading-note-overlay :is(button,input,textarea):focus-visible, .reading-note-toggle:focus-visible { outline: 2px solid #afd4e6; outline-offset: 3px; }
-.reading-verify { max-width: 770px; }
-.reading-verify h1 { margin-block: 0 16px; }
-.reading-verify :is(p,a) { color: var(--muted); }
-.reading-verify button { margin-block: 16px; min-height: 44px; }
 @media(min-width: 1200px) { .manual-article.reading-note-source { max-width: calc(100% - 215px); } }
 @media(max-width: 660px) {
   .reading-note-toggle, .reading-note-secondary, .reading-note-compose :is(.reading-note-submit,.reading-note-secondary) { min-height: 44px; }
