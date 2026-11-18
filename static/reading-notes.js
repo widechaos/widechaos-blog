@@ -96,6 +96,7 @@ export function mountReadingNotes(root, {path, lang, track = noop}) {
   const source = root.querySelector('.article-body,.manual-article');
   if (!source) return noop;
   const toolbarParent = root.querySelector('.article-top') || source.querySelector('header');
+  const siteHeader = document.getElementById('header');
   if (!toolbarParent) return noop;
   const tr = (zh,en) => lang === 'en' ? en : zh;
   const blocks = [...source.querySelectorAll('p,li')].filter(el => !el.closest('nav,pre,figure,table') && !el.querySelector('p,li'));
@@ -109,7 +110,8 @@ export function mountReadingNotes(root, {path, lang, track = noop}) {
   let request = null, requestKey = '', serial = 0, selected = [], rows = [];
   const lastTrack = new Set();
   let lastDraftEvent = 0;
-  const empty = () => transmission.remove();
+  let anchorRange = null, anchorBlock = null;
+  const preview = 'reading-note-selection';
   const bar = node('div','reading-note-bar');
   const toggle = button('reading-note-toggle');
   const toggleLabel = node('span');
@@ -134,9 +136,12 @@ export function mountReadingNotes(root, {path, lang, track = noop}) {
   retry.hidden = true;
   bar.append(retry);
 
+  const overlay = node('aside','reading-note-overlay');
+  overlay.hidden = true;
+  overlay.setAttribute(UI,'');
+  overlay.setAttribute('role','dialog');
+  overlay.setAttribute('aria-label',tr('写批注','Write an annotation'));
   const composer = node('div','reading-note-compose');
-  composer.setAttribute(UI,'');
-  const start = button('primary-link',tr('写批注','Annotate'));
   const form = node('form');
   const quotation = node('blockquote','reading-note-quote');
   const body = node('textarea');
@@ -172,7 +177,9 @@ export function mountReadingNotes(root, {path, lang, track = noop}) {
   const actions = node('div','reading-note-actions');
   actions.append(submit,cancel);
   form.append(quotation,label(tr('批注','Annotation'),body),identity,actions,formStatus);
-  composer.append(start,form);
+  composer.append(form);
+  overlay.append(composer,transmission);
+  document.body.append(overlay);
 
   function errorText(error) {
     return ({
@@ -338,13 +345,59 @@ export function mountReadingNotes(root, {path, lang, track = noop}) {
     }
   }
 
-  let frameRequest=0;
+  function measureOverlay() {
+    if (overlay.hidden) return;
+    const rect = anchorRange?.getBoundingClientRect();
+    const anchor = rect?.width && rect?.height ? rect : anchorBlock?.getBoundingClientRect();
+    if (!anchor) return;
+    const visual = window.visualViewport;
+    const left = visual?.offsetLeft || 0;
+    const top = visual?.offsetTop || 0;
+    const width = visual?.width || innerWidth;
+    const height = visual?.height || innerHeight;
+    const edge = 12, gap = 12;
+    const right = left + width - edge, bottom = top + height - edge;
+    const availableTop = Math.max(top + edge, (siteHeader?.getBoundingClientRect().bottom ?? 0) + gap);
+    const availableHeight = Math.max(120,bottom-availableTop);
+    const side = articleFrame.getBoundingClientRect().right + gap;
+    const room = right - side;
+    const mobile = width <= 660;
+    const boxWidth = mobile ? width - 2 * edge : Math.min(320,room >= 244 ? room : width - 2 * edge);
+    overlay.style.width = boxWidth+'px';
+    overlay.style.maxHeight = availableHeight+'px';
+    const h = overlay.offsetHeight;
+    let x = side, y = anchor.top;
+    if (mobile) {
+      x = left + edge;
+      y = bottom - h;
+    } else if (room < boxWidth) {
+      x = anchor.right + gap;
+      if (x + boxWidth > right) {
+        x = right - boxWidth;
+        y = anchor.bottom + gap + h <= bottom ? anchor.bottom + gap : anchor.top - gap - h;
+      }
+    }
+    overlay.style.left = Math.max(left + edge, Math.min(x,right-boxWidth))+'px';
+    overlay.style.top = Math.max(availableTop,Math.min(y,bottom-h))+'px';
+    overlay.style.visibility = !writing && !composer.hidden &&
+      (anchor.bottom < availableTop || anchor.top > bottom) ? 'hidden' : '';
+  }
+
+  let frameRequest=0, overlayFrame=0;
+  function scheduleOverlay() {
+    if (!overlay.hidden && !overlayFrame) overlayFrame=requestAnimationFrame(()=>{overlayFrame=0;measureOverlay();});
+  }
   function scheduleMeasure() {
-    if (!frameRequest) frameRequest=requestAnimationFrame(()=>{frameRequest=0;measure();});
+    if (!frameRequest) frameRequest=requestAnimationFrame(()=>{frameRequest=0;measure();measureOverlay();});
   }
   const resize = new ResizeObserver(scheduleMeasure);
   resize.observe(articleFrame);
+  const overlayResize = new ResizeObserver(scheduleOverlay);
+  overlayResize.observe(overlay);
   window.addEventListener('resize',scheduleMeasure,listener);
+  document.addEventListener('scroll',scheduleOverlay,{...listener,capture:true,passive:true});
+  window.visualViewport?.addEventListener('resize',scheduleOverlay,listener);
+  window.visualViewport?.addEventListener('scroll',scheduleOverlay,listener);
 
   async function load() {
     const run = ++serial;
@@ -366,15 +419,36 @@ export function mountReadingNotes(root, {path, lang, track = noop}) {
   }
 
   function closeComposer() {
-    composer.remove();
+    overlay.hidden=true;
+    anchorRange=null;
+    anchorBlock=null;
     writing=false;
     selection=null;
+    requestKey='';
+    form.reset();
+    CSS.highlights?.delete(preview);
   }
+
+  document.addEventListener('pointerdown', event=>{
+    if (!overlay.hidden && !overlay.contains(event.target) && !submit.disabled && (!body.value.trim() || composer.hidden)) closeComposer();
+  },listener);
+  document.addEventListener('keydown',event=>{
+    if (overlay.hidden || submit.disabled) return;
+    if (event.key==='Escape') {
+      const restore=overlay.contains(document.activeElement);
+      if (selection) document.getSelection()?.removeAllRanges();
+      closeComposer();
+      if (restore) toggle.focus({preventScroll:true});
+    } else if (event.key==='Tab' && !event.shiftKey && !writing && !composer.hidden && !overlay.contains(document.activeElement)) {
+      event.preventDefault();
+      body.focus({preventScroll:true});
+    }
+  },listener);
 
   toggle.addEventListener('click',()=>{
     enabled=!enabled; unfolded=enabled; selected=[];
     try { localStorage.setItem(PREFERENCE,enabled?'on':'off'); } catch {}
-    if (!enabled) { serial++; closeComposer(); empty(); loadStatus.textContent=''; retry.hidden=true; }
+    if (!enabled) { serial++; closeComposer(); loadStatus.textContent=''; retry.hidden=true; }
     draw();
     if (enabled) load();
   });
@@ -390,7 +464,10 @@ export function mountReadingNotes(root, {path, lang, track = noop}) {
   document.addEventListener('selectionchange',()=>{
     if (!enabled || !loaded || writing) return;
     const native=document.getSelection();
-    if (!native?.rangeCount || native.isCollapsed) return;
+    if (!native?.rangeCount || native.isCollapsed) {
+      if (!overlay.hidden && !composer.hidden) closeComposer();
+      return;
+    }
     const range=native.getRangeAt(0);
     const index=blocks.findIndex(block=>block.contains(range.startContainer)&&block.contains(range.endContainer));
     if (index<0 || [range.startContainer,range.endContainer].some(n=>(n.nodeType===1?n:n.parentElement).closest('['+UI+']'))) return;
@@ -403,9 +480,17 @@ export function mountReadingNotes(root, {path, lang, track = noop}) {
     const text=original[index];
     if (text.slice(offset,offset+quote.length)!==quote) return;
     selection={quote,offset,block:index,prefix:text.slice(Math.max(0,offset-48),offset),suffix:text.slice(offset+quote.length,offset+quote.length+48),fingerprint:fingerprint(text)};
-    start.hidden=false;
-    form.hidden=true;
-    afterBlock(index,composer);
+    anchorRange = range.cloneRange();
+    anchorBlock = blocks[index];
+    if (CSS.highlights && typeof Highlight !== 'undefined') CSS.highlights.set(preview,new Highlight(anchorRange));
+    quotation.textContent=quote;
+    formStatus.textContent='';
+    identityFields(false);
+    submit.textContent=reader ? tr('提交批注','Submit annotation') : tr('继续','Continue');
+    composer.hidden=false;
+    transmission.hidden=true;
+    overlay.hidden=false;
+    measureOverlay();
   },listener);
 
   function identityFields(show) {
@@ -414,16 +499,12 @@ export function mountReadingNotes(root, {path, lang, track = noop}) {
     name.required=show;
   }
 
-  start.addEventListener('click',()=>{
-    if (!selection) return;
+  overlay.addEventListener('pointerdown',()=>{
+    if (!composer.hidden) writing=true;
+  });
+  body.addEventListener('focus',()=>{
     writing=true;
     if (Date.now()-lastDraftEvent>2000) { track('annotation_start'); lastDraftEvent=Date.now(); }
-    quotation.textContent=selection.quote;
-    start.hidden=true;
-    form.hidden=false;
-    formStatus.textContent='';
-    identityFields(!reader);
-    body.focus();
   });
 
   random.addEventListener('click',()=>{
@@ -431,7 +512,7 @@ export function mountReadingNotes(root, {path, lang, track = noop}) {
     const choices=options.filter(value=>value!==name.value);
     name.value=choices[Math.floor(Math.random()*choices.length)];
   });
-  cancel.addEventListener('click',()=>{closeComposer();toggle.focus({preventScroll:true});});
+  cancel.addEventListener('click',()=>{document.getSelection()?.removeAllRanges();closeComposer();toggle.focus({preventScroll:true});});
   recover.addEventListener('click',async()=>{
     if (!mail.reportValidity()) return;
     recover.disabled=true;
@@ -446,6 +527,13 @@ export function mountReadingNotes(root, {path, lang, track = noop}) {
   form.addEventListener('submit',async event=>{
     event.preventDefault();
     if (!selection || !body.value.trim() || submit.disabled) return;
+    if (!reader && identity.hidden) {
+      identityFields(true);
+      submit.textContent=tr('提交批注','Submit annotation');
+      measureOverlay();
+      mail.focus({preventScroll:true});
+      return;
+    }
     const anchor=selection;
     const data={...context,op:'submit',anchor,body:body.value.trim(),...(!reader?{email:mail.value,name:name.value}:{})};
     const key=JSON.stringify(data);
@@ -470,10 +558,13 @@ export function mountReadingNotes(root, {path, lang, track = noop}) {
         published:tr('批注已发布。','Annotation published.'),
       }[result.state];
       closeComposer();
-      form.reset();
+      anchorBlock=blocks[anchor.block];
       transmissionText.textContent=status || tr('批注已提交。','Annotation submitted.');
       transmission.classList.remove('is-sending');
-      afterBlock(anchor.block,transmission);
+      composer.hidden=true;
+      transmission.hidden=false;
+      overlay.hidden=false;
+      measureOverlay();
       requestAnimationFrame(()=>requestAnimationFrame(()=>{
         if (abort.signal.aborted) return;
         transmission.classList.add('is-sending');
@@ -482,7 +573,7 @@ export function mountReadingNotes(root, {path, lang, track = noop}) {
       scheduleMeasure();
     } catch (error) {
       if (abort.signal.aborted) return;
-      if (error.message==='signin' || error.message==='email') { reader=null; identityFields(true); }
+      if (error.message==='signin' || error.message==='email') { reader=null; identityFields(true); submit.textContent=tr('提交批注','Submit annotation'); }
       formStatus.textContent=errorText(error);
     } finally { submit.disabled=false; cancel.disabled=false; toggle.disabled=false; }
   });
@@ -491,7 +582,11 @@ export function mountReadingNotes(root, {path, lang, track = noop}) {
   if (enabled) load();
   return () => {
     abort.abort();
+    closeComposer();
+    overlay.remove();
     resize.disconnect();
+    overlayResize.disconnect();
     if (frameRequest) cancelAnimationFrame(frameRequest);
+    if (overlayFrame) cancelAnimationFrame(overlayFrame);
   };
 }

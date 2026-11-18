@@ -55,28 +55,33 @@
 }
 .reading-note-item .reading-note-message { font-size: inherit; margin: 0; line-height: 1.55; white-space: pre-wrap; }
 .reading-note-reply { margin-top: 8px; padding-inline-start: 10px; border-inline-start: 1px solid var(--line); }
-.reading-note-source .reading-note-compose {
-  display: grid; gap: 8px; margin: 0 0 22px; padding: 16px; background: var(--note-surface);
-  border-inline-start: 1px solid var(--line); font-size: 14px; color: var(--ink);
+.reading-note-overlay {
+  position: fixed; z-index: 92; box-sizing: border-box; overflow: auto; overscroll-behavior: contain;
+  padding: 12px; max-width: calc(100vw - 24px); color: var(--ink); background: var(--panel);
+  border: 1px solid var(--line); border-radius: 2px 12px 2px 12px;
+  box-shadow: 0 12px 40px #0008; font-size: 14px;
 }
+.reading-note-overlay[hidden], .reading-note-overlay [hidden] { display: none !important; }
+::highlight(reading-note-selection) { background: color-mix(in srgb,var(--accent) 26%,transparent); }
 .reading-note-compose form, .reading-note-compose label, .reading-note-compose fieldset { display: grid; gap: 8px; min-width: 0; }
 .reading-note-compose .primary-link { justify-self: start; min-height: 44px; }
 .reading-note-compose fieldset {
-  grid-template-columns: repeat(2,minmax(0,1fr)); align-items: end; padding: 0; margin: 0; border: 0;
+  grid-template-columns: minmax(0,1fr); padding: 0; margin: 0; border: 0;
 }
 .reading-note-compose input, .reading-note-compose textarea {
   border: 1px solid var(--line); border-radius: 2px; background: var(--bg); color: var(--ink);
   padding: 8px; font: inherit; min-width: 0; width: 100%;
 }
-.reading-note-source .reading-note-quote {
+.reading-note-overlay .reading-note-quote {
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; overflow-wrap: anywhere;
   padding: 0 0 0 10px; border-inline-start: 1px solid var(--accent); margin: 0; color: var(--muted);
 }
-.reading-note-source .reading-note-help { color: var(--muted); font-size: 13px; margin: 0; grid-column: 1 / -1; }
+.reading-note-overlay .reading-note-help { color: var(--muted); font-size: 13px; margin: 0; grid-column: 1 / -1; }
 .reading-note-help:empty { display: none; }
 .reading-note-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .reading-note-secondary { font-size: 13px; padding-inline: 8px; min-height: 36px; color: var(--muted); text-align: start; }
 .reading-note-secondary:hover { color: var(--accent); }
-.reading-note-transmission { display: flex; align-items: center; gap: 10px; margin: 0 0 16px; font-size: 13px; color: var(--muted); }
+.reading-note-transmission { display: flex; align-items: center; gap: 10px; margin: 0; font-size: 13px; color: var(--muted); }
 .reading-note-signal { position: relative; width: 44px; height: 20px; flex: none; color: var(--accent); }
 .reading-note-signal::before { content: ''; position: absolute; inset: 50% 0 auto; border-top: 1px solid var(--line); }
 .reading-note-signal svg { position: absolute; inset: 2px 0 auto auto; background: var(--bg); }
@@ -88,13 +93,12 @@
   .reading-note-transmission.is-sending svg, .reading-note-item.is-received { animation: none; }
 }
 [data-motion='off'] :is(.reading-note-transmission.is-sending svg,.reading-note-item.is-received) { animation: none; }
-.reading-note-source :is(a,button,input,textarea):focus-visible, .reading-note-toggle:focus-visible { outline: 2px solid #afd4e6; outline-offset: 3px; }
+.reading-note-source :is(a,button,input,textarea):focus-visible, .reading-note-overlay :is(button,input,textarea):focus-visible, .reading-note-toggle:focus-visible { outline: 2px solid #afd4e6; outline-offset: 3px; }
 .reading-verify { max-width: 770px; }
 .reading-verify h1 { margin-block: 0 16px; }
 .reading-verify :is(p,a) { color: var(--muted); }
 .reading-verify button { margin-block: 16px; min-height: 44px; }
 @media(min-width: 1200px) { .manual-article.reading-note-source { max-width: calc(100% - 215px); } }
 @media(max-width: 660px) {
-  .reading-note-compose fieldset { grid-template-columns: minmax(0,1fr); }
   .reading-note-toggle, .reading-note-secondary { min-height: 44px; }
 }
