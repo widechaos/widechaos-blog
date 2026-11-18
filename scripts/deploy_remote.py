@@ -75,10 +75,13 @@ def command(*args):
  if r.returncode:raise RuntimeError('Command failed: '+args[0]+' '+r.stderr[-600:])
  return r.stdout
 
+class CapacityDeferred(RuntimeError):
+ pass
+
 def require_capacity(proc=Path('/proc')):
  memory={line.split(':',1)[0]:int(line.split()[1]) for line in (proc/'meminfo').read_text().splitlines() if line.split()[1].isdigit()}
  if memory.get('MemAvailable',0)<384*1024:
-  raise RuntimeError('Deployment deferred: less than 384 MiB available memory; no site files changed')
+  raise CapacityDeferred('Deployment deferred: less than 384 MiB available memory; no site files changed')
  for name,limit in (('memory',5),('io',10)):
   path=proc/'pressure'/name
   if path.exists():
@@ -87,7 +90,18 @@ def require_capacity(proc=Path('/proc')):
      values=dict(item.split('=') for item in line.split()[1:])
      # An idle host shows large 10-second IO spikes from a single small read; gate IO on the minute average.
      if float(values['avg60' if name=='io' else 'avg10'])>=limit:
-      raise RuntimeError('Deployment deferred: host '+name+' pressure is high; no site files changed')
+      raise CapacityDeferred('Deployment deferred: host '+name+' pressure is high; no site files changed')
+
+def wait_for_capacity():
+ deadline=time.monotonic()+120
+ while True:
+  try:
+   require_capacity()
+   return
+  except CapacityDeferred:
+   remaining=deadline-time.monotonic()
+   if remaining<=0:raise
+   time.sleep(min(5,remaining))
 
 def preflight(container,source,seconds=45):
  # Enforce the deadline inside the container; killing the Docker client alone leaves its child running.
@@ -151,7 +165,7 @@ def pull_source(manifest,root,stage):
 def apply_release(root,container,control,state,state_path,payload,files,manifest,body=None):
  changes=[name for name,value in files.items() if digest(root/name)!=body_digest(value)]
  if not payload['apply']:return {'operation':'plan','revision':manifest['revision'],'changes':changes,'liveContent':'preserved'}
- require_capacity()
+ wait_for_capacity()
  # The host's existing framework remains intact; only this small dependency is needed.
  preflight(container,'import bleach,markdown,yaml; from app.routes import blog; assert callable(blog._parse)')
  backup=control/('before-'+str(time.time_ns()));backup.mkdir(mode=0o700)
@@ -203,7 +217,7 @@ def run(payload):
    manifest=payload['source_manifest'];validate_source_manifest(manifest)
    changes=[name for name,sha in manifest['files'].items() if digest(root/name)!=sha]
    if not payload['apply']:return {'operation':'plan','revision':manifest['revision'],'changes':changes,'liveContent':'preserved','transport':'verified-source-pull'}
-   require_capacity()
+   wait_for_capacity()
    with tempfile.TemporaryDirectory(prefix='source-',dir=control) as folder:
     files=pull_source(manifest,root,Path(folder))
     return apply_release(root,container,control,state,state_path,payload,files,manifest)

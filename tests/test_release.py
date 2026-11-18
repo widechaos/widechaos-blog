@@ -1,7 +1,7 @@
 import importlib.util,io,json,os,shutil,sys,tarfile,tempfile,unittest
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT/'scripts'))
-from deploy_remote import allowed,unpack,restore,require_capacity,preflight
+from deploy_remote import allowed,unpack,restore,require_capacity,preflight,CapacityDeferred,wait_for_capacity
 from unittest.mock import patch
 from check_source import findings
 from deploy import inventory_files
@@ -27,6 +27,14 @@ class ReleaseSafety(unittest.TestCase):
    with self.assertRaisesRegex(RuntimeError,'io pressure'):require_capacity(proc)
    (proc/'pressure/io').write_text('full avg10=0 avg60=0 avg300=0 total=1\n')
    require_capacity(proc)
+ def test_capacity_wait_reuses_gate_without_bypassing_it(self):
+  deferred=CapacityDeferred('host io pressure is high')
+  with patch('deploy_remote.require_capacity',side_effect=[deferred,None]) as gate,patch('deploy_remote.time.sleep') as sleep:
+   wait_for_capacity()
+   self.assertEqual(gate.call_count,2)
+   sleep.assert_called_once_with(5)
+  with patch('deploy_remote.require_capacity',side_effect=deferred),patch('deploy_remote.time.monotonic',side_effect=[0,120]):
+   with self.assertRaises(CapacityDeferred):wait_for_capacity()
  @unittest.skipUnless(shutil.which('timeout'),'GNU timeout is required')
  def test_preflight_deadline_is_inside_container(self):
   with tempfile.TemporaryDirectory() as directory:
