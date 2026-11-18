@@ -158,7 +158,7 @@ export function mountReadingNotes(root, {path, lang, track = noop}) {
   const random = button('reading-note-secondary',tr('随机生成用户名','Suggest a name'));
   const recover = button('reading-note-secondary',tr('用邮箱恢复身份','Recover by email'));
   const help = node('p','reading-note-help',tr('用户名会公开，邮箱只用于验证和恢复身份。','Your name is public. Your email is used to verify and recover your identity.'));
-  const submit = button('primary-link',tr('提交批注','Submit annotation'));
+  const submit = button('reading-note-submit',tr('提交批注','Submit annotation'));
   submit.type = 'submit';
   const cancel = button('reading-note-secondary',tr('取消','Cancel'));
   const formStatus = node('p','reading-note-help');
@@ -179,7 +179,7 @@ export function mountReadingNotes(root, {path, lang, track = noop}) {
 
   identity.append(label(tr('邮箱','Email'),mail),label(tr('用户名','Name'),name),random,recover,help);
   const actions = node('div','reading-note-actions');
-  actions.append(submit,cancel);
+  actions.append(cancel,submit);
   form.append(quotation,label(tr('批注','Annotation'),body),identity,actions,formStatus);
   composer.append(form);
   overlay.append(composer,transmission);
