@@ -1,3 +1,4 @@
+import { mountReadingNotes } from './reading-notes.js';
 import { mountShareLink, chooseShareCard } from "./share-card.js";
 import { nextHomeArt } from "./home-art.js";
 import { manualPage, mountManual, shuviaProjectVisual, projectScreenshot } from './manual-view.js';
@@ -386,9 +387,7 @@ function relatedContent(a) {
   return `${projects.length ? `<section class="article-linked-work"><p class="eyebrow">${t("文中项目", "PROJECTS IN THIS ARTICLE")}</p>${projects.map(projectMini).join("")}</section>` : ""}${others.length ? `<section class="continue-reading"><div class="section-title"><h2>${t("接着读", "Keep reading")}</h2>${link(isRadar(a) ? "/radar" : "/blog", isRadar(a) ? t("全部往期", "All issues") : t("全部文章", "All writing") + " " + arrow)}</div>${others.slice(0, 2).map((item, i) => articleRow(item, i)).join("")}</section>` : ""}`;
 }
 function articleResponse(a) {
-  const email = data.contact?.email;
-  const mail = email ? `mailto:${email}?subject=${encodeURIComponent(t("关于：", "Re: ") + a.title)}&body=${encodeURIComponent(a.title + "\n" + a.url + "\n\n")}` : "";
-  return `<section class="article-response" aria-labelledby="response-title"><div><p class="eyebrow">${t("读完以后", "AFTER READING")}</p><h2 id="response-title">${t("你怎么看？", "What do you think?")}</h2><p>${t("不同意见、补充，或者一个新问题，都可以写给我。", "A different view, a correction, or a new question — write to me.")}</p>${email ? `<small>${esc(email)} · ${t("邮件仅发给我，不会公开。", "Your email comes to me, not a public thread.")}</small>` : ""}</div><div class="response-actions">${mail ? link(mail, t("邮件回应这篇文章", "Reply by email") + " " + arrow, "primary-link") : ""}${a.discussionUrl ? link(a.discussionUrl, t("参与公开讨论", "Join the discussion") + " " + arrow, "response-secondary") : ""}<button class="response-secondary" data-copy-url="${esc(a.url)}">${t("复制文章链接", "Copy article link")}</button>${rssLink(t("通过 RSS 订阅", "Subscribe with RSS"), "response-secondary")}<span class="copy-status" role="status"></span><input class="copy-fallback" aria-label="${t("文章公开链接", "Public article URL")}" value="${esc(a.url)}" readonly hidden></div></section>`;
+  return `<section class="article-response" aria-label="${t("分享和订阅", "Share and subscribe")}"><div class="response-actions">${a.discussionUrl ? link(a.discussionUrl, t("参与公开讨论", "Join the discussion") + " " + arrow, "response-secondary") : ""}<button class="response-secondary" data-copy-url="${esc(a.url)}">${t("复制文章链接", "Copy article link")}</button>${rssLink(t("通过 RSS 订阅", "Subscribe with RSS"), "response-secondary")}<span class="copy-status" role="status"></span><input class="copy-fallback" aria-label="${t("文章公开链接", "Public article URL")}" value="${esc(a.url)}" readonly hidden></div></section>`;
 }
 function articleDetail(id) {
   const a = data.articles.find((a) => a.id === id);
@@ -658,6 +657,7 @@ function render(scroll = true) {
   const manualCleanup = mountManual($("#main"));
   const scrollSceneCleanup = mountScrollScenes($("#main"));
   const readingCleanup = mountReadingDock($("#main"));
+  const notesCleanup = mountReadingNotes($("#main"), {path, lang:routeArticle?.lang || lang, track:analytics.annotation});
   const collectionCleanup = mountCollection($("#main"), lang);
   const demoCleanup = mountDemos($("#main"));
   const surfaceCleanup = mountSurfaceShine($("#main"), surfaceShineDelay);
@@ -677,6 +677,7 @@ function render(scroll = true) {
     manualCleanup();
     scrollSceneCleanup();
     readingCleanup();
+    notesCleanup();
     collectionCleanup();
     surfaceCleanup();
     peekCleanup();

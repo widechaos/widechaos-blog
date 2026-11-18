@@ -1,5 +1,5 @@
 const PUBLIC_HOSTS = new Set(['widechaos.cn', 'www.widechaos.cn']);
-const PAGE_PATH = /^\/(?:$|about\/?$|projects(?:\/[A-Za-z0-9_-]+)?\/?$|tools\/?$|now\/?$|radar\/?$|blog(?:\/[A-Za-z0-9_-]+)?\/?$)/;
+const PAGE_PATH = /^\/(?:$|about\/?$|projects(?:\/[A-Za-z0-9_-]+)?\/?$|tools\/?$|now\/?$|docs\/tianshu\/[A-Za-z0-9_-]+$|radar\/?$|blog(?:\/[A-Za-z0-9_-]+)?\/?$)/;
 export function publicPath(value) {
   try { const path = new URL(value, 'https://widechaos.cn').pathname; return PAGE_PATH.test(path) ? path : null; }
   catch { return null; }
@@ -13,7 +13,10 @@ export function createAnalytics() {
   let current = null, signature = '', clock = performance.now(), active = 0, lastInput = clock;
   const sent = new Set();
   let impressions = null, observerTimers = [];
-  const enabled = () => PUBLIC_HOSTS.has(location.hostname) && navigator.doNotTrack !== '1' && localStorage.getItem('wc-analytics-disabled') !== '1';
+  const enabled = () => {
+    try { return PUBLIC_HOSTS.has(location.hostname) && navigator.doNotTrack !== '1' && localStorage.getItem('wc-analytics-disabled') !== '1'; }
+    catch { return false; }
+  };
   function emit(event, properties = {}, context = current) {
     if (!context || !enabled()) return;
     let referrer=''; try {const ref=new URL(document.referrer); if(!PUBLIC_HOSTS.has(ref.hostname)) referrer=ref.hostname;} catch {}
@@ -48,6 +51,9 @@ export function createAnalytics() {
     if (action) emit(action,{destination: url.protocol === 'mailto:' ? 'email' : url.hostname, target: url.origin === location.origin ? publicPath(url.pathname) || '' : ''});
   }, {capture:true});
   return {
+    annotation(event) {
+      if (['annotation_view','annotation_start','annotation_submit'].includes(event)) emit(event);
+    },
     page(articles, language) {
       const path=publicPath(location.pathname);
       if (!path) {current=null; return;}

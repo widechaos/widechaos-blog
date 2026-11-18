@@ -54,3 +54,6 @@ Artist: https://nangesfg.artstation.com/ . Catalog: https://nangesfg.artstation.
 - `xYoEZ2.jpg` — China 2098：地木护航行动: https://nangesfg.artstation.com/projects/xYoEZ2
 
 Images are served locally during preview, without third-party image requests.
+
+The reading annotation controls use Lucide icon geometry under the ISC
+license. The notice is included in `static/reading-notes.js`.

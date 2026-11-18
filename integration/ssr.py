@@ -111,6 +111,9 @@ def render(root,path,data,lang='zh',share_card=None):
   labels=['科学家','文豪','艺术家','战术大师','侠','光'] if lang=='zh' else ['Scientist','Wordsmith','Artist','Master Tactician','Knight-errant','Light']
   badges=''.join(f'<a href="{E(i["url"] if not i["url"].startswith("assets/") else "/"+i["url"])}"><img src="{E(i["image"])}" alt="{E(i["title"])}" loading="lazy"><span>{E(i["title"])}</span></a>' for i in sorted(data['collection'],key=lambda item: {'learning':0,'community':1,'memento':2,'reading':3}.get(item['kind'],4)))
   main='<div class="page-wrap about-page"><h1 class="sr-only">'+E(title)+'</h1><p>Build. Break. Rebuild.</p><div class="about-identity"><div class="portrait-wrap"><img src="/static/avatar.png" alt="十方空烬 · Ember" width="480" height="480"><span>RENCHAO WU / EMBER</span></div><div class="identity-block"><div class="large-tags">'+''.join('<span>'+E(x)+'</span>' for x in labels)+'</div><p class="identity-signature">Per aspera ad astra.</p></div></div><div class="about-intro-copy">'+prose+'</div><a href="/now">'+('现在关注什么' if lang=='zh' else 'What I’m exploring now')+'</a><section class="collection" id="collection"><h2>'+('收藏与学习' if lang=='zh' else 'Collection')+'</h2><div class="badge-grid">'+badges+'</div></section></div>'
+  email=data.get('contact',{}).get('email')
+  if email:
+   main += '<p class="article-origin"><a href="mailto:'+E(email)+'">'+label('给我写信','Write to me')+'</a></p>'
  elif path=='/now':
   title='现在 · 十方空烬' if lang=='zh' else 'Now · Ember'
   main='<div class="page-wrap now-page"><h1>'+E(title)+'</h1><p class="now-statement">AI scientist,<br>full stack<span>.</span></p><div class="now-direction"><span>From research to product, end to end.</span><span>Build intelligence. Test everything.</span></div>'+listing([p for p in data['projects'] if p['id'] in ('router','heartiger')],'project')+'</div>'

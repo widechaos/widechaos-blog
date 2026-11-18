@@ -1,0 +1,100 @@
+/* Site reading annotations adopt the journal's existing palette and rail. */
+.reading-note-source, .reading-note-frame {
+  --note-rail-width: 206px;
+  --note-rail-gap: 24px;
+  --note-small: 13px;
+  --note-control: 44px;
+  --note-surface: var(--panel);
+}
+.reading-note-frame { position: relative; }
+.reading-note-toolbar { gap: 8px 16px; flex-wrap: wrap; }
+.reading-note-toolbar .reading-note-bar {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: end; gap: 8px; margin-inline-start: auto;
+}
+.manual-article .reading-note-bar { margin: 0 0 12px; }
+.reading-note-bar [hidden], .reading-note-frame [hidden] { display: none !important; }
+.reading-note-toggle {
+  display: inline-flex; gap: 6px; align-items: center; min-height: 36px; padding-inline: 12px;
+  border: 1px solid var(--line); border-radius: 2px 8px 2px 8px;
+  background: var(--panel); font-size: 13px; color: var(--ink);
+}
+.reading-note-toggle[aria-checked='true'] { color: var(--accent); }
+.reading-note-toggle:hover, .reading-note-fold:hover { border-color: var(--accent); }
+.reading-note-toggle svg, .reading-note-fold svg, .reading-note-signal svg { display: block; width: 16px; height: 16px; }
+.reading-note-load { color: var(--muted); font-size: 12px; }
+.reading-note-load:empty { display: none; }
+.reading-note-fold {
+  display: grid; place-items: center; width: var(--note-control); height: var(--note-control); margin: 0 0 0 auto;
+  color: var(--muted); border: 1px solid transparent; border-radius: 2px 8px 2px 8px;
+}
+.reading-note-fold[aria-expanded='false'] svg { rotate: 180deg; }
+.reading-note-source .reading-note-mark {
+  color: inherit; text-decoration: underline dashed var(--accent);
+  text-decoration-thickness: 1px; text-underline-offset: .26em;
+}
+.reading-note-source .reading-note-mark.is-current,
+.reading-note-source .reading-note-mark:hover { text-decoration-thickness: 2px; }
+.reading-note-group {
+  display: grid; gap: 14px; max-width: 100%; padding: 4px 0 4px 12px;
+  margin: -8px 0 18px; color: var(--ink); font-size: var(--note-small); line-height: 1.55; overflow-wrap: anywhere;
+}
+.reading-note-wide .reading-note-group {
+  position: absolute; inset: var(--reading-note-offset,0) auto auto calc(100% + var(--note-rail-gap));
+  width: var(--note-rail-width); max-width: none; padding: 0; margin: 0;
+}
+.reading-note-wide .reading-note-fold {
+  position: absolute; top: -44px;
+  left: calc(100% + var(--note-rail-gap) + var(--note-rail-width) - var(--note-control));
+}
+.reading-note-item { border-inline-start: 1px solid var(--line); padding-inline-start: 12px; }
+.reading-note-item.is-current { border-color: var(--accent); }
+.reading-note-item .reading-note-locate { display: block; width: fit-content; text-decoration: none; }
+.reading-note-item .reading-note-locate:hover, .reading-note-item.is-current .reading-note-locate { color: var(--accent); }
+.reading-note-item .reading-note-meta {
+  color: var(--muted); font-size: 12px; margin: 5px 0 1px; line-height: 1.5;
+}
+.reading-note-item .reading-note-message { font-size: inherit; margin: 0; line-height: 1.55; white-space: pre-wrap; }
+.reading-note-reply { margin-top: 8px; padding-inline-start: 10px; border-inline-start: 1px solid var(--line); }
+.reading-note-source .reading-note-compose {
+  display: grid; gap: 8px; margin: 0 0 22px; padding: 16px; background: var(--note-surface);
+  border-inline-start: 1px solid var(--line); font-size: 14px; color: var(--ink);
+}
+.reading-note-compose form, .reading-note-compose label, .reading-note-compose fieldset { display: grid; gap: 8px; min-width: 0; }
+.reading-note-compose .primary-link { justify-self: start; min-height: 44px; }
+.reading-note-compose fieldset {
+  grid-template-columns: repeat(2,minmax(0,1fr)); align-items: end; padding: 0; margin: 0; border: 0;
+}
+.reading-note-compose input, .reading-note-compose textarea {
+  border: 1px solid var(--line); border-radius: 2px; background: var(--bg); color: var(--ink);
+  padding: 8px; font: inherit; min-width: 0; width: 100%;
+}
+.reading-note-source .reading-note-quote {
+  padding: 0 0 0 10px; border-inline-start: 1px solid var(--accent); margin: 0; color: var(--muted);
+}
+.reading-note-source .reading-note-help { color: var(--muted); font-size: 13px; margin: 0; grid-column: 1 / -1; }
+.reading-note-help:empty { display: none; }
+.reading-note-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.reading-note-secondary { font-size: 13px; padding-inline: 8px; min-height: 36px; color: var(--muted); text-align: start; }
+.reading-note-secondary:hover { color: var(--accent); }
+.reading-note-transmission { display: flex; align-items: center; gap: 10px; margin: 0 0 16px; font-size: 13px; color: var(--muted); }
+.reading-note-signal { position: relative; width: 44px; height: 20px; flex: none; color: var(--accent); }
+.reading-note-signal::before { content: ''; position: absolute; inset: 50% 0 auto; border-top: 1px solid var(--line); }
+.reading-note-signal svg { position: absolute; inset: 2px 0 auto auto; background: var(--bg); }
+.reading-note-transmission.is-sending svg { animation: reading-note-send .62s cubic-bezier(.22,.75,.27,1) both; }
+.reading-note-item.is-received { animation: reading-note-arrive .32s ease-out .28s both; }
+@keyframes reading-note-send { from { translate: -28px; opacity: .35; } to { translate: 0; opacity: 1; } }
+@keyframes reading-note-arrive { from { translate: -6px; opacity: .45; } to { translate: 0; opacity: 1; } }
+@media (prefers-reduced-motion:reduce) {
+  .reading-note-transmission.is-sending svg, .reading-note-item.is-received { animation: none; }
+}
+[data-motion='off'] :is(.reading-note-transmission.is-sending svg,.reading-note-item.is-received) { animation: none; }
+.reading-note-source :is(a,button,input,textarea):focus-visible, .reading-note-toggle:focus-visible { outline: 2px solid #afd4e6; outline-offset: 3px; }
+.reading-verify { max-width: 770px; }
+.reading-verify h1 { margin-block: 0 16px; }
+.reading-verify :is(p,a) { color: var(--muted); }
+.reading-verify button { margin-block: 16px; min-height: 44px; }
+@media(min-width: 1200px) { .manual-article.reading-note-source { max-width: calc(100% - 215px); } }
+@media(max-width: 660px) {
+  .reading-note-compose fieldset { grid-template-columns: minmax(0,1fr); }
+  .reading-note-toggle, .reading-note-secondary { min-height: 44px; }
+}
