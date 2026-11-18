@@ -99,7 +99,11 @@ export function mountReadingNotes(root, {path, lang, track = noop}) {
   const siteHeader = document.getElementById('header');
   if (!toolbarParent) return noop;
   const tr = (zh,en) => lang === 'en' ? en : zh;
-  const blocks = [...source.querySelectorAll('p,li')].filter(el => !el.closest('nav,pre,figure,table') && !el.querySelector('p,li'));
+  const inReadingText = el => !el.closest('nav,pre,figure,table');
+  const paragraphs = [...source.querySelectorAll('p,li')].filter(el => inReadingText(el) && !el.querySelector('p,li'));
+  const headings = [...source.querySelectorAll('h1,h2,h3,h4,h5,h6')].filter(inReadingText);
+  // Keep the existing paragraph and list offsets stable for saved annotations.
+  const blocks = [...paragraphs, ...headings];
   const original = blocks.map(block => fragmentText(block).map(part => part.data).join(''));
   const context = {path,lang};
   const abort = new AbortController();
@@ -239,7 +243,7 @@ export function mountReadingNotes(root, {path, lang, track = noop}) {
           if (!embedded) {
             marker.href='#note-'+entries[0].id;
             marker.draggable=false;
-            marker.setAttribute('aria-label',text+' · '+tr('查看侧注','Read notes'));
+            marker.title=tr('查看侧注','Read notes');
           }
           marker.classList.toggle('is-current',entries.some(entry=>selected.includes(entry.id)));
           return marker;
@@ -313,7 +317,8 @@ export function mountReadingNotes(root, {path, lang, track = noop}) {
       placed.get(index).push({note,offset,end:offset+note.anchor.quote.length});
     }
     markBlocks(placed);
-    for (const [index, matches] of [...placed].sort((a,b)=>a[0]-b[0])) {
+    const documentOrder = ([a],[b]) => blocks[a].compareDocumentPosition(blocks[b]) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1;
+    for (const [index, matches] of [...placed].sort(documentOrder)) {
       const element=node('aside','reading-note-group');
       element.id='reading-group-'+index;
       element.setAttribute(UI,'');
