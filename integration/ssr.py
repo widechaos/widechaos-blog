@@ -136,7 +136,10 @@ def render(root,path,data,lang='zh',share_card=None):
  card=''.join(f'<meta property="{k}" content="{E(v)}">' for k,v in [('og:site_name','十方空烬 · Ember'),('og:type',kind),('og:title',title),('og:description',summary),('og:url',share_url),('og:image',image),('og:image:width','1200'),('og:image:height','630'),('og:locale','en_US' if lang=='en' else 'zh_CN')])+f'<meta name="twitter:card" content="summary_large_image"><meta name="twitter:image" content="{E(image)}">'
  # The browser renders from this copy instead of waiting for a second request.
  inline='<script id="site-data" type="application/json">'+json.dumps(data,ensure_ascii=False,separators=(',',':')).replace('<','\\u003c')+'</script>'
- page=page.replace('</head>',f'<link rel="canonical" href="{E(canonical)}">{alternates}{share_meta}{card}{inline}</head>')
+ page=page.replace('</head>',f'<link rel="canonical" href="{E(canonical)}">{alternates}{share_meta}{card}{inline if kind!="article" else ""}</head>')
  page=page.replace('lang="zh-CN"',f'lang="{lang}"',1).replace('<header id="header"></header>',f'<header id="header">{nav}</header>').replace('<main id="main" tabindex="-1"></main>',f'<main id="main" tabindex="-1">{main}</main>').replace('<footer id="footer"></footer>','<footer id="footer">© 十方空烬 · Ember <a href="/blog/rss.xml">RSS</a></footer>')
  page=re.sub(r'<noscript\b.*?</noscript\s*>','',page,flags=re.S)
+ if kind=='article':
+  # Keep a slow hydration download from hiding already-rendered article text.
+  page=page.replace(' class="booting"','',1).replace('</body>',inline+'</body>')
  return page,status
