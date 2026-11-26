@@ -1,12 +1,44 @@
 import importlib.util,io,json,os,shutil,sys,tarfile,tempfile,unittest
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1];sys.path.insert(0,str(ROOT/'scripts'))
-from deploy_remote import allowed,unpack,restore,require_capacity,preflight,CapacityDeferred,wait_for_capacity
+from deploy_remote import allowed,unpack,restore,require_capacity,preflight,CapacityDeferred,wait_for_capacity,recycle_site_for_preflight,apply_release
 from unittest.mock import patch
 from check_source import findings
 from deploy import inventory_files
 from subprocess import CompletedProcess
 class ReleaseSafety(unittest.TestCase):
+ def test_recycling_keeps_both_preflights_and_original_capacity_gates(self):
+  with tempfile.TemporaryDirectory() as folder:
+   root=Path(folder);control=root/'control';control.mkdir();(root/'content/blog').mkdir(parents=True);(root/'content/site-catalog.json').write_text('{}')
+   events=[]
+   with patch('deploy_remote.wait_for_capacity',side_effect=lambda:events.append('capacity')),patch('deploy_remote.recycle_site_for_preflight',side_effect=lambda c:events.append('recycle')),patch('deploy_remote.preflight',side_effect=lambda c,s:events.append(s)),patch('deploy_remote.command'),patch('deploy_remote.verify',return_value={}):
+    result=apply_release(root,'web',control,None,control/'state.json',{'apply':True,'recycle_site_before_preflight':True,'private_probes':[{}]}, {},{'revision':'a'*40})
+   self.assertEqual(events[:3],['capacity','recycle','capacity'])
+   self.assertEqual(len(events),5)
+   self.assertIn('assert callable(blog._parse)',events[3]);self.assertIn('page,status=render',events[4])
+   self.assertTrue(result['siteRecycledBeforePreflight'])
+  with patch('deploy_remote.wait_for_capacity',side_effect=CapacityDeferred('deferred')),patch('deploy_remote.recycle_site_for_preflight') as recycle:
+   with self.assertRaises(CapacityDeferred):apply_release(Path('/unused'),'web',None,None,None,{'apply':True,'recycle_site_before_preflight':True},{},{})
+   recycle.assert_not_called()
+ def test_recycle_checks_role_before_restarting_only_site(self):
+  limits={'memory.high':'135892992','memory.swap.max':'0'}
+  with patch('deploy_remote.cgroup_limits',return_value=limits),patch('deploy_remote.command',side_effect=['site\n','web\n']) as run:
+   recycle_site_for_preflight('web')
+   self.assertEqual(run.call_args_list[-1].args,('docker','restart','web'))
+  for role in ('quant','lifehub','owner','<no value>',''):
+   with self.subTest(role=role),patch('deploy_remote.command',return_value=role) as run:
+    with self.assertRaisesRegex(ValueError,'site role'):recycle_site_for_preflight('web')
+    self.assertEqual(run.call_count,1)
+ def test_recycle_waits_for_exact_original_policy_and_fails_closed(self):
+  limits={'memory.high':'135892992','memory.swap.max':'0','cpu.max':'20000 100000'}
+  transient={**limits,'memory.high':'max'}
+  with patch('deploy_remote.command',return_value='site'),patch('deploy_remote.cgroup_limits',side_effect=[limits,transient,limits]),patch('deploy_remote.time.sleep') as sleep:
+   recycle_site_for_preflight('web');sleep.assert_called_once_with(2)
+  with patch('deploy_remote.command',return_value='site'),patch('deploy_remote.cgroup_limits',side_effect=[limits,transient]),patch('deploy_remote.time.monotonic',side_effect=[0,75]):
+   with self.assertRaisesRegex(RuntimeError,'preflight not started'):recycle_site_for_preflight('web')
+  with patch('deploy_remote.command',return_value='site') as run,patch('deploy_remote.cgroup_limits',return_value=transient):
+   with self.assertRaisesRegex(ValueError,'not ready'):recycle_site_for_preflight('web')
+   self.assertEqual(run.call_count,1)
  def test_unavailable_inventory_stops_before_delta_release(self):
   for code,output in [(255,''),(0,''),(0,'not json'),(0,'{}'),(0,'{"files":[]}')]:
    with self.subTest(code=code,output=output):

@@ -72,7 +72,7 @@ def restore(root,backup,files):
 
 def command(*args):
  r=subprocess.run(args,capture_output=True,text=True,timeout=90)
- if r.returncode:raise RuntimeError('Command failed: '+args[0]+' '+r.stderr[-600:])
+ if r.returncode:raise RuntimeError('Command failed (exit '+str(r.returncode)+'): '+args[0]+' '+r.stderr[-600:])
  return r.stdout
 
 class CapacityDeferred(RuntimeError):
@@ -106,6 +106,26 @@ def wait_for_capacity():
 def preflight(container,source,seconds=45):
  # Enforce the deadline inside the container; killing the Docker client alone leaves its child running.
  return command('docker','exec',container,'timeout','--signal=TERM','--kill-after=5',str(seconds),'python','-c',source)
+
+def cgroup_limits(container):
+ source='import json; from pathlib import Path; print(json.dumps({n:Path("/sys/fs/cgroup",n).read_text().strip() for n in ("memory.high","memory.max","memory.swap.max","cpu.max","io.max","pids.max")}))'
+ return json.loads(command('docker','exec',container,'python','-c',source))
+
+def recycle_site_for_preflight(container):
+ # The serving worker and the checker share one budget. Release retained worker
+ # memory, without changing that budget or moving the checker elsewhere.
+ role=command('docker','inspect','--format','{{index .Config.Labels "com.docker.compose.service"}}',container).strip()
+ if role!='site':raise ValueError('Preflight recycling is restricted to the Compose site role')
+ limits=cgroup_limits(container)
+ if limits['memory.high']=='max' or limits['memory.swap.max']!='0':raise ValueError('Original site resource policy is not ready')
+ command('docker','restart',container)
+ # Docker resets transient cgroup settings. The existing policy timer restores
+ # them; no checker may use the temporary unbounded soft-limit window.
+ deadline=time.monotonic()+75
+ while cgroup_limits(container)!=limits:
+  remaining=deadline-time.monotonic()
+  if remaining<=0:raise RuntimeError('Original site resource policy was not restored; preflight not started')
+  time.sleep(min(2,remaining))
 
 def verify(probes):
  for attempt in range(40):
@@ -166,8 +186,16 @@ def apply_release(root,container,control,state,state_path,payload,files,manifest
  changes=[name for name,value in files.items() if digest(root/name)!=body_digest(value)]
  if not payload['apply']:return {'operation':'plan','revision':manifest['revision'],'changes':changes,'liveContent':'preserved'}
  wait_for_capacity()
+ recycled=payload.get('recycle_site_before_preflight',False)
+ if recycled:
+  recycle_site_for_preflight(container)
+  wait_for_capacity()
  # The host's existing framework remains intact; only this small dependency is needed.
- preflight(container,'import bleach,markdown,yaml; from app.routes import blog; assert callable(blog._parse)')
+ try:
+  preflight(container,'import bleach,markdown,yaml; from app.routes import blog; assert callable(blog._parse)')
+ except Exception:
+  if recycled:verify(payload['private_probes'])
+  raise
  backup=control/('before-'+str(time.time_ns()));backup.mkdir(mode=0o700)
  for name in changes:
   target=root/name
@@ -187,7 +215,7 @@ def apply_release(root,container,control,state,state_path,payload,files,manifest
   if body is not None:atomic(release/'release.tar.gz',body)
   atomic(release/'release.json',json.dumps(manifest,indent=2).encode())
   atomic(state_path,json.dumps({**manifest,'backup':backup.name},indent=2).encode())
-  return {'ok':True,'operation':'deploy','revision':manifest['revision'],'changedFiles':len(changes),**health}
+  return {'ok':True,'operation':'deploy','revision':manifest['revision'],'changedFiles':len(changes),'siteRecycledBeforePreflight':recycled,**health}
  except Exception:
   restore(root,backup,changes);command('docker','restart',container);verify(payload['private_probes']);raise
 

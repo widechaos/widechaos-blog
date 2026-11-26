@@ -22,7 +22,9 @@ def main():
  p=argparse.ArgumentParser();p.add_argument('--pull-source',action='store_true',help='Fetch the verified public commit on the host instead of transferring a large archive');p.add_argument('--config',type=Path,required=True,help='Private local deployment settings, outside the repository');p.add_argument('--ref',default='origin/main');p.add_argument('--target',help='Existing SSH alias for the content host')
  p.add_argument('--bridge',help='Existing SSH host/alias for the management machine');p.add_argument('--bridge-port',type=int,default=22)
  p.add_argument('--root');p.add_argument('--container');p.add_argument('--timeout',type=int,default=600)
+ p.add_argument('--recycle-site-before-preflight',action='store_true',help='Restart only the verified Compose site role before the unchanged preflights to release accumulated worker memory; requires --apply')
  group=p.add_mutually_exclusive_group();group.add_argument('--apply',action='store_true');group.add_argument('--rollback',action='store_true');a=p.parse_args()
+ if a.recycle_site_before_preflight and not a.apply:p.error('--recycle-site-before-preflight requires --apply')
  config_path=a.config.resolve()
  if config_path==ROOT or ROOT in config_path.parents:p.error('Keep deployment settings outside this public repository')
  config=json.loads(config_path.read_text())
@@ -33,7 +35,7 @@ def main():
  if not a.root.startswith('/'):p.error('--root must be absolute')
  if git('status','--porcelain').strip():raise SystemExit('Commit or move local changes before deployment')
  git('fetch','origin','main')
- payload={'root':a.root,'container':a.container,'operation':'rollback' if a.rollback else 'deploy','apply':a.apply,'private_probes':config.get('private_probes',[])}
+ payload={'root':a.root,'container':a.container,'operation':'rollback' if a.rollback else 'deploy','apply':a.apply,'private_probes':config.get('private_probes',[]),'recycle_site_before_preflight':a.recycle_site_before_preflight}
  if not a.rollback:
   archive,manifest=release_bytes(a.ref)
   # Only commits reachable from main, with successful source checks, can go live.
