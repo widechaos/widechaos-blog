@@ -75,7 +75,7 @@ python3 scripts/deploy.py --config /private/path/site-deploy.json --apply
 
 网站 worker 长期运行后保留的堆内存，与 `docker exec` 预检进程共用原容器额度。若原导入检查超时且内存软阈值事件增长，先核实退出码与资源事件。确认这一竞争后，可在原 apply 增加 `--recycle-site-before-preflight`：在已验证清单、取得锁、校验源码摘要和容量以后，只重启 Compose 标签为 `site` 的原网站容器，释放 worker 累积内存，等原守护恢复与重启前完全相同的 memory.high、硬限额、禁 swap、CPU、IO 和进程上限，再在同容器执行完全相同的两个预检。Docker 重启后的临时软阈值空窗不能用于验证；恢复等待超时则失败，不启动检查。新代码仍在原快照和回退保护内写入。
 
-该选项会额外短暂中断公开网站，不会重启量化或其它业务；默认不启用，不能用于 plan 或 rollback。它不延长 45 秒预检、不调额度、软阈值、CPU/IO 或 swap，不停止网站后借其它容器验证，不省略渲染和原鉴权验活。仍有超时就失败，不能把回收动作本身记为发布成功。写文件前失败时核验原网站健康，写文件后失败沿原回退执行。
+该选项会额外短暂中断公开网站，不会重启量化或其它业务；默认不启用，不能用于 plan 或 rollback。它不延长 45 秒预检、不调额度、软阈值、CPU/IO 或 swap，不停止网站后借其它容器验证，不省略渲染和原鉴权验活。仍有超时就失败，不能把回收动作本身记为发布成功。写文件前失败时核验原网站健康，写文件后失败沿原回退执行。该模式下最终重启与回退重启同样等待原资源值恢复，再进行验活。
 
 ```sh
 python3 scripts/deploy.py --config /private/path/site-deploy.json --rollback

@@ -11,10 +11,10 @@ class ReleaseSafety(unittest.TestCase):
   with tempfile.TemporaryDirectory() as folder:
    root=Path(folder);control=root/'control';control.mkdir();(root/'content/blog').mkdir(parents=True);(root/'content/site-catalog.json').write_text('{}')
    events=[]
-   with patch('deploy_remote.wait_for_capacity',side_effect=lambda:events.append('capacity')),patch('deploy_remote.recycle_site_for_preflight',side_effect=lambda c:events.append('recycle')),patch('deploy_remote.preflight',side_effect=lambda c,s:events.append(s)),patch('deploy_remote.command'),patch('deploy_remote.verify',return_value={}):
+   with patch('deploy_remote.wait_for_capacity',side_effect=lambda:events.append('capacity')),patch('deploy_remote.recycle_site_for_preflight',side_effect=lambda c:(events.append('recycle') or {'memory.high':'135892992'})),patch('deploy_remote.wait_for_original_policy',side_effect=lambda c,l:events.append('policy')),patch('deploy_remote.preflight',side_effect=lambda c,s:events.append(s)),patch('deploy_remote.command'),patch('deploy_remote.verify',return_value={}):
     result=apply_release(root,'web',control,None,control/'state.json',{'apply':True,'recycle_site_before_preflight':True,'private_probes':[{}]}, {},{'revision':'a'*40})
    self.assertEqual(events[:3],['capacity','recycle','capacity'])
-   self.assertEqual(len(events),5)
+   self.assertEqual(len(events),6);self.assertEqual(events[-1],'policy')
    self.assertIn('assert callable(blog._parse)',events[3]);self.assertIn('page,status=render',events[4])
    self.assertTrue(result['siteRecycledBeforePreflight'])
   with patch('deploy_remote.wait_for_capacity',side_effect=CapacityDeferred('deferred')),patch('deploy_remote.recycle_site_for_preflight') as recycle:
@@ -35,7 +35,7 @@ class ReleaseSafety(unittest.TestCase):
   with patch('deploy_remote.command',return_value='site'),patch('deploy_remote.cgroup_limits',side_effect=[limits,transient,limits]),patch('deploy_remote.time.sleep') as sleep:
    recycle_site_for_preflight('web');sleep.assert_called_once_with(2)
   with patch('deploy_remote.command',return_value='site'),patch('deploy_remote.cgroup_limits',side_effect=[limits,transient]),patch('deploy_remote.time.monotonic',side_effect=[0,75]):
-   with self.assertRaisesRegex(RuntimeError,'preflight not started'):recycle_site_for_preflight('web')
+   with self.assertRaisesRegex(RuntimeError,'validation not started'):recycle_site_for_preflight('web')
   with patch('deploy_remote.command',return_value='site') as run,patch('deploy_remote.cgroup_limits',return_value=transient):
    with self.assertRaisesRegex(ValueError,'not ready'):recycle_site_for_preflight('web')
    self.assertEqual(run.call_count,1)

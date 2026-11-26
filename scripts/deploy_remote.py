@@ -111,6 +111,13 @@ def cgroup_limits(container):
  source='import json; from pathlib import Path; print(json.dumps({n:Path("/sys/fs/cgroup",n).read_text().strip() for n in ("memory.high","memory.max","memory.swap.max","cpu.max","io.max","pids.max")}))'
  return json.loads(command('docker','exec',container,'python','-c',source))
 
+def wait_for_original_policy(container,limits):
+ deadline=time.monotonic()+75
+ while cgroup_limits(container)!=limits:
+  remaining=deadline-time.monotonic()
+  if remaining<=0:raise RuntimeError('Original site resource policy was not restored; validation not started')
+  time.sleep(min(2,remaining))
+
 def recycle_site_for_preflight(container):
  # The serving worker and the checker share one budget. Release retained worker
  # memory, without changing that budget or moving the checker elsewhere.
@@ -121,11 +128,8 @@ def recycle_site_for_preflight(container):
  command('docker','restart',container)
  # Docker resets transient cgroup settings. The existing policy timer restores
  # them; no checker may use the temporary unbounded soft-limit window.
- deadline=time.monotonic()+75
- while cgroup_limits(container)!=limits:
-  remaining=deadline-time.monotonic()
-  if remaining<=0:raise RuntimeError('Original site resource policy was not restored; preflight not started')
-  time.sleep(min(2,remaining))
+ wait_for_original_policy(container,limits)
+ return limits
 
 def verify(probes):
  for attempt in range(40):
@@ -187,8 +191,9 @@ def apply_release(root,container,control,state,state_path,payload,files,manifest
  if not payload['apply']:return {'operation':'plan','revision':manifest['revision'],'changes':changes,'liveContent':'preserved'}
  wait_for_capacity()
  recycled=payload.get('recycle_site_before_preflight',False)
+ original_limits=None
  if recycled:
-  recycle_site_for_preflight(container)
+  original_limits=recycle_site_for_preflight(container)
   wait_for_capacity()
  # The host's existing framework remains intact; only this small dependency is needed.
  try:
@@ -210,14 +215,18 @@ def apply_release(root,container,control,state,state_path,payload,files,manifest
   # This runs with production's Python and original Markdown renderer before restart.
   preflight(container,'from app.site_content.content_service import ContentService; from app.site_content.ssr import render; from app.routes import blog; s=ContentService("content/site-catalog.json",blog_dir="content/blog",render=blog._parse); d=s.bundle(); page,status=render("app/personal_site","/",d); assert status==200; assert isinstance(d["articles"],list)')
   if any(digest(root/name)!=sha for name,sha in before_content.items()):raise ValueError('Content changed during deployment; inspect concurrent publishing')
-  command('docker','restart',container);health=verify(payload['private_probes'])
+  command('docker','restart',container)
+  if original_limits:wait_for_original_policy(container,original_limits)
+  health=verify(payload['private_probes'])
   release=control/manifest['revision'];release.mkdir(exist_ok=True,mode=0o700)
   if body is not None:atomic(release/'release.tar.gz',body)
   atomic(release/'release.json',json.dumps(manifest,indent=2).encode())
   atomic(state_path,json.dumps({**manifest,'backup':backup.name},indent=2).encode())
   return {'ok':True,'operation':'deploy','revision':manifest['revision'],'changedFiles':len(changes),'siteRecycledBeforePreflight':recycled,**health}
  except Exception:
-  restore(root,backup,changes);command('docker','restart',container);verify(payload['private_probes']);raise
+  restore(root,backup,changes);command('docker','restart',container)
+  if original_limits:wait_for_original_policy(container,original_limits)
+  verify(payload['private_probes']);raise
 
 def run(payload):
  root=Path(payload['root']).resolve();container=payload['container']
